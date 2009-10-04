@@ -7,6 +7,15 @@
 (function(){
 
 /*
+1. Convert SVG to Canvas via standard canvas API informed by positions and dimensions 
+   available from SVG? Note Canvas has a measureText() method. 
+   http://uupaa-js-spinoff.googlecode.com/svn/trunk/uupaa-excanvas.js/demo/8_2_canvas_measureText.html
+2. Do SVG and the have a button to export to Canvas, which will iterate over all of the
+   elements in the SVG document and draw them onto a corresponding canvas element.
+
+
+ 
+ 
 NOTE: Must be valid JSON, otherwise someone could inject some bad JavaScript in a bad URL
 QUESTION: Can we do Packer without the self-extraction code included? We can do a JavaScript implementation of GZip and then store result in hash after Base64
 {
