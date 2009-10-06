@@ -1,16 +1,150 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset=utf8>
 		<title>SVG Tree Drawer Example</title>
-		<script src="svgweb/src/svg.js" data-path="svgweb/src"></script>
+		<script src="svgweb/src/svg-uncompressed.js" data-path="svgweb/src"></script>
 		<script src="svg-tree-drawer.js"></script>
+		<script src="example.js"></script>
+		<style>
+		object {
+			border:solid 1px red;
+		}
+		</style>
 	</head>
 	<body>
 		<h1>SVG Tree Drawer Example</h1>
 		
-		<div id="tree">
-			<p><em>If your browser supports SVG, it will appear below once the page loads.</em></p>
-			<script type="image/svg+xml">
+		<div id="treeContainer">
+			<p><em>Please wait…</em></p>
+		</div>
+		
+		<script>
+		//obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+		
+		
+		var data = {
+			label:'S',
+			children:[
+				{
+					label:'NP',
+					children:[
+						{
+							label:'D',
+							children:[
+								{
+									label:'The'
+								}
+							]
+						},
+						{
+							label:'NOM',
+							children:[
+								{
+									label:'N',
+									children:[
+										{
+											label:'boy'
+										}
+									]
+								}
+							],
+							collapsed:false
+						}
+					],
+					collapsed:true
+				},
+				{
+					label:'VP',
+					children:[
+						{
+							label:'V',
+							children:[
+								{
+									label:"plays"
+								}
+							],
+							collapsed:false
+						}
+					],
+					collapsed:true
+				}
+			],
+			collapsed:false
+		};
+		
+		/**
+		 * Get tree data that has been saved in location.hash
+		 */
+		function parseHash(){
+			var hash = window.location.hash.substr(1);
+			if(hash){
+				try {
+					var toParse = /*lzw_decode*/(decode64(hash));
+					var hashdata = JSON.parse(toParse);
+					if(hashdata && hashdata.label){
+						return new TreeDrawer.Node(hashdata);
+					}
+				}
+				catch(e){
+					console.warn(toParse)
+				}
+			}
+			return null;
+		}
+		
+		
+		var tree;
+		window.addEventListener('load', function(){
+			var container = document.getElementById('treeContainer');
+			try {
+				container.innerHTML = '';
+				
+				//Get the saved tree data from the location.hash
+				var hashData = parseHash();
+				if(hashData)
+					data = hashData;
+				
+				//Create the SVG tree
+				tree = new TreeDrawer(container, data);
+				
+				//console.info(encode64(lzw_encode(JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root))).length);
+			}
+			catch(e){
+				console.error(e)
+				container.innerHTML = '<em style="color:red">Unable to initialize SVG Tree: ' + e.message + '.</em>';
+			}
+			
+			
+				
+			//Watch for change in location.hash and
+			function monitorBookmark(e){
+				if(e && e.type)
+					clearInterval(interval);
+				var data = parseHash();
+				if(data)
+					tree.populate(data);
+			}
+			window.addEventListener('hashchange', monitorBookmark, false);
+			var prevHash = location.hash;
+			var interval = setInterval(function(){
+				if(location.hash != prevHash){
+					prevHash = location.hash;
+					monitorBookmark();
+				}
+			}, 100)
+			
+		}, false);
+		
+		function bookmarkTree(){
+			window.location.hash = encode64(/*lzw_encode*/(JSON.stringify(tree.root)))
+		}
+		
+		//console.info(JSON.stringify(data))
+		</script>
+		<button type="button" onclick="bookmarkTree()">Save Tree to location hash</button>
+		
+		<!--
 				<svg
 				   xmlns="http://www.w3.org/2000/svg"
 				   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -27,10 +161,7 @@
 							  stroke="yellow" stroke-width="8"/>
 					
 				</svg>
-			</script>
-		</div>
-		
-		
+		-->
 		<hr>
 		<footer>
 			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
