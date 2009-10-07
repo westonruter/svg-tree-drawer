@@ -49,12 +49,12 @@ T.prototype.height = 0;
 
 //These two following should be set with CSS
 T.prototype.branchStyle = {
-	height:20
+	height:25
 };
 T.prototype.labelStyle = {
-	fontSize:30,
+	fontSize:25,
 	padding:{
-		top:5,
+		top:10,
 		left:10,
 		right:10,
 		bottom:10
@@ -109,7 +109,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Make label
 	var label = document.createElementNS(svgns, 'text');
 	label.appendChild(document.createTextNode(treeNode.label, true));
-	label.setAttribute('style', 'text-anchor:middle; font-size:' + tree.labelStyle.fontSize + 'px;'); //Move to stylesheet?
+	label.setAttribute('style', 'text-anchor:middle; dominant-baseline:middle; font-size:' + tree.labelStyle.fontSize + 'px;'); //Move to stylesheet?
 	
 	//Make container (not really necessary, but aids readibility of DOM)
 	var g = document.createElementNS(svgns, 'g');
@@ -152,7 +152,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	
 	
 	//Position label
-	var y = offsetTop + tree.labelStyle.padding.top + tree.labelStyle.fontSize;
+	var y = offsetTop + tree.labelStyle.padding.top + tree.labelStyle.fontSize/2;
 	var x;
 	if(childrenInfo.length){
 		var firstChild = parseFloat(childrenInfo[0].label.getAttribute('x'));
@@ -175,12 +175,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
 		childrenInfo[i].branch.setAttribute('x1', x + 'px');
-		childrenInfo[i].branch.setAttribute('y1', (y + tree.labelStyle.padding.bottom) + 'px');
+		childrenInfo[i].branch.setAttribute('y1', (y + tree.labelStyle.fontSize/2 + tree.labelStyle.padding.bottom) + 'px');
 	}
 
 	
 	//Update the dimensions of the entire "canvas"
-	tree.height = Math.max(y + tree.labelStyle.padding.bottom, tree.height);
+	tree.height = Math.max(y + tree.labelStyle.fontSize/2 + tree.labelStyle.padding.bottom, tree.height);
 	tree.width = Math.max(offsetLeft + childrenWidth, tree.width);	
 	
 	return {
