@@ -15,10 +15,12 @@ if(typeof svgweb == 'undefined')
  * Class that is associated with a given SVG element and contains methods and
  * properties that relate to the tree as a whole.
  */
-var T = window.TreeDrawer = function(svgContainerElement, treeData, options){
-	if(!options)
-		options = {};
-	
+var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, branchStyle){
+	if(labelStyle)
+		this.labelStyle = labelStyle;
+	if(branchStyle)
+		this.branchStyle = branchStyle;
+		
 	if(typeof svgContainerElement == 'string')
 		svgContainerElement = document.getElementById(svgContainerElement);
 	if(!svgContainerElement || !svgContainerElement.nodeType == 1)
@@ -42,23 +44,25 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, options){
 	svgweb.appendChild(obj, svgContainerElement);
 };
 
-T.prototype.svgObject = null;
-T.prototype.collapsed = false;
-T.prototype.width = 0;
-T.prototype.height = 0;
+T.prototype.svgObject = null; //readonly
+T.prototype.collapsed = false; //readonly
+T.prototype.width = 0; //readonly
+T.prototype.height = 0; //readonly
 
-//These two following should be set with CSS
+//Styles
 T.prototype.branchStyle = {
-	height:25
+	height:25,
+	strokeWidth:2,
+	stroke:'black'
 };
 T.prototype.labelStyle = {
 	fontSize:25,
-	padding:{
-		top:10,
-		left:10,
-		right:10,
-		bottom:10
-	}
+	dominantBaseline:'middle',
+	textAnchor:'middle',
+	paddingTop:10,
+	paddingLeft:10,
+	paddingBottom:10,
+	paddingRight:10
 };
 
 
@@ -79,20 +83,66 @@ T.prototype.empty = function empty(){
 			i--;
 		}
 	}
-	this.width = 0;
-	this.height = 0;
+	this.svgObject.width = this.width = 0;
+	this.svgObject.height = this.height = 0;
 }
+
+/**
+ * Place to store values that are computed by T.prototype.draw and then referred
+ * to by _draw(). The problem 
+ */
+var temp = {};
 
 
 /**
  * Renders the tree onto the SVG canvas, resizing the canvas as necessary
  * This function does the heavy lifting of the code
+ * @see _drawNode()
  */
 T.prototype.draw = function draw(){
 	this.empty();
-	var svg = this.svgObject.contentDocument.documentElement;
 	
-	var info = _drawNode(this, svg, this.root, 0, 0, 0);
+	//Get the style that will be applied to all of the labels
+	var cssText = '';
+	for(var name in tree.labelStyle){
+		if(/^(padding)/.test(name)) //custom property for Tree Drawer
+			continue;
+		var value = tree.labelStyle[name];
+		
+		//label.style[name] = typeof value == 'number' ? value+'px' : value;
+		//Firefox 2 doesn't like SVG-specific camel-cased propery names, so we'll convert them and append them to the cssText
+		cssText += name.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + value;
+		if(typeof value == 'number')
+			cssText += 'px';
+		cssText += ';';
+	}
+	temp.labelCSSText = cssText;
+	
+	//Get the style that will be applied to all of the branches
+	for(var name in tree.branchStyle){
+		if(/^(height)/.test(name)) //custom property for Tree Drawer
+			continue;
+		var value = tree.branchStyle[name];
+		
+		//label.style[name] = typeof value == 'number' ? value+'px' : value;
+		//Firefox 2 doesn't like SVG-specific camel-cased propery names, so we'll convert them and append them to the cssText
+		cssText += name.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + value;
+		if(typeof value == 'number')
+			cssText += 'px';
+		cssText += ';';
+	}
+	temp.branchCSSText = cssText;
+	
+	temp.paddingLeft = parseFloat(tree.labelStyle.paddingLeft || tree.labelStyle.padding);
+	temp.paddingRight = parseFloat(tree.labelStyle.paddingRight || tree.labelStyle.padding);
+	temp.paddingTop = parseFloat(tree.labelStyle.paddingTop || tree.labelStyle.padding);
+	temp.paddingBottom = parseFloat(tree.labelStyle.paddingBottom || tree.labelStyle.padding);
+	temp.fontSize = parseFloat(tree.labelStyle.fontSize);
+	temp.branchHeight = parseFloat(tree.branchStyle.height);
+	//note: 'temp' is available via closure and is used by _drawNode()
+	
+	var info = _drawNode(this, this.svgObject.contentDocument.documentElement, this.root);
+	temp = {}; //no longer needed, so reset
 	this.svgObject.width = this.width;
 	this.svgObject.height = this.height;
 };
@@ -109,7 +159,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Make label
 	var label = document.createElementNS(svgns, 'text');
 	label.appendChild(document.createTextNode(treeNode.label, true));
-	label.setAttribute('style', 'text-anchor:middle; dominant-baseline:middle; font-size:' + tree.labelStyle.fontSize + 'px;'); //Move to stylesheet?
+	label.style.cssText = temp.labelCSSText;
 	
 	//Make container (not really necessary, but aids readibility of DOM)
 	var g = document.createElementNS(svgns, 'g');
@@ -121,19 +171,13 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	var branch;
 	if(parentElement.nodeName != 'svg'){
 		branch = document.createElementNS(svgns, 'line');
-		branch.setAttribute('style', 'stroke:black; stroke-width:2px;');
+		branch.style.cssText = temp.branchCSSText;
 		g.appendChild(branch);
 	}
 	
 	//Calculate width of this label
 	var labelWidth = label.getComputedTextLength();
-	labelWidth += tree.labelStyle.padding.left + tree.labelStyle.padding.right;
-	
-	//var rect = label.getBoundingClientRect();
-	//console.info(rect.height)
-	//console.info(label)
-	//window.label = label; //TEMP
-	//console.info(rect)
+	labelWidth += temp.paddingLeft + temp.paddingRight;
 	
 	//Process each of the children
 	var childrenWidth = 0;
@@ -144,15 +188,17 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 			g,
 			treeNode.children[i],
 			offsetLeft+childrenWidth,
-			offsetTop + tree.labelStyle.padding.bottom + tree.branchStyle.height + tree.labelStyle.padding.top  + tree.labelStyle.fontSize
+			offsetTop + temp.paddingBottom
+			          + temp.branchHeight
+					  + temp.paddingTop
+					  + temp.fontSize
 		);
 		childrenWidth += childInfo.width;
 		childrenInfo.push(childInfo);
 	}
 	
-	
 	//Position label
-	var y = offsetTop + tree.labelStyle.padding.top + tree.labelStyle.fontSize/2;
+	var y = offsetTop + temp.paddingTop + temp.fontSize/2;
 	var x;
 	if(childrenInfo.length){
 		var firstChild = parseFloat(childrenInfo[0].label.getAttribute('x'));
@@ -165,7 +211,6 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	label.setAttribute('x', x + 'px');
 	label.setAttribute('y', y + 'px');
 	
-	
 	//Position branch directly above the label
 	if(branch){
 		branch.setAttribute('x2', label.getAttribute('x'));
@@ -175,13 +220,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
 		childrenInfo[i].branch.setAttribute('x1', x + 'px');
-		childrenInfo[i].branch.setAttribute('y1', (y + tree.labelStyle.fontSize/2 + tree.labelStyle.padding.bottom) + 'px');
+		childrenInfo[i].branch.setAttribute('y1', (y + temp.fontSize/2 + temp.paddingBottom) + 'px');
 	}
 
-	
 	//Update the dimensions of the entire "canvas"
-	tree.height = Math.max(y + tree.labelStyle.fontSize/2 + tree.labelStyle.padding.bottom, tree.height);
-	tree.width = Math.max(offsetLeft + childrenWidth, tree.width);	
+	tree.height = Math.max(y + temp.fontSize/2 + temp.paddingBottom, tree.height);
+	tree.width = Math.max(offsetLeft + childrenWidth, tree.width);
 	
 	return {
 		label:label,

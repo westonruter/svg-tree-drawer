@@ -28,53 +28,56 @@
 		
 		
 		var data = {
-			label:'S',
-			children:[
-				{
-					label:'NP',
-					children:[
-						{
-							label:'D',
-							children:[
-								{
-									label:'The'
-								}
-							]
-						},
-						{
-							label:'NOM',
-							children:[
-								{
-									label:'N',
-									children:[
-										{
-											label:'boy'
-										}
-									]
-								}
-							],
-							collapsed:false
-						}
-					],
-					collapsed:true
-				},
-				{
-					label:'VP',
-					children:[
-						{
-							label:'V',
-							children:[
-								{
-									label:"plays"
-								}
-							],
-							collapsed:false
-						}
-					],
-					collapsed:true
-				}
-			],
-			collapsed:false
+			//
+			root: {
+				label:'S',
+				children:[
+					{
+						label:'NP',
+						children:[
+							{
+								label:'D',
+								children:[
+									{
+										label:'The'
+									}
+								]
+							},
+							{
+								label:'NOM',
+								children:[
+									{
+										label:'N',
+										children:[
+											{
+												label:'boy'
+											}
+										]
+									}
+								],
+								collapsed:false
+							}
+						],
+						collapsed:true
+					},
+					{
+						label:'VP',
+						children:[
+							{
+								label:'V',
+								children:[
+									{
+										label:"plays"
+									}
+								],
+								collapsed:false
+							}
+						],
+						collapsed:true
+					}
+				],
+				collapsed:false
+			}
 		};
 		
 		/**
@@ -86,9 +89,8 @@
 				try {
 					var toParse = /*lzw_decode*/(decode64(hash));
 					var hashdata = JSON.parse(toParse);
-					if(hashdata && hashdata.label){
-						return new TreeDrawer.Node(hashdata);
-					}
+					if(hashdata)
+						return hashdata;
 				}
 				catch(e){
 					console.warn(toParse)
@@ -110,15 +112,13 @@
 					data = hashData;
 				
 				//Create the SVG tree
-				tree = new TreeDrawer(container, data);
+				tree = new TreeDrawer(container, data.root, data.labelStyle, data.branchStyle);
 				
 				//console.info(encode64(lzw_encode(JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root))).length);
 			}
 			catch(e){
-				console.error(e)
 				container.innerHTML = '<em style="color:red">Unable to initialize SVG Tree: ' + e.message + '.</em>';
 			}
-			
 			
 				
 			//Watch for change in location.hash and
@@ -126,8 +126,14 @@
 				if(e && e.type)
 					clearInterval(interval);
 				var data = parseHash();
-				if(data)
-					tree.populate(data);
+				if(data){
+					if(data.labelStyle)
+						tree.labelStyle = data.labelStyle;
+					if(data.branchStyle)
+						tree.branchStyle = data.branchStyle;
+					if(data.root)
+						tree.populate(data.root);
+				}
 			}
 			window.addEventListener('hashchange', monitorBookmark, false);
 			var prevHash = location.hash;
@@ -141,7 +147,7 @@
 		}, false);
 		
 		function bookmarkTree(){
-			window.location.hash = encode64(/*lzw_encode*/(JSON.stringify(tree.root)))
+			window.location.hash = encode64(/*lzw_encode*/(JSON.stringify({root:tree.root, labelStyle:tree.labelStyle, branchStyle:tree.branchStyle})))
 		}
 		
 		//console.info(JSON.stringify(data))
