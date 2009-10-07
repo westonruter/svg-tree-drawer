@@ -3,6 +3,7 @@
  * by Weston Ruter
  *
  * Initially built for Syntax Tree Diagrammer
+ * @todo We need to somehow get a stylesheet from the parent document to get imported.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -37,34 +38,27 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, options){
 	obj.addEventListener('load', function(e){
 		if(treeData)
 			that.populate(treeData);
-		
-		//obj.width = 100;
-		//obj.height = 100;
-		//var circle = document.createElementNS(svgns, 'circle');
-		//circle.setAttribute('cx', 50);
-		//circle.setAttribute('cy', 50);
-		//circle.setAttribute('r', 50);
-		//circle.setAttribute('fill', 'red');
-		//obj.contentDocument.documentElement.appendChild(circle);
-		
 	}, false);
 	svgweb.appendChild(obj, svgContainerElement);
-
-	//obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
-	
-	
 };
 
 T.prototype.svgObject = null;
 T.prototype.collapsed = false;
+T.prototype.width = 0;
+T.prototype.height = 0;
 
 //These two following should be set with CSS
 T.prototype.branchStyle = {
-	height:30
+	height:20
 };
 T.prototype.labelStyle = {
-	fontSize:20,
-	padding:10
+	fontSize:30,
+	padding:{
+		top:5,
+		left:10,
+		right:10,
+		bottom:10
+	}
 };
 
 
@@ -85,6 +79,8 @@ T.prototype.empty = function empty(){
 			i--;
 		}
 	}
+	this.width = 0;
+	this.height = 0;
 }
 
 
@@ -95,41 +91,102 @@ T.prototype.empty = function empty(){
 T.prototype.draw = function draw(){
 	this.empty();
 	var svg = this.svgObject.contentDocument.documentElement;
+	
 	var info = _drawNode(this, svg, this.root, 0, 0, 0);
-	this.svgObject.width = info.width;
-	this.svgObject.height = this.labelStyle.fontSize;
-	console.info(info)
+	this.svgObject.width = this.width;
+	this.svgObject.height = this.height;
 };
 
 
 /**
  * Recursive function called by TreeDrawer.draw()
+ * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  */
-function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, parentWidth){
+function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
+	offsetTop |= 0;
+	offsetLeft |= 0;
 	
-	var g = document.createElementNS(svgns, 'g');
+	//Make label
 	var label = document.createElementNS(svgns, 'text');
 	label.appendChild(document.createTextNode(treeNode.label, true));
-	label.style.fontSize = tree.labelStyle.fontSize + 'px';
-	g.appendChild(label);
-	label.setAttribute('y', tree.labelStyle.fontSize);
+	label.setAttribute('style', 'text-anchor:middle; font-size:' + tree.labelStyle.fontSize + 'px;'); //Move to stylesheet?
 	
+	//Make container (not really necessary, but aids readibility of DOM)
+	var g = document.createElementNS(svgns, 'g');
+	g.appendChild(label);
+	g.appendChild(label);
+	parentElement.appendChild(g);
+	
+	//Create branch which will connect this label with the parent label
 	var branch;
 	if(parentElement.nodeName != 'svg'){
 		branch = document.createElementNS(svgns, 'line');
+		branch.setAttribute('style', 'stroke:black; stroke-width:2px;');
 		g.appendChild(branch);
 	}
 	
-	parentElement.appendChild(g);
-	//console.info(label.getComputedTextLength())
+	//Calculate width of this label
+	var labelWidth = label.getComputedTextLength();
+	labelWidth += tree.labelStyle.padding.left + tree.labelStyle.padding.right;
+	
+	//var rect = label.getBoundingClientRect();
+	//console.info(rect.height)
+	//console.info(label)
+	//window.label = label; //TEMP
+	//console.info(rect)
+	
+	//Process each of the children
+	var childrenWidth = 0;
+	var childrenInfo = [];
+	for(var i = 0, len = treeNode.children.length; i < len; i++){
+		var childInfo = _drawNode(
+			tree,
+			g,
+			treeNode.children[i],
+			offsetLeft+childrenWidth,
+			offsetTop + tree.labelStyle.padding.bottom + tree.branchStyle.height + tree.labelStyle.padding.top  + tree.labelStyle.fontSize
+		);
+		childrenWidth += childInfo.width;
+		childrenInfo.push(childInfo);
+	}
 	
 	
+	//Position label
+	var y = offsetTop + tree.labelStyle.padding.top + tree.labelStyle.fontSize;
+	var x;
+	if(childrenInfo.length){
+		var firstChild = parseFloat(childrenInfo[0].label.getAttribute('x'));
+		var lastChild = parseFloat(childrenInfo[childrenInfo.length-1].label.getAttribute('x'));
+		x = firstChild + (lastChild - firstChild)/2;
+	}
+	else {
+		x = offsetLeft + labelWidth/2;
+	}
+	label.setAttribute('x', x + 'px');
+	label.setAttribute('y', y + 'px');
 	
-	//console.info(parentElement, treeNode, g)
+	
+	//Position branch directly above the label
+	if(branch){
+		branch.setAttribute('x2', label.getAttribute('x'));
+		branch.setAttribute('y2', offsetTop + 'px');
+	}
+	
+	//Connect branches from child labels to parent label
+	for(var i = 0, len = childrenInfo.length; i < len; i++){
+		childrenInfo[i].branch.setAttribute('x1', x + 'px');
+		childrenInfo[i].branch.setAttribute('y1', (y + tree.labelStyle.padding.bottom) + 'px');
+	}
+
+	
+	//Update the dimensions of the entire "canvas"
+	tree.height = Math.max(y + tree.labelStyle.padding.bottom, tree.height);
+	tree.width = Math.max(offsetLeft + childrenWidth, tree.width);	
+	
 	return {
 		label:label,
 		branch:branch,
-		width:label.getComputedTextLength()
+		width:Math.max(labelWidth, childrenWidth)
 	};
 }
 
