@@ -3,13 +3,16 @@
  * by Weston Ruter
  *
  * Initially built for Syntax Tree Diagrammer
- * @todo We need to somehow get a stylesheet from the parent document to get imported.
+ * @todo We need to be able to define different style for the leaf nodes.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
 	return;
-if(typeof svgweb == 'undefined')
-	throw Error("Requires the use of svgweb");
+//if(typeof svgweb == 'undefined')
+//	throw Error("Requires the use of svgweb");
+
+var svgns = 'http://www.w3.org/2000/svg';
+var xlinkns = 'http://www.w3.org/1999/xlink';
 
 /**
  * Class that is associated with a given SVG element and contains methods and
@@ -30,20 +33,36 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 	//	s.padding = 10;
 	
 	// Create the SVG document
-	var obj = document.createElement('object', true);
-	obj.setAttribute('type', 'image/svg+xml');
-	obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
-	obj.setAttribute('width', 0);
-	obj.setAttribute('height', 0);
-	this.svgObject = obj;
-	var that = this;
-	obj.addEventListener('load', function(e){
+	
+	if(true || typeof svgweb == 'undefined'){
+		var svg = document.createElementNS(svgns, 'svg');
+		svg.setAttribute('width', 0);
+		svg.setAttribute('height', 0);
+		svgContainerElement.appendChild(svg);
+		this.svgElement = svg;
 		if(treeData)
-			that.populate(treeData);
-	}, false);
-	svgweb.appendChild(obj, svgContainerElement);
+			this.populate(treeData);
+	}
+	else {
+		var obj = document.createElement('object', true);
+		obj.setAttribute('type', 'image/svg+xml');
+		obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
+		obj.setAttribute('width', 0);
+		obj.setAttribute('height', 0);
+		this.svgObject = obj;
+		var that = this;
+		obj.addEventListener('load', function(e){
+			that.svgDocument = this.contentDocument;
+			that.svgElement = that.svgDocument.documentElement;
+			if(treeData)
+				that.populate(treeData);
+		}, false);
+		svgweb.appendChild(obj, svgContainerElement);
+	}
 };
 
+T.prototype.svgDocument = null; //readonly
+T.prototype.svgElement = null; //readonly
 T.prototype.svgObject = null; //readonly
 T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
@@ -76,15 +95,24 @@ T.prototype.root = null;
  * Empty the tree
  */
 T.prototype.empty = function empty(){
-	var svg = this.svgObject.contentDocument.documentElement;
+	var svg = this.svgElement;
 	for(var i = 0; i < svg.childNodes.length; i++){
 		if(svg.childNodes[i].nodeName.toLowerCase() == 'g'){
 			svg.removeChild(svg.childNodes[i]);
 			i--;
 		}
 	}
-	this.svgObject.width = this.width = 0;
-	this.svgObject.height = this.height = 0;
+	
+	this.width = 0;
+	this.height = 0;
+	if(this.svgObject){
+		this.svgObject.width = this.width;
+		this.svgObject.height = this.height;
+	}
+	else {
+		this.svgElement.setAttribute('width', this.width);
+		this.svgElement.setAttribute('height', this.height);
+	}
 }
 
 /**
@@ -104,10 +132,10 @@ T.prototype.draw = function draw(){
 	
 	//Get the style that will be applied to all of the labels
 	var cssText = '';
-	for(var name in tree.labelStyle){
+	for(var name in this.labelStyle){
 		if(/^(padding)/.test(name)) //custom property for Tree Drawer
 			continue;
-		var value = tree.labelStyle[name];
+		var value = this.labelStyle[name];
 		
 		//label.style[name] = typeof value == 'number' ? value+'px' : value;
 		//Firefox 2 doesn't like SVG-specific camel-cased propery names, so we'll convert them and append them to the cssText
@@ -119,10 +147,10 @@ T.prototype.draw = function draw(){
 	temp.labelCSSText = cssText;
 	
 	//Get the style that will be applied to all of the branches
-	for(var name in tree.branchStyle){
+	for(var name in this.branchStyle){
 		if(/^(height)/.test(name)) //custom property for Tree Drawer
 			continue;
-		var value = tree.branchStyle[name];
+		var value = this.branchStyle[name];
 		
 		//label.style[name] = typeof value == 'number' ? value+'px' : value;
 		//Firefox 2 doesn't like SVG-specific camel-cased propery names, so we'll convert them and append them to the cssText
@@ -133,18 +161,25 @@ T.prototype.draw = function draw(){
 	}
 	temp.branchCSSText = cssText;
 	
-	temp.paddingLeft = parseFloat(tree.labelStyle.paddingLeft || tree.labelStyle.padding);
-	temp.paddingRight = parseFloat(tree.labelStyle.paddingRight || tree.labelStyle.padding);
-	temp.paddingTop = parseFloat(tree.labelStyle.paddingTop || tree.labelStyle.padding);
-	temp.paddingBottom = parseFloat(tree.labelStyle.paddingBottom || tree.labelStyle.padding);
-	temp.fontSize = parseFloat(tree.labelStyle.fontSize);
-	temp.branchHeight = parseFloat(tree.branchStyle.height);
+	temp.paddingLeft   = parseFloat(this.labelStyle.paddingLeft   || this.labelStyle.padding);
+	temp.paddingRight  = parseFloat(this.labelStyle.paddingRight  || this.labelStyle.padding);
+	temp.paddingTop    = parseFloat(this.labelStyle.paddingTop    || this.labelStyle.padding);
+	temp.paddingBottom = parseFloat(this.labelStyle.paddingBottom || this.labelStyle.padding);
+	temp.fontSize      = parseFloat(this.labelStyle.fontSize);
+	temp.branchHeight  = parseFloat(this.branchStyle.height);
 	//note: 'temp' is available via closure and is used by _drawNode()
 	
-	var info = _drawNode(this, this.svgObject.contentDocument.documentElement, this.root);
+	var info = _drawNode(this, this.svgElement, this.root);
 	temp = {}; //no longer needed, so reset
-	this.svgObject.width = this.width;
-	this.svgObject.height = this.height;
+	
+	if(this.svgObject){
+		this.svgObject.width = this.width;
+		this.svgObject.height = this.height;
+	}
+	else {
+		this.svgElement.setAttribute('width', this.width);
+		this.svgElement.setAttribute('height', this.height);
+	}
 };
 
 
