@@ -128,6 +128,7 @@ var temp = {};
  * Renders the tree onto the SVG canvas, resizing the canvas as necessary
  * This function does the heavy lifting of the code
  * @see _drawNode()
+	* @todo All CSS should be specified in CSS as much as possible. Only labelPadding and branchHeight are non-CSS
  */
 T.prototype.draw = function draw(){
 	this.empty();
@@ -237,6 +238,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Position label
 	var y = offsetTop + temp.paddingTop + temp.fontSize/2;
 	var x;
+	//TODO: if labelWidth > childrenWidth: we need to pass in the labelWidth
 	if(childrenInfo.length){
 		var firstChild = parseFloat(childrenInfo[0].label.getAttribute('x'));
 		var lastChild = parseFloat(childrenInfo[childrenInfo.length-1].label.getAttribute('x'));
