@@ -247,6 +247,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	else {
 		x = offsetLeft + labelWidth/2;
 	}
+	x = Math.max(labelWidth/2, x); //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
 	label.setAttribute('x', x + 'px');
 	label.setAttribute('y', y + 'px');
 	
@@ -264,7 +265,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 
 	//Update the dimensions of the entire "canvas"
 	tree.height = Math.max(y + temp.fontSize/2 + temp.paddingBottom, tree.height);
-	tree.width = Math.max(offsetLeft + childrenWidth, tree.width);
+	tree.width = Math.max(offsetLeft + childrenWidth, tree.width, labelWidth);
 	
 	return {
 		label:label,
