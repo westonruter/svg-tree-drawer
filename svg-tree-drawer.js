@@ -4,12 +4,12 @@
  *
  * Initially built for Syntax Tree Diagrammer
  * @todo We need to be able to define different style for the leaf nodes.
+ * @todo Implement collapsing
+ * @todo Work up a condensed datastructure?
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
 	return;
-//if(typeof svgweb == 'undefined')
-//	throw Error("Requires the use of svgweb");
 
 var svgns = 'http://www.w3.org/2000/svg';
 var xlinkns = 'http://www.w3.org/1999/xlink';
@@ -29,12 +29,10 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 	if(!svgContainerElement || !svgContainerElement.nodeType == 1)
 		throw Error("The param 'svgContainerElement' is not valid.");
 	
-	//if(options.padding)
-	//	s.padding = 10;
-	
+	var isNativeSVG = !!document.createElementNS(svgns, 'text').getComputedTextLength;
+
 	// Create the SVG document
-	
-	if(true || typeof svgweb == 'undefined'){
+	if(isNativeSVG){
 		var svg = document.createElementNS(svgns, 'svg');
 		svg.setAttribute('width', 0);
 		svg.setAttribute('height', 0);
@@ -43,7 +41,11 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 		if(treeData)
 			this.populate(treeData);
 	}
+	//Utilize svgweb
 	else {
+		if(typeof svgweb == 'undefined')
+			throw Error("Requires the use of svgweb");
+		
 		var obj = document.createElement('object', true);
 		obj.setAttribute('type', 'image/svg+xml');
 		obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
@@ -61,10 +63,10 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 	}
 };
 
-T.prototype.svgDocument = null; //readonly
+T.prototype.svgDocument = null; //readonly (only set when using svgweb)
+T.prototype.svgObject = null; //readonly (only set when using svgweb)
 T.prototype.svgElement = null; //readonly
-T.prototype.svgObject = null; //readonly
-T.prototype.collapsed = false; //readonly
+//T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
 T.prototype.height = 0; //readonly
 

@@ -1,6 +1,5 @@
 <!--
-@todo: Abandon IE? Rather embed SVG directly within HTML?
-@todo: Get compressor that will make URLs short enough
+@todo: Get compressor that will make URLs short enough. LZ77? Different LZW?
 -->
 <!DOCTYPE html>
 <html>
@@ -9,6 +8,7 @@
 		<title>SVG Tree Drawer Example</title>
 		<script src="svgweb/src/svg-uncompressed.js" data-path="svgweb/src"></script>
 		<script src="svg-tree-drawer.js"></script>
+		<script src="json2.js"></script>
 		<script src="example.js"></script>
 		<style>
 		object {
@@ -18,6 +18,12 @@
 	</head>
 	<body>
 		<h1>SVG Tree Drawer Example</h1>
+		<p>
+			Examples:
+			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjoxNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDUiNSwic3Ryb2tlV2lkdGgiOjJgICgjIjoicmVkIn19">one</a>,
+			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjozNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDYhMzUsInN0cm9rZVdpZHRoIjoyYCAoIyI6ImJsdWUifX0=">two</a>,
+			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjoyNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDYhMjUsInN0cm9rZVdpZHRoIjoyYCAoIyI6ImJsYWNrIn19">three</a>
+		</p>
 		
 		<div id="treeContainer">
 			<p><em>Please wait…</em></p>
@@ -87,8 +93,15 @@
 			var hash = window.location.hash.substr(1);
 			if(hash){
 				try {
-					var toParse = /*lzw_decode*/(decode64(hash));
-					var hashdata = JSON.parse(toParse);
+					var toParse = decode64(hash);
+					var hashdata;
+					try {
+						hashdata = JSON.parse(toParse);
+					}
+					//Try decompressing the hash just in case that's why it failed to parse
+					catch(e){
+						hashdata = JSON.parse(decompress(toParse))
+					}
 					if(hashdata)
 						return hashdata;
 				}
@@ -111,10 +124,7 @@
 				if(hashData)
 					data = hashData;
 				
-				//Create the SVG tree
 				tree = new TreeDrawer(container, data.root, data.labelStyle, data.branchStyle);
-				
-				//console.info(encode64(lzw_encode(JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root)+JSON.stringify(tree.root))).length);
 			}
 			catch(e){
 				container.innerHTML = '<em style="color:red">Unable to initialize SVG Tree: ' + e.message + '.</em>';
@@ -147,13 +157,39 @@
 		}, false);
 		
 		function bookmarkTree(){
-			window.location.hash = encode64(/*lzw_encode*/(JSON.stringify({root:tree.root, labelStyle:tree.labelStyle, branchStyle:tree.branchStyle})))
+			var hash = encode64(
+				compress(
+					JSON.stringify({root:tree.root, labelStyle:tree.labelStyle, branchStyle:tree.branchStyle})
+				, MaxWindowLength)
+			);
+			window.location.hash = hash;
 		}
 		
 		//console.info(JSON.stringify(data))
 		</script>
-		<button type="button" onclick="bookmarkTree()">Save Tree to location hash</button>
-		<button type="button" onclick="tree.branchStyle.stroke = 'red'; tree.draw();">Make branches red</button>
+		
+		<fieldset style="position:absolute; right:10px ; bottom: 10px;">
+			<p>
+				Branch color:
+				<button type="button" onclick="tree.branchStyle.stroke = 'black'; tree.draw();" style='color:black;'>black</button>
+				<button type="button" onclick="tree.branchStyle.stroke = 'red'; tree.draw();" style='color:red;'>red</button>
+				<button type="button" onclick="tree.branchStyle.stroke = 'blue'; tree.draw();" style='color:blue;'>blue</button>
+			</p>
+			<p>
+				Font size:
+				<button type="button" onclick="tree.labelStyle.fontSize = 15; tree.draw();" style='font-size:15px;'>15px</button>
+				<button type="button" onclick="tree.labelStyle.fontSize = 25; tree.draw();" style='font-size:25px;'>25px</button>
+				<button type="button" onclick="tree.labelStyle.fontSize = 35; tree.draw();" style='font-size:35px;'>35px</button>
+			</p>
+			<p>
+				Branch height:
+				<button type="button" onclick="tree.branchStyle.height = 15; tree.draw();" style='height:15px;'>15px</button>
+				<button type="button" onclick="tree.branchStyle.height = 25; tree.draw();" style='height:25px;'>25px</button>
+				<button type="button" onclick="tree.branchStyle.height = 35; tree.draw();" style='height:35px;'>35px</button>
+			</p>
+			<p><button type="button" onclick="bookmarkTree()">Save Tree to location hash</button></p>
+		</fieldset>
+		
 		
 		<!--
 				<svg
