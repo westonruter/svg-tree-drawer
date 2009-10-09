@@ -1,4 +1,6 @@
 .DS_Store
 old
 svgweb
+.svn
+wp-content.php
 
