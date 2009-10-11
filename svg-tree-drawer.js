@@ -4,8 +4,10 @@
  *
  * Initially built for Syntax Tree Diagrammer
  * @todo We need to be able to define different style for the leaf nodes.
+ * @todo branchHeight, labelPadding
  * @todo Implement collapsing
  * @todo Work up a condensed datastructure?
+ * @todo Stylesheet should be named? Or when we serialize, we can just get all of the rules from all of the stylesheets.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -19,6 +21,9 @@ var xlinkns = 'http://www.w3.org/1999/xlink';
  * properties that relate to the tree as a whole.
  */
 var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, branchStyle){
+	
+	
+	
 	if(labelStyle)
 		this.labelStyle = labelStyle;
 	if(branchStyle)
@@ -30,7 +35,7 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 		throw Error("The param 'svgContainerElement' is not valid.");
 	
 	var isNativeSVG = !!document.createElementNS(svgns, 'text').getComputedTextLength;
-
+	
 	// Create the SVG document
 	if(isNativeSVG){
 		var svg = document.createElementNS(svgns, 'svg');
@@ -38,10 +43,24 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 		svg.setAttribute('height', 0);
 		svgContainerElement.appendChild(svg);
 		this.svgElement = svg;
+		
+		// Add the stylesheet
+		var defs = document.createElementNS(svgns, 'defs');
+		var style = document.createElementNS(svgns, 'style');
+		style.setAttribute('type', 'text/css');
+		//style.appendChild(document.createTextNode(this.cssStylesheet));
+		defs.appendChild(style);
+		this.svgElement.appendChild(defs);
+		style.appendChild(document.createTextNode(this.cssStylesheet))
+		//for(var i = 0, len = this.cssStyleRules.length; i < len; i++){
+			//style.sheet.insertRule(this.cssStyleRules[i], i);
+			//console.info(this.cssStyleRules[i])
+		//}
+		
 		if(treeData)
 			this.populate(treeData);
 	}
-	//Utilize svgweb
+	// Utilize svgweb
 	else {
 		if(typeof svgweb == 'undefined')
 			throw Error("Requires the use of svgweb");
@@ -56,6 +75,15 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData, labelStyle, 
 		obj.addEventListener('load', function(e){
 			that.svgDocument = this.contentDocument;
 			that.svgElement = that.svgDocument.documentElement;
+		
+			// Add the stylesheet
+			var defs = document.createElementNS(svgns, 'defs');
+			var style = document.createElementNS(svgns, 'style');
+			style.setAttribute('type', 'text/css');
+			style.appendChild(document.createTextNode(that.cssStylesheet));
+			defs.appendChild(style);
+			that.svgElement.appendChild(defs);
+			
 			if(treeData)
 				that.populate(treeData);
 		}, false);
@@ -69,6 +97,14 @@ T.prototype.svgElement = null; //readonly
 //T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
 T.prototype.height = 0; //readonly
+
+//T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
+T.prototype.cssStylesheet = [
+	//"line, path { stroke-width:2px; stroke:black; }",
+	//"text { dominant-baseline:middle; text-anchor:left; font-size:25px; color:red; stroke:red;  }",
+].join("\n");
+T.prototype.labelPadding = '0.5em';
+T.prototype.branchHeight = '2em';
 
 //Styles
 T.prototype.branchStyle = {
@@ -98,6 +134,9 @@ T.prototype.root = null;
  */
 T.prototype.empty = function empty(){
 	var svg = this.svgElement;
+	//while(svg.firstChild){
+	//	svg.parentNode.removeChild(svg.firstChild)
+	//}
 	for(var i = 0; i < svg.childNodes.length; i++){
 		if(svg.childNodes[i].nodeName.toLowerCase() == 'g'){
 			svg.removeChild(svg.childNodes[i]);
@@ -299,12 +338,13 @@ var TN = T.Node = function(obj){
 		for(var i = 0, len = obj.children.length; i < len; i++){
 			this.children.push(new TN(obj.children[i]));
 		}
-		//console.info(this.children)
 	}
 };
 TN.prototype.label = "";
 TN.prototype.collapsed = false;
 TN.prototype.children = [];
+TN.prototype.labelPadding = 'inherit';
+TN.prototype.branchHeight = 'inherit';
 
 
 /**

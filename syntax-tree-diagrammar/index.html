@@ -3,14 +3,10 @@
 	<head>
 		<meta charset=utf8>
 		<title>SVG Tree Drawer Example</title>
-		<script src="svgweb/src/svg-uncompressed.js" data-path="svgweb/src"></script>
+		<link rel="stylesheet" href="screen.css" type="text/css" media="screen">
+		<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>
 		<script src="../svg-tree-drawer.js"></script>
 		<script src="helpers.js"></script>
-		<style>
-		object {
-			outline:solid 1px red;
-		}
-		</style>
 	</head>
 	<body>
 		<h1>SVG Tree Drawer Example</h1>
@@ -29,8 +25,7 @@
 		//obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
 		
 		
-		var data = {
-			//
+		var treeData1 = {
 			root: {
 				label:'S',
 				children:[
@@ -38,49 +33,191 @@
 						label:'NP',
 						children:[
 							{
-								label:'D',
+								label:'NOM',
+								children:[
+								{
+									label:'N',
+									children:[
+										{label:'Suzuki-san-ga'}
+									]
+								}
+								]
+							}
+						]
+					},
+					{
+						label:'VP',
+						children:[
+							{
+								label:'NP',
 								children:[
 									{
-										label:'The'
+										label:'D',
+										children:[
+											{label:'sono'}
+										]
+									},
+									{
+										label:'NOM',
+										children:[
+											{
+												label:'N',
+												children:[
+													{label:'eiga-wo'}
+												]
+											}
+										]
 									}
 								]
 							},
+							{
+								label:'V',
+								children:[
+									{label:'mita'}
+								]
+							}
+						]
+					}
+				]
+			}
+		};
+		
+		
+		
+		var treeData2 = {
+			root: {
+				label:'S',
+				children:[
+					{
+						label:'NP',
+						children:[
 							{
 								label:'NOM',
 								children:[
 									{
 										label:'N',
 										children:[
-											{
-												label:'boy'
-											}
+											{label:'Suzuki-san-ga'}
 										]
 									}
-								],
-								collapsed:false
+								]
 							}
-						],
-						collapsed:true
+						]
 					},
 					{
 						label:'VP',
 						children:[
 							{
-								label:'V',
+								label:'NP',
 								children:[
 									{
-										label:"plays"
+										label:'D',
+										children:[
+											{label:'sono'}
+										]
+									},
+									{
+										label:'NOM',
+										children:[
+											{
+												label:'A',
+												children:[
+													{label:'omoshiroi'}
+												]
+											},
+											{
+												label:'NOM',
+												children:[
+													{
+														label:'N',
+														children:[
+															{label:'eiga-wo'}
+														]
+													}
+												]
+											}
+										]
 									}
-								],
-								collapsed:false
+								]
+							},
+							{
+								label:'V',
+								children:[
+									{label:'mita'}
+								]
 							}
-						],
-						collapsed:true
+						]
 					}
-				],
-				collapsed:false
+				]
 			}
 		};
+		
+		
+		
+		var treeData3 = {
+			root: {
+				label:'S',
+				children:[
+					{
+						label:'NP',
+						children:[
+							{
+								label:'NOM',
+								children:[
+									{
+										label:'N',
+										children:[
+											{label:'Suzuki-san-ga'}
+										]
+									}
+								]
+							}
+						]
+					},
+					{
+						label:'VP',
+						children:[
+							{
+								label:'PP',
+								children:[
+									{
+										label:'NP',
+										children:[
+											{
+												label:'NOM',
+												children:[
+													{
+														label:'N',
+														children:[
+															{label:'Toukyou'}
+														]
+													}
+												]
+											}
+										]
+									},
+									{
+										label:'P',
+										children:[
+											{label:'e'}
+										]
+									}
+								]
+							},
+							{
+								label:'V',
+								children:[
+									{label:'itta'}
+								]
+							}
+						]
+					}
+				]
+			}
+		};
+		
+		
+		var data = treeData3;
 		
 		/**
 		 * Get tree data that has been saved in location.hash
@@ -108,7 +245,10 @@
 			return null;
 		}
 		
-		
+		/**
+		 * Once the page has loaded (esp. including svgweb), then get the saved
+		 * state from location.hash and initialize the tree with that data
+		 */
 		var tree;
 		window.addEventListener('load', function(){
 			var container = document.getElementById('treeContainer');
@@ -139,26 +279,6 @@
 						tree.branchStyle = data.branchStyle;
 					if(data.root)
 						tree.populate(data.root);
-
-//<?xml version="1.0" encoding="UTF-8"?>
-//<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-//	<mrow>
-//	  <mi>A</mi>
-//	  <mo>=</mo>
-//	  <mfenced open='[' close=']'>
-//		<mtable>
-//		  <mtr>
-//			 <mtd><mi>x</mi></mtd>
-//			 <mtd><mi>y</mi></mtd>
-//		  </mtr>
-//		  <mtr>
-//			 <mtd><mi>z</mi></mtd>
-//			 <mtd><mi>w</mi></mtd>
-//		  </mtr>
-//		</mtable>
-//	  </mfenced>
-//	</mrow>
-//</math>
 				}
 			}
 			window.addEventListener('hashchange', monitorBookmark, false);
