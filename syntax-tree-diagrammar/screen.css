@@ -1,3 +1,10 @@
 body {
 	
 }
+
+svg {
+	outline:solid 1px lime;
+}
+object {
+	outline:solid 1px red;
+}

@@ -9,6 +9,7 @@
  * @todo Work up a condensed datastructure?
  * @todo Stylesheet should be named? Or when we serialize, we can just get all of the rules from all of the stylesheets.
  * @todo Try disabling native support (use the OBJECT); and try forcing Flash to see if it'll work in IE
+ * @todo Publicize on MozHacks: SVG + MathML + ContentEditable + hashchange + JSON.parse/stringify
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -72,19 +73,16 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData){
 				that.svgElement = that.svgDocument.documentElement;
 			
 				// Add the stylesheet
-				
 				var defs = document.createElementNS(svgns, 'defs');
 				var style = document.createElementNS(svgns, 'style');
 				style.setAttribute('type', 'text/css');
 				style.appendChild(document.createTextNode(that.cssStylesheet));
 				
 				defs.appendChild(style);
-				//that.svgElement.appendChild(defs);
-				
+				//that.svgElement.appendChild(defs); //TODO
 				
 				if(treeData)
 					that.populate(treeData);
-				
 			}
 			catch(e){
 				console.error(e)
@@ -104,12 +102,12 @@ T.prototype.height = 0; //readonly
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
 	"line, path { stroke-width:2px; stroke:black; }",
-	"text { dominant-baseline:middle !important; text-anchor:middle !important; }",
+	"text { dominant-baseline:text-after-edge !important; }",
 	"svg {font-size:20px; }",
-	"svg > g > g > text { font-size:100px; stroke:red; }"
+	//"svg > g > g > text { font-size:120px; }"
 ].join("\n");
-T.prototype.labelPadding = '0.5em';
-T.prototype.branchHeight = '2em';
+T.prototype.labelPadding = '10px';
+T.prototype.branchHeight = '30px';
 
 /**
  * The root TreeDrawer.Node
@@ -160,6 +158,14 @@ T.prototype.draw = function draw(){
 	var branchHeight = parsePixels(this.branchHeight, fontSize);
 	var info = _drawNode(this, this.svgElement, this.root, 0, 0, labelPadding, branchHeight);
 	
+	/*var t = document.createElementNS(svgns,'text');
+	t.appendChild(document.createTextNode('NʃP'))
+	t.setAttribute('x', '10px');
+	t.setAttribute('y', '0');
+	t.setAttribute('style', 'font-size:120px;');
+	this.svgElement.appendChild(t);
+	console.info(t.getBoundingClientRect())*/
+	
 	if(this.svgObject){
 		this.svgObject.width = this.width;
 		this.svgObject.height = this.height;
@@ -201,7 +207,7 @@ function parsePixels(value, fontSize, inheritedValue){
  * @param offsetTop The distance from the top to the bottom of the lower end of the branches
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  */
-function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, /*branchY,*/ inheritedLabelPadding, inheritedBranchHeight){
+function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inheritedLabelPadding, inheritedBranchHeight){
 	//Make label
 	var label = document.createElementNS(svgns, 'text');
 	label.appendChild(document.createTextNode(treeNode.label, true));
@@ -218,27 +224,23 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, /*branc
 		g.appendChild(branch);
 	}
 	
-	var offsetLine = document.createElementNS(svgns, 'line');
-	offsetLine.setAttribute('style', 'stroke:red; stroke-width:1px;');
-	offsetLine.setAttribute('y1', offsetTop + 'px');
-	offsetLine.setAttribute('y2', offsetTop + 'px');
-	offsetLine.setAttribute('x1', '0%');
-	offsetLine.setAttribute('x2', '100%');
-	g.appendChild(offsetLine)
-	
-	//Get styles
+	//Get styles and dimensions
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = parsePixels(treeNode.labelPadding, labelFontSize, inheritedLabelPadding);
 	//var gStyle = window.getComputedStyle(g, null);
 	//var gFontSize = parseFloat(gStyle.fontSize);
 	var branchHeight = parsePixels(treeNode.branchHeight, labelFontSize, inheritedBranchHeight);
+	//var labelRect = label.getBoundingClientRect(); //TODO: If doesn't include height, then calculate the height
+	//if(!labelRect.width)
+	//	labelRect.width = label.getComputedTextLength(); //labelRect.right - labelRect.left;
+	//if(!labelRect.height)
+	//	labelRect.height = labelFontSize; //labelRect.bottom - labelRect.top;
+	var labelRect = {width:label.getComputedTextLength(),height:labelFontSize};
 	
-	//Calculate width of this label
-	var labelWidth = label.getComputedTextLength();
-	labelWidth += labelPadding /*left*/ + labelPadding /*right*/;
-	
-	//console.info(treeNode.label, labelFontSize, labelWidth)
+	//if(treeNode.label == 'NʃP'){
+	//	console.warn(labelRect)
+	//}
 	
 	//Process each of the children
 	var childrenWidth = 0;
@@ -250,7 +252,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, /*branc
 			treeNode.children[i],
 			offsetLeft+childrenWidth,
 			offsetTop + labelPadding /* top */
-			          + labelFontSize
+			          + labelRect.height
 					  + labelPadding /* bottom */
 					  + branchHeight,
 			//offsetTop + labelPadding + labelFontSize + labelPadding, //parentLabelBottom
@@ -259,53 +261,79 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, /*branc
 		);
 		childrenWidth += childInfo.width;
 		childrenInfo.push(childInfo);
+		//childrenHeight = Math.max(childrenMaxHeight, childInfo.height);
 	}
 	
-	//Position label
-	//console.info(treeNode.label, labelFontSize)
-	var y = offsetTop + labelPadding + labelFontSize/2; //labelStyle.textAnchor
-	var x;
-	//TODO: if labelWidth > childrenWidth: we need to pass in the labelWidth
+	//Get coordinates for label and position
+	var labelY = offsetTop + labelPadding; //labelRect.height; //labelStyle.textAnchor
+	if(label.nodeName == 'text')
+		labelY += labelFontSize; //labelRect.height;
+	//console.info([treeNode.label, offsetTop, labelPadding, labelRect.height])
+	var labelX;
+	//If there are children, then x is in the middle of their first and last children
+	//TODO: if labelWidth > childrenWidth, we could pass in the labelWidth
 	if(childrenInfo.length){
-		var firstChild = parseFloat(childrenInfo[0].label.getAttribute('x'));
-		var lastChild = parseFloat(childrenInfo[childrenInfo.length-1].label.getAttribute('x'));
-		x = firstChild + (lastChild - firstChild)/2;
+		var firstChildLabel = childrenInfo[0].label;
+		var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
+		var leftX = parseFloat(firstChildLabel.getAttribute('x')) + firstChildLabel.getComputedTextLength()/2;
+		var rightX = parseFloat(lastChildLabel.getAttribute('x')) + lastChildLabel.getComputedTextLength()/2;
+		labelX = leftX + (rightX - leftX)/2 - labelRect.width/2;
 	}
+	//No children, so left edge is simply offsetLeft
 	else {
-		x = offsetLeft + labelWidth/2;
+		labelX = offsetLeft + labelPadding /*left*/;
 	}
-	x = Math.max(labelWidth/2, x); //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
-	label.setAttribute('x', x + 'px');
-	label.setAttribute('y', y + 'px');
+	labelX = Math.max(0, labelX); //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
+	label.setAttribute('x', labelX + 'px');
+	label.setAttribute('y', labelY + 'px');
+	
+	//Draw rect around label
+	//var rect = document.createElementNS(svgns, 'rect');
+	//rect.setAttribute('style', 'stroke:blue; stroke-width:1px; fill:none;');
+	//rect.setAttribute('x', labelX + 'px');
+	//rect.setAttribute('y', (labelY-labelFontSize) + 'px');
+	//rect.setAttribute('width', labelRect.width + 'px');
+	//rect.setAttribute('height', labelRect.height + 'px');
+	//g.appendChild(rect);
+	
+
+	var rect = document.createElementNS(svgns, 'rect');
+	rect.setAttribute('style', 'stroke:blue; stroke-width:1px; fill:none;');
+	rect.setAttribute('x', labelX + 'px');
+	rect.setAttribute('y', (labelY-labelFontSize) + 'px');
+	rect.setAttribute('width', labelRect.width + 'px');
+	rect.setAttribute('height', labelRect.height + 'px');
+	g.appendChild(rect);
+	
 	
 	//Position branch directly above the label
 	if(branch){
-		branch.setAttribute('x2', label.getAttribute('x'));
+		branch.setAttribute('x2', labelX + labelRect.width/2  + 'px');
 		branch.setAttribute('y2', offsetTop + 'px');
 	}
 	
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
-		childrenInfo[i].branch.setAttribute('x1', x + 'px');
-		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding*2 + labelFontSize + 'px');
+		childrenInfo[i].branch.setAttribute('x1', labelX + labelRect.width/2 + 'px');
+		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding*2 + labelRect.height + 'px');
 	}
-	
-	var offsetLine = document.createElementNS(svgns, 'line');
-	offsetLine.setAttribute('style', 'stroke:blue; stroke-width:1px;');
-	offsetLine.setAttribute('y1', offsetTop + labelPadding*2 + labelFontSize + 'px');
-	offsetLine.setAttribute('y2', offsetTop + labelPadding*2 + labelFontSize + 'px');
-	offsetLine.setAttribute('x1', '0%');
-	offsetLine.setAttribute('x2', '100%');
-	g.appendChild(offsetLine)
 
 	//Update the dimensions of the entire "canvas"
-	tree.height = Math.max(y + labelFontSize/2 + labelPadding/*bottom*/, tree.height);
-	tree.width = Math.max(offsetLeft + childrenWidth, tree.width, labelWidth);
+	tree.height = Math.max(
+		tree.height,
+		offsetTop + labelPadding/*top*/ + labelRect.height + labelPadding/*bottom*/
+	);
+	tree.width = Math.max(
+		tree.width,
+		offsetLeft + childrenWidth,
+		offsetLeft + labelRect.width + labelPadding*2,
+		labelX + labelRect.width + labelPadding*2
+	);
 	
 	return {
 		label:label,
 		branch:branch,
-		width:Math.max(labelWidth+labelPadding*2, childrenWidth)
+		width:Math.max(labelRect.width+labelPadding*2, childrenWidth)
 	};
 }
 
