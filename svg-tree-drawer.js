@@ -5,7 +5,7 @@
  * Initially built for Syntax Tree Diagrammer
  * @todo We need to be able to define different style for the leaf nodes.
  * @todo branchHeight, labelPadding
- * @todo Implement collapsing
+ * @todo Implement collapsing (triangles) which are toggled by clicking the nodes
  * @todo Work up a condensed datastructure?
  * @todo Stylesheet should be named? Or when we serialize, we can just get all of the rules from all of the stylesheets.
  * @todo Try disabling native support (use the OBJECT); and try forcing Flash to see if it'll work in IE
@@ -206,16 +206,19 @@ function parsePixels(value, fontSize, inheritedValue){
  * Recursive function called by TreeDrawer.draw()
  * @param offsetTop The distance from the top to the bottom of the lower end of the branches
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
+ * @todo 
  */
-function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inheritedLabelPadding, inheritedBranchHeight){
-	//Make label
+function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inheritedLabelPadding, inheritedBranchHeight, parentWidth){
+	// Make container (not really necessary, but aids readibility of DOM)
+	// And allows styles to scope rules
+	var g = document.createElementNS(svgns, 'g');
+	parentElement.appendChild(g);
+	
+	// Make label
 	var label = document.createElementNS(svgns, 'text');
 	label.appendChild(document.createTextNode(treeNode.label, true));
-	
-	//Make container (not really necessary, but aids readibility of DOM)
-	var g = document.createElementNS(svgns, 'g');
+	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	g.appendChild(label);
-	parentElement.appendChild(g);
 	
 	//Create branch which will connect this label with the parent label
 	var branch;
@@ -223,6 +226,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 		branch = document.createElementNS(svgns, 'line');
 		g.appendChild(branch);
 	}
+	// Allow this to be filtered
 	
 	//Get styles and dimensions
 	var labelStyle = window.getComputedStyle(label, null);
@@ -237,38 +241,70 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//if(!labelRect.height)
 	//	labelRect.height = labelFontSize; //labelRect.bottom - labelRect.top;
 	var labelRect = {width:label.getComputedTextLength(),height:labelFontSize};
+	var labelWidth = labelRect.width;
+	var labelHeight = labelRect.height;
 	
 	//if(treeNode.label == 'NʃP'){
 	//	console.warn(labelRect)
 	//}
 	
+	var labelMiddleX = offsetLeft + labelPadding + labelWidth/2;
+	var circle = document.createElementNS(svgns, 'circle');
+	circle.setAttribute('cx', labelMiddleX + 'px');
+	circle.setAttribute('cy', (offsetTop + labelPadding + labelHeight/2) + 'px');
+	circle.setAttribute('r', (labelHeight/2) + 'px');
+	circle.setAttribute('style', 'fill:none; stroke:lime; stroke-width:2px;');
+	g.appendChild(circle);
+	
 	//Process each of the children
 	var childrenWidth = 0;
 	var childrenInfo = [];
 	for(var i = 0, len = treeNode.children.length; i < len; i++){
+		
+		//if(labelWidth > 100)
+		//	childrenWidth += 100; 
+		//
+		// Here we need to increment childrenOffsetLeft if the parent is wider
+		// than the children, but we can only do so after we the call to
+		// _drawNode is finished
 		var childInfo = _drawNode(
 			tree,
 			g,
 			treeNode.children[i],
-			offsetLeft+childrenWidth,
+			offsetLeft + childrenWidth,
 			offsetTop + labelPadding /* top */
-			          + labelRect.height
-					  + labelPadding /* bottom */
-					  + branchHeight,
+			          + labelHeight
+			          + labelPadding /* bottom */
+			          + branchHeight,
 			//offsetTop + labelPadding + labelFontSize + labelPadding, //parentLabelBottom
 			labelPadding, //inherit
-			branchHeight //inherit
+			branchHeight, //inherit
+			labelWidth + labelPadding*2
 		);
 		childrenWidth += childInfo.width;
+		
+		
+		// Make sure that wide parents cause children to be evenly distributed
+		// NOTE: only way to do this is to calculat the final cumulative width of
+		// a child and its descendants, and this means we need to do two passes,
+		// once to add in the labels and position them on the Y axis, and to
+		// calculate the widths. Then on the second pass position the labels
+		// on the x-axis and draw the connecting branches.
+		//if(labelWidth > childrenWidth && (i < len-1) && labelWidth/(len-i) ){
+		//	//childrenWidth += 100;
+		//}
+		
+		//Re-position child here if they are narrower than 1/2 the parent width?
+		
 		childrenInfo.push(childInfo);
 		//childrenHeight = Math.max(childrenMaxHeight, childInfo.height);
 	}
 	
 	//Get coordinates for label and position
-	var labelY = offsetTop + labelPadding; //labelRect.height; //labelStyle.textAnchor
+	var labelY = offsetTop + labelPadding; //labelHeight; //labelStyle.textAnchor
 	if(label.nodeName == 'text')
-		labelY += labelFontSize; //labelRect.height;
-	//console.info([treeNode.label, offsetTop, labelPadding, labelRect.height])
+		labelY += labelFontSize; //labelHeight;
+	//console.info([treeNode.label, offsetTop, labelPadding, labelHeight])
 	var labelX;
 	//If there are children, then x is in the middle of their first and last children
 	//TODO: if labelWidth > childrenWidth, we could pass in the labelWidth
@@ -277,13 +313,13 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 		var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
 		var leftX = parseFloat(firstChildLabel.getAttribute('x')) + firstChildLabel.getComputedTextLength()/2;
 		var rightX = parseFloat(lastChildLabel.getAttribute('x')) + lastChildLabel.getComputedTextLength()/2;
-		labelX = leftX + (rightX - leftX)/2 - labelRect.width/2;
+		labelX = leftX + (rightX - leftX)/2 - labelWidth/2;
 	}
 	//No children, so left edge is simply offsetLeft
 	else {
 		labelX = offsetLeft + labelPadding /*left*/;
 	}
-	labelX = Math.max(0, labelX); //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
+	labelX = Math.max(0, labelX, offsetLeft+labelPadding); //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
 	label.setAttribute('x', labelX + 'px');
 	label.setAttribute('y', labelY + 'px');
 	
@@ -292,8 +328,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//rect.setAttribute('style', 'stroke:blue; stroke-width:1px; fill:none;');
 	//rect.setAttribute('x', labelX + 'px');
 	//rect.setAttribute('y', (labelY-labelFontSize) + 'px');
-	//rect.setAttribute('width', labelRect.width + 'px');
-	//rect.setAttribute('height', labelRect.height + 'px');
+	//rect.setAttribute('width', labelWidth + 'px');
+	//rect.setAttribute('height', labelHeight + 'px');
 	//g.appendChild(rect);
 	
 
@@ -301,39 +337,51 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	rect.setAttribute('style', 'stroke:blue; stroke-width:1px; fill:none;');
 	rect.setAttribute('x', labelX + 'px');
 	rect.setAttribute('y', (labelY-labelFontSize) + 'px');
-	rect.setAttribute('width', labelRect.width + 'px');
-	rect.setAttribute('height', labelRect.height + 'px');
+	rect.setAttribute('width', labelWidth + 'px');
+	rect.setAttribute('height', labelHeight + 'px');
 	g.appendChild(rect);
+	
+	
+	var line = document.createElementNS(svgns, 'line');
+	line.setAttribute('style', 'stroke:red; stroke-width:2px; fill:none;');
+	line.setAttribute('x1', offsetLeft + 'px');
+	line.setAttribute('x2', offsetLeft + 'px');
+	line.setAttribute('y1', offsetTop + labelPadding + 'px');
+	line.setAttribute('y2', offsetTop + labelPadding + labelHeight + 'px');
+	//rect.setAttribute('width', labelWidth + 'px');
+	//rect.setAttribute('height', labelHeight + 'px');
+	g.appendChild(line);
+	
 	
 	
 	//Position branch directly above the label
 	if(branch){
-		branch.setAttribute('x2', labelX + labelRect.width/2  + 'px');
+		branch.setAttribute('x2', labelX + labelWidth/2  + 'px');
 		branch.setAttribute('y2', offsetTop + 'px');
 	}
 	
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
-		childrenInfo[i].branch.setAttribute('x1', labelX + labelRect.width/2 + 'px');
-		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding*2 + labelRect.height + 'px');
+		childrenInfo[i].branch.setAttribute('x1', labelX + labelWidth/2 + 'px');
+		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding*2 + labelHeight + 'px');
 	}
 
 	//Update the dimensions of the entire "canvas"
 	tree.height = Math.max(
 		tree.height,
-		offsetTop + labelPadding/*top*/ + labelRect.height + labelPadding/*bottom*/
+		offsetTop + labelPadding/*top*/ + labelHeight + labelPadding/*bottom*/
 	);
 	tree.width = Math.max(
 		tree.width,
 		offsetLeft + childrenWidth,
-		offsetLeft + labelRect.width + labelPadding*2,
-		labelX + labelRect.width + labelPadding*2
+		offsetLeft + labelWidth + labelPadding*2,
+		labelX + labelWidth + labelPadding*2
 	);
 	
 	return {
 		label:label,
 		branch:branch,
-		width:Math.max(labelRect.width+labelPadding*2, childrenWidth)
+		width:Math.max(labelWidth+labelPadding*2, childrenWidth)
 	};
 }
 

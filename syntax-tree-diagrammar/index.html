@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset=utf8>
+		<meta http-equiv="X-UA-Compatible" content="chrome=1">
 		<title>SVG Tree Drawer Example</title>
 		<link rel="stylesheet" href="screen.css" type="text/css" media="screen">
 		<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>
@@ -23,134 +24,6 @@
 		
 		<script>
 		//obj.setAttribute('data', 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>');
-		
-		
-		var treeData1 = {
-			root: {
-				label:'S',
-				children:[
-					{
-						label:'NP',
-						children:[
-							{
-								label:'NOM',
-								children:[
-									{
-										label:'N',
-										children:[
-											{label:'Suzuki-san-ga'}
-										]
-									}
-								]
-							}
-						]
-					},
-					{
-						label:'VP',
-						children:[
-							{
-								label:'NP',
-								children:[
-									{
-										label:'D',
-										children:[
-											{label:'sono'}
-										]
-									},
-									{
-										label:'NOM',
-										children:[
-											{
-												label:'N',
-												children:[
-													{label:'eiga-wo'}
-												]
-											}
-										]
-									}
-								]
-							},
-							{
-								label:'V',
-								children:[
-									{label:'mita'}
-								]
-							}
-						]
-					}
-				]
-			}
-		};
-		
-		
-		
-		var treeData2 = {
-			root: {
-				label:'S',
-				children:[
-					{
-						label:'NP',
-						children:[
-							{
-								label:'NOM',
-								children:[
-									{
-										label:'N',
-										children:[
-											{label:'Suzuki-san-ga'}
-										]
-									}
-								]
-							}
-						]
-					},
-					{
-						label:'VP',
-						children:[
-							{
-								label:'NP',
-								children:[
-									{
-										label:'D',
-										children:[
-											{label:'sono'}
-										]
-									},
-									{
-										label:'NOM',
-										children:[
-											{
-												label:'A',
-												children:[
-													{label:'omoshiroi'}
-												]
-											},
-											{
-												label:'NOM',
-												children:[
-													{
-														label:'N',
-														children:[
-															{label:'eiga-wo'}
-														]
-													}
-												]
-											}
-										]
-									}
-								]
-							},
-							{
-								label:'V',
-								children:[
-									{label:'mita'}
-								]
-							}
-						]
-					}
-				]
-			}
-		};
 		
 		
 		
@@ -187,7 +60,7 @@
 						]
 					},
 					{
-						label:'VPabcdefghighklmnopqrstuvwxyz',
+						label:'VPabcdefghighklmnopqrstuvwxyzasdaskdhkajshdkjsaasdasdsaadsadasd',
 						children:[
 							{
 								label:'PP',
@@ -201,7 +74,8 @@
 													{
 														label:'N',
 														children:[
-															{label:'Toukyou'}
+															{label:'Toukyou'},
+															{label:'food rules!'}
 														]
 													}
 												]
@@ -219,7 +93,8 @@
 							{
 								label:'V',
 								children:[
-									{label:'itta'}
+									{label:'itta'},
+									{label:'ittaasdasd'}
 								]
 							}
 						]
