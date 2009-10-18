@@ -3,7 +3,7 @@
 	<head>
 		<meta charset='utf8' />
 		<meta http-equiv="X-UA-Compatible" content="chrome=1" />
-		<title>SVG Tree Drawer Example</title>
+		<title>Ling 566 HW 2</title>
 		<link rel="stylesheet" href="screen.css" type="text/css" media="screen" />
 		<script>
 		if(!window.console){
@@ -17,153 +17,152 @@
 		<!--<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>-->
 		<script src="../svg-tree-drawer.js"></script>
 		<script src="helpers.js"></script>
-	</head>
-	<body>
-		<h1>SVG Tree Drawer Example</h1>
-		<p>
-			Examples:
-			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjoxNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDUiNSwic3Ryb2tlV2lkdGgiOjJgICgjIjoicmVkIn19">one</a>,
-			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjozNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDYhMzUsInN0cm9rZVdpZHRoIjoyYCAoIyI6ImJsdWUifX0=">two</a>,
-			<a href="#eyJyb290Ijp7ImxhYmVsIjoiUyIsImNvbGxhcHNlZCI6ZmFsc2UsImNoaWxkcmVuIjpbYCBBJU5QYCA+KXRydWAgMzNEYCBMRVRoZWAhMC59XX0sYCEvJk9NYCE8RmAhaEVib3lgISYxXWAhMilWYCIwRVZgIyZFcGxheXNgISU2YCQ+IVN0eWxlIjp7ImZvbnRTaXplIjoyNSwiZG9taW5hbnRCYXNlbGluZSI6Im1pZGRsZSIsInRleHRBbmNob3JgIConcGFkZGluZ1RvcCI6MTBgICckTGVmdGAgJChCb3R0b21gIDcoUmlnaGAgQCB9LCJicmFuY2hgIU0kaGVgIDYhMjUsInN0cm9rZVdpZHRoIjoyYCAoIyI6ImJsYWNrIn19">three</a>
-		</p>
-		
-		<div id="treeContainer">
-			<p><em>Please wait…</em></p>
-		</div>
-			
 		<style>
+		
 		math mtd {
 			text-align:left;
 		}
-		math mi {
-		}
-		mtable {
+		math mrow {
 			
 		}
-		mfenced {
+		math {
+			display:block;
+		}
+		li {
 			
+		}
+		ol > li {
+			margin-top:1em;
+			padding-top:1em;
+			border-top:solid 1px gray;
+		}
+		ol > li:first-child {
+			border-top:0;
+			padding-top:0;
+			margin-top:0;
 		}
 		</style>
-		
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-			<mrow>
-			  <mfenced open='〈' close='〉'>
-				<mi>here</mi>
-				
-				<mfenced open='[' close=']'>
-					<mtable>
-						<mtr>
-							<mtd><mi style="font-style:italic">word</mi></mtd>
-						</mtr>
-						
-						<mtr>
-							<mtd><mi>HEAD</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd columnspan="2"><mi style='font-style:italic'>prep</mi></mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-						<mtr>
-							<mtd><mi>VAL</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd><mtext>COMPS</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-										<mtr>
-											<mtd><mtext>SPR</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-					</mtable>
-				</mfenced>
-				</mfenced>
-			</mrow>
-		</math>
-		
-		
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-			<mrow>
-			  <mfenced open='〈' close='〉'>
-				<mi>there</mi>
-				
-				<mfenced open='[' close=']'>
-					<mtable>
-						<mtr>
-							<mtd><mi style="font-style:italic">word</mi></mtd>
-						</mtr>
-						
-						<mtr>
-							<mtd><mi>HEAD</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd columnspan="2"><mi style='font-style:italic'>prep</mi></mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-						<mtr>
-							<mtd><mi>VAL</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd><mtext>COMPS</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-										<mtr>
-											<mtd><mtext>SPR</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-					</mtable>
-				</mfenced>
-				</mfenced>
-			</mrow>
-		</math>
-		
-		
-		<hr />
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+	</head>
+	<body>
+		<h1>Ling 566 HW 2</h1>
+		<address>Weston Ruter</address>
+			
+		<section>
+		<h2>Problem 1: Valence Variations</h2>
+		<ol style="list-style:upper-alpha">
+			<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+				<mrow>
+				  <mfenced open='〈' close='〉'>
+					<mi>here</mi>
+					
+					<mfenced open='[' close=']'>
+						<mtable>
+							<mtr>
+								<mtd><mi style="font-style:italic">word</mi></mtd>
+							</mtr>
+							
+							<mtr>
+								<mtd><mi>HEAD</mi></mtd>
+								<mtd>
+									
+									<mfenced open='[' close=']'>
+										<mtable>
+											<mtr>
+												<mtd columnspan="2"><mi style='font-style:italic'>prep</mi></mtd>
+											</mtr>
+										</mtable>
+									</mfenced>
+									
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd><mi>VAL</mi></mtd>
+								<mtd>
+									
+									<mfenced open='[' close=']'>
+										<mtable>
+											<mtr>
+												<mtd><mtext>COMPS</mtext></mtd>
+												<mtd>
+													<mfenced open='〈' close='〉' separators="&#8199;">
+													</mfenced>
+												</mtd>
+											</mtr>
+											<mtr>
+												<mtd><mtext>SPR</mtext></mtd>
+												<mtd>
+													<mfenced open='〈' close='〉' separators="&#8199;">
+													</mfenced>
+												</mtd>
+											</mtr>
+										</mtable>
+									</mfenced>
+									
+								</mtd>
+							</mtr>
+						</mtable>
+					</mfenced>
+					</mfenced>
+				</mrow>
+			</math>
+			
+			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+				<mrow>
+				  <mfenced open='〈' close='〉'>
+					<mi>there</mi>
+					
+					<mfenced open='[' close=']'>
+						<mtable>
+							<mtr>
+								<mtd><mi style="font-style:italic">word</mi></mtd>
+							</mtr>
+							
+							<mtr>
+								<mtd><mi>HEAD</mi></mtd>
+								<mtd>
+									
+									<mfenced open='[' close=']'>
+										<mtable>
+											<mtr>
+												<mtd columnspan="2"><mi style='font-style:italic'>prep</mi></mtd>
+											</mtr>
+										</mtable>
+									</mfenced>
+									
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd><mi>VAL</mi></mtd>
+								<mtd>
+									
+									<mfenced open='[' close=']'>
+										<mtable>
+											<mtr>
+												<mtd><mtext>COMPS</mtext></mtd>
+												<mtd>
+													<mfenced open='〈' close='〉' separators="&#8199;">
+													</mfenced>
+												</mtd>
+											</mtr>
+											<mtr>
+												<mtd><mtext>SPR</mtext></mtd>
+												<mtd>
+													<mfenced open='〈' close='〉' separators="&#8199;">
+													</mfenced>
+												</mtd>
+											</mtr>
+										</mtable>
+									</mfenced>
+									
+								</mtd>
+							</mtr>
+						</mtable>
+					</mfenced>
+					</mfenced>
+				</mrow>
+			</math>
+		</li>
+		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>fond</mi>
@@ -223,13 +222,9 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
+		</math></li>
 		
-		
-		<hr />
-		
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>out</mi>
@@ -296,13 +291,7 @@
 				</mfenced>
 			</mrow>
 		</math>
-		
-		
-		
-		
-
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>from</mi>
@@ -367,10 +356,7 @@
 				</mfenced>
 			</mrow>
 		</math>
-		
-		
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>of</mi>
@@ -428,12 +414,71 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
+		</math></li>
+		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+			<mrow>
+			  <mfenced open='〈' close='〉'>
+				<mi>grew</mi>
+				
+				<mfenced open='[' close=']'>
+					<mtable>
+						<mtr>
+							<mtd><mi style="font-style:italic">word</mi></mtd>
+						</mtr>
+						
+						<mtr>
+							<mtd><mi>HEAD</mi></mtd>
+							<mtd>
+								
+								<mfenced open='[' close=']'>
+									<mtable>
+										<mtr>
+											<mtd columnspan="2"><mi style='font-style:italic'>verb</mi></mtd>
+										</mtr>
+									</mtable>
+								</mfenced>
+								
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd><mi>VAL</mi></mtd>
+							<mtd>
+								
+								<mfenced open='[' close=']'>
+									<mtable>
+										<!--<mtr>-->
+										<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
+										<!--</mtr>-->
+										<mtr>
+											<mtd><mtext>COMPS</mtext></mtd>
+											<mtd>
+												
+												<mfenced open='〈' close='〉' separators="">
+													<mi>AP</mi>
+												</mfenced>
+												
+											</mtd>
+										</mtr>
+										<mtr>
+											<mtd><mtext>SPR</mtext></mtd>
+											<mtd>
+												<mfenced open='〈' close='〉' separators="&#8199;">
+												</mfenced>
+											</mtd>
+										</mtr>
+									</mtable>
+								</mfenced>
+								
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+				</mfenced>
+			</mrow>
 		</math>
-		
-		
-		<hr />
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+			
+			
+			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>seemed</mi>
@@ -516,70 +561,7 @@
 		
 		
 		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-			<mrow>
-			  <mfenced open='〈' close='〉'>
-				<mi>grew</mi>
-				
-				<mfenced open='[' close=']'>
-					<mtable>
-						<mtr>
-							<mtd><mi style="font-style:italic">word</mi></mtd>
-						</mtr>
-						
-						<mtr>
-							<mtd><mi>HEAD</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd columnspan="2"><mi style='font-style:italic'>verb</mi></mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-						<mtr>
-							<mtd><mi>VAL</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<!--<mtr>-->
-										<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
-										<!--</mtr>-->
-										<mtr>
-											<mtd><mtext>COMPS</mtext></mtd>
-											<mtd>
-												
-												<mfenced open='〈' close='〉' separators="">
-													<mi>AP</mi>
-												</mfenced>
-												
-											</mtd>
-										</mtr>
-										<mtr>
-											<mtd><mtext>SPR</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-					</mtable>
-				</mfenced>
-				</mfenced>
-			</mrow>
-		</math>
-
-		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 				<mfenced open='〈' close='〉'>
 					<mi>happy</mi>
@@ -642,7 +624,7 @@
 		
 		
 		
-		<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 				<mfenced open='〈' close='〉'>
 					<mi>close</mi>
@@ -710,7 +692,19 @@
 					</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
+		</math></li>
+	</ol>
+	</section>
+	
+	
+	
+	
+		
+		
+		<div id="treeContainer">
+			<p><em>Please wait…</em></p>
+		</div>
+	
 		
 		
 		
