@@ -24,11 +24,11 @@ var xlinkns = 'http://www.w3.org/1999/xlink';
  * Class that is associated with a given SVG element and contains methods and
  * properties that relate to the tree as a whole.
  */
-var T = window.TreeDrawer = function(svgContainerElement, treeData){
-	if(typeof svgContainerElement == 'string')
-		svgContainerElement = document.getElementById(svgContainerElement);
-	if(!svgContainerElement || !svgContainerElement.nodeType == 1)
-		throw Error("The param 'svgContainerElement' is not valid.");
+var T = window.TreeDrawer = function(fallbackElement, treeData){
+	if(typeof fallbackElement == 'string')
+		fallbackElement = document.getElementById(fallbackElement);
+	if(!fallbackElement || !fallbackElement.nodeType == 1)
+		throw Error("The param 'fallbackElement' is not valid.");
 	this.root = treeData;
 	
 	var isNativeSVG = !!document.createElementNS(svgns, 'text').getComputedTextLength;
@@ -38,7 +38,7 @@ var T = window.TreeDrawer = function(svgContainerElement, treeData){
 		var svg = document.createElementNS(svgns, 'svg');
 		svg.setAttribute('width', 0);
 		svg.setAttribute('height', 0);
-		svgContainerElement.appendChild(svg);
+		fallbackElement.parentNode.replaceChild(svg, fallbackElement);
 		this.svgElement = svg;
 		
 		// Add the stylesheet
@@ -105,7 +105,7 @@ T.prototype.height = 0; //readonly
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
 	"line, path { stroke-width:1px; stroke:black; }",
-	"text { dominant-baseline:central !important; }", //TODO: Does not work in WebKit
+	"text { dominant-baseline:text-after-edge !important; }", //TODO: Does not work in WebKit
 	//"svg {font-size:20px; }",
 	//"svg > g > g > text { font-size:120px; }"
 ].join("\n");
