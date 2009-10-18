@@ -16,3 +16,22 @@ svg g {
 svg g g {
 	font-size:0.8em;
 }
+svg text {
+	padding:0.5em;
+	
+}
+
+svg line {
+	font-size:2em; /*height not honored here by WebKit*/
+}
+
+/*
+svg > g > text + g > text {
+	font-size:100px;
+}
+*/
+/*
+svg > g > text + g > line {
+	font-size:100px;
+}
+*/

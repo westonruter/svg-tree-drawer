@@ -105,12 +105,10 @@ T.prototype.height = 0; //readonly
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
 	"line, path { stroke-width:1px; stroke:black; }",
-	"text { dominant-baseline:text-after-edge !important; }",
+	"text { dominant-baseline:central !important; }", //TODO: Does not work in WebKit
 	//"svg {font-size:20px; }",
 	//"svg > g > g > text { font-size:120px; }"
 ].join("\n");
-T.prototype.labelPadding = '0.5em';
-T.prototype.branchHeight = '2em';
 
 /**
  * The root TreeDrawer.Node
@@ -179,28 +177,6 @@ T.prototype.draw = function draw(treeData){
 };
 
 
-/**
- * Parse a CSS unit from the fontSize
- * @todo Could convertToSpecifiedUnits() be used instead of this?
- */
-function parsePixels(value, fontSize){
-	var matches = value.toString().match(/(\d+\.?\d*)(\w*)/);
-	if(!matches)
-		throw Error("Unable to parse CSS value: " + value);
-	var unit = matches[2] || 'px';
-	var number = parseFloat(matches[1]);
-	
-	switch(unit){
-		case 'px':
-			return number;
-		case 'em':
-			return number * fontSize;
-		default:
-			throw Error('Unimplemented CSS unit: ' + unit);
-	}
-	return null;
-}
-
 //Die for loops, die!
 var forEach = Array.forEach || function forEach(object, block, context) {
 	for (var i = 0; i < object.length; i++) {
@@ -208,8 +184,6 @@ var forEach = Array.forEach || function forEach(object, block, context) {
 	}
 };
 
-
-//console.info(parsePixelsFromCSSUnit( 'inherit', null, 20));
 
 /**
  * Recursive function called by TreeDrawer.draw()
@@ -230,26 +204,25 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	g.appendChild(label);
 	
 	//Create branch which will connect this label with the parent label
-	var branch;
+	var branch, branchHeight, branchStyle;
 	if(parentElement.localName != 'svg'){
 		branch = document.createElementNS(svgns, 'line');
 		g.appendChild(branch);
+		var branchStyle = window.getComputedStyle(branch, null);
+		var branchHeight = parseFloat(branchStyle.fontSize);
+		offsetTop += branchHeight;
 	}
 	// Allow this to be filtered
 	
 	//Get styles and dimensions
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
-	
-	var labelPaddingWithUnits = treeNode.labelPadding;
-	if(labelPaddingWithUnits == 'inherit')
-		labelPaddingWithUnits = inheritedLabelPadding;
-	var labelPadding = parsePixels(labelPaddingWithUnits, labelFontSize);
-	
-	var branchHeightWithUnits = treeNode.branchHeight;
-	if(branchHeightWithUnits == 'inherit')
-		branchHeightWithUnits = inheritedBranchHeight;
-	var branchHeight = parsePixels(branchHeightWithUnits, labelFontSize); //TODO: get the font-size on the branch to determine height?
+	var labelPadding = {
+		top:parseFloat(labelStyle.paddingTop),
+		right:parseFloat(labelStyle.paddingRight),
+		bottom:parseFloat(labelStyle.paddingBottom),
+		left:parseFloat(labelStyle.paddingLeft)
+	};
 	
 	//var labelRect = label.getBoundingClientRect(); //TODO: If doesn't include height, then calculate the height
 	//if(!labelRect.width)
@@ -280,12 +253,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 			g,
 			treeNode.children[i],
 			offsetLeft + childrenWidth,
-			offsetTop + labelPadding /* top */
+			offsetTop + labelPadding.top
 			          + labelHeight
-			          + labelPadding /* bottom */
-			          + branchHeight,
-			labelPaddingWithUnits, //inherit
-			branchHeightWithUnits //inherit
+			          + labelPadding.bottom
+			          //+ branchHeight //value of child branch's height is added
 		);
 		childrenWidth += childInfo.width;
 		
@@ -296,10 +267,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	}
 	
 	//Get coordinates for label and position
-	var labelY = offsetTop + labelPadding; //labelHeight; //labelStyle.textAnchor
+	var labelY = offsetTop + labelPadding.top;
 	if(label.nodeName == 'text')
 		labelY += labelFontSize; //labelHeight;
-	//console.info([treeNode.label, offsetTop, labelPadding, labelHeight])
+	
 	var labelX;
 	//If there are children, then x is in the middle of their first and last children
 	//TODO: if labelWidth > childrenWidth, we could pass in the labelWidth
@@ -311,12 +282,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 		labelX = leftX + (rightX - leftX)/2 - labelWidth/2;
 		
 		//Make sure that parent labels which are wider than their children don't get placed outside of viewbox
-		labelX = Math.max(0, labelX, offsetLeft+labelPadding);
+		labelX = Math.max(0, labelX, offsetLeft+labelPadding.left);
 		
 		// If the children were narrower than the the parent label, then distribute
 		// the children out under the parent. Requires that all subtree graphic
 		// elements to be shifted over to the right
-		var labelWidthBeyondChildrenWidth = labelWidth+labelPadding*2 - childrenWidth;
+		var labelWidthBeyondChildrenWidth = labelWidth + labelPadding.left + labelPadding.right - childrenWidth;
 		if(labelWidthBeyondChildrenWidth > 0){
 			var shiftLeft = labelWidthBeyondChildrenWidth/(childrenInfo.length+1);
 			forEach(childrenInfo, function(child, i){
@@ -348,7 +319,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	}
 	//No children, so left edge is simply offsetLeft
 	else {
-		labelX = offsetLeft + labelPadding /*left*/;
+		labelX = offsetLeft + labelPadding.left;
 	}
 	label.setAttribute('x', labelX + 'px');
 	label.setAttribute('y', labelY + 'px');
@@ -372,19 +343,19 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
 		childrenInfo[i].branch.setAttribute('x1', labelX + labelWidth/2 + 'px');
-		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding*2 + labelHeight + 'px');
+		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelHeight + 'px');
 	}
 
 	//Update the dimensions of the entire "canvas"
 	tree.height = Math.max(
 		tree.height,
-		offsetTop + labelPadding/*top*/ + labelHeight + labelPadding/*bottom*/
+		offsetTop + labelPadding.top + labelHeight + labelPadding.bottom
 	);
 	tree.width = Math.max(
 		tree.width,
 		offsetLeft + childrenWidth,
-		offsetLeft + labelWidth + labelPadding*2,
-		labelX + labelWidth + labelPadding*2
+		offsetLeft + labelWidth + labelPadding.left + labelPadding.right,
+		labelX + labelWidth + labelPadding.left + labelPadding.right
 	);
 	
 	return {
@@ -392,7 +363,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 		branch:branch,
 		//containerElement:g,
 		subtreeElements:subtreeElements,
-		width:Math.max(labelWidth+labelPadding*2, childrenWidth)
+		width:Math.max(labelWidth + labelPadding.left + labelPadding.right, childrenWidth)
 	};
 }
 
@@ -414,8 +385,6 @@ TN.prototype.label = "";
 TN.prototype.collapsed = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
-TN.prototype.labelPadding = 'inherit'; //TODO
-TN.prototype.branchHeight = 'inherit'; //TODO
 
 
 /**
