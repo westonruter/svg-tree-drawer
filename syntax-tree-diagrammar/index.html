@@ -5,7 +5,16 @@
 		<meta http-equiv="X-UA-Compatible" content="chrome=1">
 		<title>SVG Tree Drawer Example</title>
 		<link rel="stylesheet" href="screen.css" type="text/css" media="screen">
-		<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>
+		<script>
+		if(!window.console){
+			var console = {
+				info:function(){},
+				error:function(){},
+				warn:function(){}
+			}
+		}
+		</script>
+		<!--<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>-->
 		<script src="../svg-tree-drawer.js"></script>
 		<script src="helpers.js"></script>
 	</head>
@@ -60,7 +69,7 @@
 						]
 					},
 					{
-						label:'VPabcdefghighklmnopqrstuvwxyzasdaskdhkajshdkjsaasdasdsaadsadasd',
+						label:'VP',
 						children:[
 							{
 								label:'PP',
@@ -93,8 +102,17 @@
 							{
 								label:'Vksjdkahdkahsdkjahsdkjahsdkjahskjahskdjh',
 								children:[
-									{label:'itta'},
-									{label:'ittaasdasd'}
+									{label:'i'},
+									{
+										label:'iasdasdasdasdasdasd',
+										children:[
+											{label:'e'},
+											{label:'e'},
+											{label:'e'},
+											{label:'easdasdasdas'}
+										]
+									
+									}
 								]
 							}
 						]
@@ -147,10 +165,13 @@
 				if(hashData)
 					data = hashData;
 				
-				tree = new TreeDrawer(container, data.root, data.labelStyle, data.branchStyle);
+				tree = new TreeDrawer(container, data.root);
+				
+				tree.draw();
 			}
 			catch(e){
 				container.innerHTML = '<em style="color:red">Unable to initialize SVG Tree: ' + e.message + '.</em>';
+				console.error(e);
 			}
 			
 				

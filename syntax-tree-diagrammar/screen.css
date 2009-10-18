@@ -8,3 +8,11 @@ svg {
 object {
 	outline:solid 1px red;
 }
+
+
+svg g {
+	font-size:30px;
+}
+svg g g {
+	font-size:0.8em;
+}
