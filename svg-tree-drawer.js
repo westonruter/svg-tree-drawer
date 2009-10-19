@@ -198,8 +198,19 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	parentElement.appendChild(g);
 	
 	// Make label
-	var label = document.createElementNS(svgns, 'text');
-	label.appendChild(document.createTextNode(treeNode.label, true));
+	var label;
+	if(typeof treeNode.label == 'string'){
+		label = document.createElementNS(svgns, 'text');
+		label.appendChild(document.createTextNode(treeNode.label, true));
+	}
+	else {
+		label = document.createElementNS(svgns, 'foreignObject');
+		label.setAttribute('width', treeNode.label.offsetWidth);
+		label.setAttribute('height', treeNode.label.offsetHeight);
+		label.appendChild(treeNode.label);
+	}
+	
+	
 	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	g.appendChild(label);
 	
@@ -229,7 +240,19 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//	labelRect.width = label.getComputedTextLength(); //labelRect.right - labelRect.left;
 	//if(!labelRect.height)
 	//	labelRect.height = labelFontSize; //labelRect.bottom - labelRect.top;
-	var labelRect = {width:label.getComputedTextLength(),height:labelFontSize};
+	var labelRect;
+	if(label.width && label.height){
+		labelRect = {
+			width:label.width.baseVal.value,
+			height:label.height.baseVal.value
+		};
+	}
+	else if(label.getComputedTextLength){
+		labelRect = {width:label.getComputedTextLength(),height:labelFontSize};
+	}
+	else {
+		throw Error("Unable to determine dimensions for node.");
+	}
 	var labelWidth = labelRect.width;
 	var labelHeight = labelRect.height;
 	
@@ -277,8 +300,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	if(childrenInfo.length){
 		var firstChildLabel = childrenInfo[0].label;
 		var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
-		var leftX = parseFloat(firstChildLabel.getAttribute('x')) + firstChildLabel.getComputedTextLength()/2;
-		var rightX = parseFloat(lastChildLabel.getAttribute('x')) + lastChildLabel.getComputedTextLength()/2;
+		var leftX = parseFloat(firstChildLabel.getAttribute('x')) + (firstChildLabel.width ? firstChildLabel.width.baseVal.value : firstChildLabel.getComputedTextLength())/2;
+		var rightX = parseFloat(lastChildLabel.getAttribute('x')) + (lastChildLabel.width  ? lastChildLabel.width.baseVal.value : lastChildLabel.getComputedTextLength())/2;
 		labelX = leftX + (rightX - leftX)/2 - labelWidth/2;
 		
 		//Make sure that parent labels which are wider than their children don't get placed outside of viewbox

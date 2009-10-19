@@ -18,13 +18,6 @@
 		<script src="../svg-tree-drawer.js"></script>
 		<script src="helpers.js"></script>
 		<style>
-
-		svg g {
-			
-		}
-		svg g g {
-			
-		}
 		svg text {
 			padding:0.5em;
 			padding-left:1em;
@@ -35,18 +28,16 @@
 		svg line {
 			font-size:2em; /*height not honored here by WebKit*/
 		}
-
-
 		math mtd {
 			text-align:left;
 		}
-		math mrow {
+		math {
 			
 		}
-		math {
-			display:block;
+		.treeNodeAVM {
+			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
 		}
-		li {
+		li math {
 			
 		}
 		ol > li {
@@ -71,7 +62,7 @@
 		<section>
 		<h2>Problem 1: Valence Variations</h2>
 		<ol style="list-style:upper-alpha">
-			<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+			<li><div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 				<mrow>
 				  <mfenced open='〈' close='〉'>
 					<mi>here</mi>
@@ -125,9 +116,9 @@
 					</mfenced>
 					</mfenced>
 				</mrow>
-			</math>
+			</math></div>
 			
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+			<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 				<mrow>
 				  <mfenced open='〈' close='〉'>
 					<mi>there</mi>
@@ -181,9 +172,9 @@
 					</mfenced>
 					</mfenced>
 				</mrow>
-			</math>
+			</math></div>
 		</li>
-		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		<li><div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>fond</mi>
@@ -243,9 +234,9 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math></li>
+		</math></div></li>
 		
-		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		<li><div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>out</mi>
@@ -311,8 +302,8 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
-		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		</math></div>
+		<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>from</mi>
@@ -376,8 +367,8 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
-		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		</math></div>
+		<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>of</mi>
@@ -435,8 +426,8 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math></li>
-		<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		</math></div></li>
+		<li><div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>grew</mi>
@@ -496,10 +487,10 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
+		</math></div>
 			
 			
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+			<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 			  <mfenced open='〈' close='〉'>
 				<mi>seemed</mi>
@@ -599,12 +590,12 @@
 				</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
+		</math></div>
 		
 		
 		
 		
-		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 				<mfenced open='〈' close='〉'>
 					<mi>happy</mi>
@@ -663,11 +654,11 @@
 					</mfenced>
 				</mfenced>
 			</mrow>
-		</math>
+		</math></div>
 		
 		
 		
-		<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+		<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
 			<mrow>
 				<mfenced open='〈' close='〉'>
 					<mi>close</mi>
@@ -735,10 +726,307 @@
 					</mfenced>
 				</mfenced>
 			</mrow>
-		</math></li>
+		</math></div></li>
 		
 		<li>
+			<!--
+			①
+			②
+			③
+			④
+			⑤
+			-->
+				<div id="s1" class='treeNodeAVM'>
+					<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mfenced open='[' close=']'>
+							<mtable>
+								<mtr>
+									<mtd><mi style="font-style:italic">phrase</mi></mtd>
+								</mtr>
+								
+								<mtr>
+									<mtd><mi>HEAD</mi></mtd>
+									<mtd>
+										<mi>①</mi>
+										<!--<mfenced open='[' close=']'>
+											<mtable>
+												<mtr>
+													<mtd>
+														<mi style='font-style:italic'>verb</mi>
+													</mtd>
+													<mtd>
+														
+													</mtd>
+												</mtr>
+											</mtable>
+										</mfenced>-->
+									</mtd>
+								</mtr>
+								<mtr>
+									<mtd><mi>VAL</mi></mtd>
+									<mtd>
+										
+										<mfenced open='[' close=']'>
+											<mtable>
+												<!--<mtr>-->
+												<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
+												<!--</mtr>-->
+												<mtr>
+													<mtd><mtext>COMPS</mtext></mtd>
+													<mtd>
+														
+														<mfenced open='〈' close='〉' separators="">
+
+														</mfenced>
+														
+													</mtd>
+												</mtr>
+												<mtr>
+													<mtd><mtext>SPR</mtext></mtd>
+													<mtd>
+														<mfenced open='〈' close='〉' separators="&#8199;">
+														</mfenced>
+													</mtd>
+												</mtr>
+													
+											</mtable>
+										</mfenced>
+										
+									</mtd>
+								</mtr>
+							</mtable>
+						</mfenced>
+					</math>
+				</div>
+				
+				
+				
+
+				<div id="np1" class='treeNodeAVM'>
+					<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+							<mi>②</mi>
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">phrase</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2">
+															<mi style='font-style:italic'>noun</mi>
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd>
+															<mi>AGR</mi>
+														</mtd>
+														<mtd>
+															<mi>③</mi>
+															<!--<mi>①</mi>-->
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<!--<mtr>-->
+													<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
+													<!--</mtr>-->
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+	
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+															</mfenced>
+														</mtd>
+													</mtr>
+														
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+						</mrow>
+					</math>
+				</div>
+			
+
+				<div id="vp1" class='treeNodeAVM'>
+					<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">phrase</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											<mi>①</mi>
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2">
+															<mi style='font-style:italic'>verb</mi>
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd>
+															<mi>AGR</mi>
+														</mtd>
+														<mtd>
+															<mi>③</mi>
+															<!--<mi>①</mi>-->
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											<mi>④</mi>
+											<mfenced open='[' close=']'>
+												<mtable>
+													<!--<mtr>-->
+													<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
+													<!--</mtr>-->
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+	
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																<mi>②</mi>
+															</mfenced>
+														</mtd>
+													</mtr>
+														
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+						</mrow>
+					</math>
+				</div>
+
+				<div id="v1" class='treeNodeAVM'>
+					<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">word</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											①
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="1">
+															<mi style='font-style:italic'>verb</mi>
+														</mtd>
+													</mtr>
+													<!--<mtr>-->
+													<!--	<mtd>-->
+													<!--		<mi>AGR</mi>-->
+													<!--	</mtd>-->
+													<!--	<mtd>-->
+													<!--		<mi>③</mi>-->
+													<!--	</mtd>-->
+													<!--</mtr>-->
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											<mi>④</mi>
+											<mfenced open='[' close=']'>
+												<mtable>
+													<!--<mtr>-->
+													<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
+													<!--</mtr>-->
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+	
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																<mi>②</mi>
+															</mfenced>
+														</mtd>
+													</mtr>
+														
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+						</mrow>
+					</math>
+				</div>
+
 			<div id="treeTheySeemedCloseToMeToSandy"><em>Tree goes here…</em></div>
+			
+			<p>① Head Feature Principle</p>
+			<p>② Head-Specifier Rule</p>
+			<p>③ SHAC</p>
+			<p>④ Valence Principle</p>
 		</li>
 	</ol>
 	</section>
@@ -747,14 +1035,14 @@
 		<script>
 		//<![CDATA[
 		var theySeemedCloseToMeToSandy = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
-			{label:"S", children:[
-				{label:'NP', children:[
-					{label: 'N', children:[
+			{label:/*S*/document.getElementById('s1'), children:[
+				{label:/*NP*/document.getElementById('np1'), children:[
+					//{label: 'N', children:[
 						{label: 'They'}
-					]}
+					//]}
 				]},
-				{label:"VP", children:[
-					{label:'V', children:[
+				{label:/*VP*/document.getElementById('vp1'), children:[
+					{label:/*V*/document.getElementById('v1'), children:[
 						{label:'seemed'}
 					]},
 					{label:'AP', children:[
