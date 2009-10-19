@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset='utf8' />
+		<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+		<title>Ling 566 HW 2.3: Agreement and Case Marking in Wambaya</title>
+		
+		<script>
+		if(!window.console){
+			var console = {
+				info:function(){},
+				error:function(){},
+				warn:function(){}
+			}
+		}
+		</script>
+		<!--<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>-->
+		<script src="../svg-tree-drawer.js"></script>
+		<script src="helpers.js"></script>
+		<style>
+		svg text,
+		svg foreignObject,
+		svg foreignobject{
+			padding:0.5em;
+			padding-left:1em;
+			padding-right:1em;
+			
+		}
+		
+		svg line {
+			font-size:2em; /*height not honored here by WebKit*/
+		}
+		math mtd {
+			text-align:left;
+		}
+		math {
+			
+		}
+		.treeNodeAVM {
+			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
+		}
+		li math {
+			
+		}
+		ol > li {
+			margin-top:1em;
+			padding-top:1em;
+			border-top:solid 1px gray;
+		}
+		ol {
+			margin-top:1em;
+			margin-bottom:1em;
+		}
+		ol > li:first-child {
+			border-top:0;
+			padding-top:0;
+			margin-top:0;
+		}
+		math,svg {
+			page-break-inside:avoid;
+		}
+		li svg {
+			vertical-align:top;
+		}
+		.avm {
+			margin-bottom:10px;
+			display:inline-block;
+			margin-right:30px;
+		}
+		</style>
+	</head>
+	<body>
+		<h1>Ling 566 HW 2.3</h1>
+		<section>
+		<h2>Chapter 4, Problem 8: Agreement and Case Marking in Wambaya</h2>
+
+		<ol style="list-style:upper-alpha">
+			<li>We should put the CASE feature into the AGR feature structure.
+			By doing so, the Specifier-Head Agreement Constraint will ensure that
+			the verb (head) and the NP (specifier) have the same case. Furthermore, the
+			Head-Feature principle will ensure that the CASE on NP and N will be the
+			same.</li>
+			<li>Yes. The rules for English's determiner-noun agreement has been
+			defined in terms of the Specifier-Head Agreement Constraint. And this
+			same constraint, with the addition of CASE to AGR, will also
+			serve to define Wambaya's determiner-noun agreement.
+			
+					<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+						  <mfenced open='〈' close='〉'>
+							<mi>bungmanyani</mi>
+							
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">word</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2"><mi style='font-style:italic'>noun</mi></mtd>
+													</mtr>
+													<mtr>
+														<mtd>AGR</mtd>
+														<mtd>
+															<mi>①</mi>
+															<mfenced open='[' close=']'>
+																<mtable>
+																	<mtr>
+																		<mtd>CASE</mtd>
+																		<mtd>E</mtd>
+																	</mtr>
+																	<mtr>
+																		<mtd>GEND</mtd>
+																		<mtd>F</mtd>
+																	</mtr>
+																</mtable>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+																
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																<mi style="font-style:normal;">D</mi>
+																<mfenced open='[' close=']' separators="&#8199;">
+																	<mi>AGR</mi>
+																	<mi>①</mi>
+																</mfenced>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+							</mfenced>
+						</mrow>
+					</math></div>
+				
+				
+					<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+						  <mfenced open='〈' close='〉'>
+							<mi>ngankiyaga</mi>
+							
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">word</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2"><mi style='font-style:italic'>det</mi></mtd>
+													</mtr>
+													<mtr>
+														<mtd>AGR</mtd>
+														<mtd>
+															<!--<mi>①</mi>-->
+															<mfenced open='[' close=']'>
+																<mtable>
+																	<mtr>
+																		<mtd>CASE</mtd>
+																		<mtd>E</mtd>
+																	</mtr>
+																	<mtr>
+																		<mtd>GEND</mtd>
+																		<mtd>F</mtd>
+																	</mtr>
+																</mtable>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+																
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+							</mfenced>
+						</mrow>
+					</math></div>
+
+
+					<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+						  <mfenced open='〈' close='〉'>
+							<mi>bungmaji</mi>
+							
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">word</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2"><mi style='font-style:italic'>noun</mi></mtd>
+													</mtr>
+													<mtr>
+														<mtd>AGR</mtd>
+														<mtd>
+															<mi>①</mi>
+															<mfenced open='[' close=']'>
+																<mtable>
+																	<mtr>
+																		<mtd>CASE</mtd>
+																		<mtd>A</mtd>
+																	</mtr>
+																	<mtr>
+																		<mtd>GEND</mtd>
+																		<mtd>M</mtd>
+																	</mtr>
+																</mtable>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+																
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																<mi style="font-style:normal;">D</mi>
+																<mfenced open='[' close=']' separators="&#8199;">
+																	<mi>AGR</mi>
+																	<mi>①</mi>
+																</mfenced>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+							</mfenced>
+						</mrow>
+					</math></div>
+
+
+					<div class='avm'><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
+						<mrow>
+						  <mfenced open='〈' close='〉'>
+							<mi>iniyaga</mi>
+							
+							<mfenced open='[' close=']'>
+								<mtable>
+									<mtr>
+										<mtd><mi style="font-style:italic">word</mi></mtd>
+									</mtr>
+									
+									<mtr>
+										<mtd><mi>HEAD</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd columnspan="2"><mi style='font-style:italic'>det</mi></mtd>
+													</mtr>
+													<mtr>
+														<mtd>AGR</mtd>
+														<mtd>
+															<!--<mi>①</mi>-->
+															<mfenced open='[' close=']'>
+																<mtable>
+																	<mtr>
+																		<mtd>CASE</mtd>
+																		<mtd>A</mtd>
+																	</mtr>
+																	<mtr>
+																		<mtd>GEND</mtd>
+																		<mtd>M</mtd>
+																	</mtr>
+																</mtable>
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+									<mtr>
+										<mtd><mi>VAL</mi></mtd>
+										<mtd>
+											
+											<mfenced open='[' close=']'>
+												<mtable>
+													<mtr>
+														<mtd><mtext>COMPS</mtext></mtd>
+														<mtd>
+															
+															<mfenced open='〈' close='〉' separators="">
+																
+															</mfenced>
+															
+														</mtd>
+													</mtr>
+													<mtr>
+														<mtd><mtext>SPR</mtext></mtd>
+														<mtd>
+															<mfenced open='〈' close='〉' separators="&#8199;">
+																
+															</mfenced>
+														</mtd>
+													</mtr>
+												</mtable>
+											</mfenced>
+											
+										</mtd>
+									</mtr>
+								</mtable>
+							</mfenced>
+							</mfenced>
+						</mrow>
+					</math></div>
+
+			</li>
+		</ol>
+		</section>
+	
+		
+		<hr />
+		<footer>
+			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
+			<time>2009-10-19</time>
+		</footer>
+	</body>
+</html>
