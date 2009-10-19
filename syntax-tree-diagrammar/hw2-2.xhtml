@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset='utf8' />
+		<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+		<title>Ling 566 HW 2: Problem 2: Spanish NPs I</title>
+		
+		<script>
+		if(!window.console){
+			var console = {
+				info:function(){},
+				error:function(){},
+				warn:function(){}
+			}
+		}
+		</script>
+		<!--<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>-->
+		<script src="../svg-tree-drawer.js"></script>
+		<script src="helpers.js"></script>
+		<style>
+		svg text,
+		svg foreignObject,
+		svg foreignobject{
+			padding:0.5em;
+			padding-left:1em;
+			padding-right:1em;
+			
+		}
+		
+		svg line {
+			font-size:2em; /*height not honored here by WebKit*/
+		}
+		math mtd {
+			text-align:left;
+		}
+		math {
+			
+		}
+		.treeNodeAVM {
+			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
+		}
+		li math {
+			
+		}
+		ol > li {
+			margin-top:1em;
+			padding-top:1em;
+			border-top:solid 1px gray;
+		}
+		ol > li:first-child {
+			border-top:0;
+			padding-top:0;
+			margin-top:0;
+		}
+		math,svg {
+			page-break-inside:avoid;
+		}
+		li svg {
+			vertical-align:top;
+		}
+		
+		</style>
+	</head>
+	<body>
+		<h1>Ling 566 HW 2</h1>
+		<section>
+		<h2>Problem 2: Spanish NPs I</h2>
+		<ol style="list-style:upper-alpha">
+			
+			
+		</ol>
+	</section>
+	
+	
+		<script>
+		//<![CDATA[
+		
+		var theySeemedCloseToMeToSandy = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
+			{label:/*S*/document.getElementById('s1'), children:[
+				{label:/*NP*/document.getElementById('np1'), children:[
+					//{label: 'N', children:[
+						{label: 'They'}
+					//]}
+				]},
+				{label:/*VP*/document.getElementById('vp1'), children:[
+					{label:/*V*/document.getElementById('v1'), children:[
+						{label:'seemed'}
+					]},
+					{label:/*AP ⑤*/document.getElementById('ap1'), children:[
+						{label:/*A*/document.getElementById('a1'), children:[
+							{label:'close'}
+						]},
+						{label:/*PP ⑧*/document.getElementById('pp1'), children:[
+							{label:/*P*/document.getElementById('p1'), children:[
+								{label:'to'}
+							]},
+							{label:/*NP ⑩*/document.getElementById('np2'), children:[
+								//{label:'N', children: [
+									{label:'me'}
+								//]}
+							]}
+						]}
+					]},
+					{label:/*PP ⑥*/document.getElementById('pp2'), children:[
+						{label:/*P*/document.getElementById('p2'), children:[
+							{label:'to'}
+						]},
+						{label:/*NP*/document.getElementById('np3'), children:[
+							//{label:'N', children: [
+								{label:'Sandy'}
+							//]}
+						]}
+					]}
+				]}
+			]}
+		);
+		//theySeemedCloseToMeToSandy.draw();
+
+		
+		//]]>
+		</script>
+		
+		<hr />
+		<footer>
+			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
+			<time>2009-10-19</time>
+		</footer>
+	</body>
+</html>

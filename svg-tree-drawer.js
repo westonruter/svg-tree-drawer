@@ -229,10 +229,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = {
-		top:parseFloat(labelStyle.paddingTop) || 10, //TEMP
-		right:parseFloat(labelStyle.paddingRight) || 10,
-		bottom:parseFloat(labelStyle.paddingBottom) || 10,
-		left:parseFloat(labelStyle.paddingLeft) || 10
+		top:parseFloat(labelStyle.paddingTop) || 5, //TEMP
+		right:parseFloat(labelStyle.paddingRight) || 5,
+		bottom:parseFloat(labelStyle.paddingBottom) || 5,
+		left:parseFloat(labelStyle.paddingLeft) || 5
 	};
 	
 	//var labelRect = label.getBoundingClientRect(); //TODO: If doesn't include height, then calculate the height
