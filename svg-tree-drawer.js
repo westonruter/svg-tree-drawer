@@ -229,10 +229,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = {
-		top:parseFloat(labelStyle.paddingTop),
-		right:parseFloat(labelStyle.paddingRight),
-		bottom:parseFloat(labelStyle.paddingBottom),
-		left:parseFloat(labelStyle.paddingLeft)
+		top:parseFloat(labelStyle.paddingTop) || 10, //TEMP
+		right:parseFloat(labelStyle.paddingRight) || 10,
+		bottom:parseFloat(labelStyle.paddingBottom) || 10,
+		left:parseFloat(labelStyle.paddingLeft) || 10
 	};
 	
 	//var labelRect = label.getBoundingClientRect(); //TODO: If doesn't include height, then calculate the height
@@ -352,8 +352,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//line.setAttribute('style', 'stroke:red; stroke-width:2px; fill:none;');
 	//line.setAttribute('x1', offsetLeft + 'px');
 	//line.setAttribute('x2', offsetLeft + 'px');
-	//line.setAttribute('y1', offsetTop + labelPadding + 'px');
-	//line.setAttribute('y2', offsetTop + labelPadding + labelHeight + 'px');
+	//line.setAttribute('y1', offsetTop + labelPadding.left + 'px');
+	//line.setAttribute('y2', offsetTop + labelPadding.left + labelHeight + 'px');
 	//g.appendChild(line);
 	
 	
