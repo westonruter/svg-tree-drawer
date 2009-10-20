@@ -220,11 +220,20 @@
 				children:[
 					{
 						label:'NʃP',
+						__sslabel:(function(){
+							var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+							var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+							line.setAttribute('style', 'fill:cyan; stroke:red; stroke-width:3px; padding:0!important;');
+							line.setAttribute('width', 400);
+							line.setAttribute('height', 50);
+							g.appendChild(line)
+							return g;
+						})(),
 						children:[
 							{
 								label:(function(){
 									var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-									rect.setAttribute('style', 'fill:cyan; stroke:red; stroke-width:2px; padding:10px;');
+									rect.setAttribute('style', 'fill:cyan; stroke:red; stroke-width:3px; padding:0!important;');
 									rect.setAttribute('width', 400);
 									rect.setAttribute('height', 50);
 									return rect;
@@ -276,7 +285,13 @@
 										]
 									},
 									{
-										label:'P',
+										label:(function(){
+											var obj = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+											obj.setAttribute('style', 'fill:cyan; stroke:red; stroke-width:3px; padding:0!important;');
+											//obj.setAttribute('width', 400);
+											obj.setAttribute('r', 50);
+											return obj;
+										})(),
 										children:[
 											{label:'e'}
 										]
