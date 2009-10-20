@@ -198,25 +198,29 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	parentElement.appendChild(g);
 	
 	// Make label
-	var isForeignObject;
+	var isForeignObject = false;
 	var label;
 	if(typeof treeNode.label == 'string'){
 		label = document.createElementNS(svgns, 'text');
 		label.appendChild(document.createTextNode(treeNode.label, true));
-		isForeignObject = false;
 	}
-	else {
-		isForeignObject = true;
-		label = document.createElementNS(svgns, 'foreignObject');
-		// Set width/height to non-zero value so that display isn't disabled;
-		// after the label is inserted into the SVG tree, then the offsetHeight
-		// and offsetWidth will be used to provide the proper dimensions.
-		// This is to facilitate writing CSS style rule selectors.
-		//   label.setAttribute('width', treeNode.label.offsetWidth);
-		//   label.setAttribute('height', treeNode.label.offsetHeight);
-		label.setAttribute('width', 1);
-		label.setAttribute('height', 1); 
-		label.appendChild(treeNode.label);
+	else if(treeNode.label.nodeType == 1/*Element*/) {
+		if(treeNode.label.namespaceURI != svgns){
+			isForeignObject = true;
+			label = document.createElementNS(svgns, 'foreignObject');
+			// Set width/height to non-zero value so that display isn't disabled;
+			// after the label is inserted into the SVG tree, then the offsetHeight
+			// and offsetWidth will be used to provide the proper dimensions.
+			// This is to facilitate writing CSS style rule selectors.
+			//   label.setAttribute('width', treeNode.label.offsetWidth);
+			//   label.setAttribute('height', treeNode.label.offsetHeight);
+			label.setAttribute('width', 1);
+			label.setAttribute('height', 1); 
+			label.appendChild(treeNode.label);
+		}
+		else {
+			label = treeNode.label;
+		}
 	}
 	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	g.appendChild(label);
@@ -256,12 +260,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 		label.setAttribute('width', labelRect.width);
 		label.setAttribute('height', labelRect.height);
 	}
-	//else if(label.width && label.height){
-	//	labelRect = {
-	//		width:label.width.baseVal.value,
-	//		height:label.height.baseVal.value
-	//	};
-	//}
+	else if(label.width && label.height){
+		labelRect = {
+			width:label.width.baseVal.value,
+			height:label.height.baseVal.value
+		};
+	}
 	else if(label.getComputedTextLength){
 		labelRect = {
 			width:label.getComputedTextLength(), //shouldn't this always include labelPadding.left + labelPadding.right ???

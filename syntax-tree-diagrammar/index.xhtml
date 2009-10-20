@@ -222,7 +222,13 @@
 						label:'NʃP',
 						children:[
 							{
-								label:'NOM',
+								label:(function(){
+									var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+									rect.setAttribute('style', 'fill:cyan; stroke:red; stroke-width:2px; padding:10px;');
+									rect.setAttribute('width', 400);
+									rect.setAttribute('height', 50);
+									return rect;
+								})(),
 								children:[
 									{
 										label:'N',
