@@ -198,19 +198,26 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	parentElement.appendChild(g);
 	
 	// Make label
+	var isForeignObject;
 	var label;
 	if(typeof treeNode.label == 'string'){
 		label = document.createElementNS(svgns, 'text');
 		label.appendChild(document.createTextNode(treeNode.label, true));
+		isForeignObject = false;
 	}
 	else {
+		isForeignObject = true;
 		label = document.createElementNS(svgns, 'foreignObject');
-		label.setAttribute('width', treeNode.label.offsetWidth);
-		label.setAttribute('height', treeNode.label.offsetHeight);
+		// Set width/height to non-zero value so that display isn't disabled;
+		// after the label is inserted into the SVG tree, then the offsetHeight
+		// and offsetWidth will be used to provide the proper dimensions.
+		// This is to facilitate writing CSS style rule selectors.
+		//   label.setAttribute('width', treeNode.label.offsetWidth);
+		//   label.setAttribute('height', treeNode.label.offsetHeight);
+		label.setAttribute('width', 1);
+		label.setAttribute('height', 1); 
 		label.appendChild(treeNode.label);
 	}
-	
-	
 	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	g.appendChild(label);
 	
@@ -229,10 +236,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = {
-		top:parseFloat(labelStyle.paddingTop) || 5, //TEMP
-		right:parseFloat(labelStyle.paddingRight) || 5,
-		bottom:parseFloat(labelStyle.paddingBottom) || 5,
-		left:parseFloat(labelStyle.paddingLeft) || 5
+		top:parseFloat(labelStyle.paddingTop), //TEMP
+		right:parseFloat(labelStyle.paddingRight),
+		bottom:parseFloat(labelStyle.paddingBottom),
+		left:parseFloat(labelStyle.paddingLeft)
 	};
 	
 	//var labelRect = label.getBoundingClientRect(); //TODO: If doesn't include height, then calculate the height
@@ -241,28 +248,31 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	//if(!labelRect.height)
 	//	labelRect.height = labelFontSize; //labelRect.bottom - labelRect.top;
 	var labelRect;
-	if(label.width && label.height){
+	if(isForeignObject){
 		labelRect = {
-			width:label.width.baseVal.value,
-			height:label.height.baseVal.value
+			width:label.firstChild.offsetWidth,
+			height:label.firstChild.offsetHeight
 		};
+		label.setAttribute('width', labelRect.width);
+		label.setAttribute('height', labelRect.height);
 	}
+	//else if(label.width && label.height){
+	//	labelRect = {
+	//		width:label.width.baseVal.value,
+	//		height:label.height.baseVal.value
+	//	};
+	//}
 	else if(label.getComputedTextLength){
-		labelRect = {width:label.getComputedTextLength(),height:labelFontSize};
+		labelRect = {
+			width:label.getComputedTextLength(), //shouldn't this always include labelPadding.left + labelPadding.right ???
+			height:labelFontSize
+		};
 	}
 	else {
 		throw Error("Unable to determine dimensions for node.");
 	}
 	var labelWidth = labelRect.width;
 	var labelHeight = labelRect.height;
-	
-	//var labelMiddleX = offsetLeft + labelPadding + labelWidth/2;
-	//var circle = document.createElementNS(svgns, 'circle');
-	//circle.setAttribute('cx', labelMiddleX + 'px');
-	//circle.setAttribute('cy', (offsetTop + labelPadding + labelHeight/2) + 'px');
-	//circle.setAttribute('r', (labelHeight/2) + 'px');
-	//circle.setAttribute('style', 'fill:none; stroke:lime; stroke-width:2px;');
-	//g.appendChild(circle);
 	
 	//Process each of the children
 	var subtreeElements = [label];
@@ -346,6 +356,14 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop, inherit
 	}
 	label.setAttribute('x', labelX + 'px');
 	label.setAttribute('y', labelY + 'px');
+	
+	var rect = document.createElementNS(svgns, 'rect');
+	rect.setAttribute('x', labelX + 'px');
+	rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
+	rect.setAttribute('height', labelHeight + 'px');
+	rect.setAttribute('width', labelWidth + 'px');
+	rect.setAttribute('style', 'fill:none; stroke:lime; stroke-width:1px;');
+	g.appendChild(rect);
 
 	//TEMP: offsetLeft
 	//var line = document.createElementNS(svgns, 'line');

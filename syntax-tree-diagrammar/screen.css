@@ -14,14 +14,24 @@ object {
 }
 
 svg g {
-	font-size:30px;
+	font-size:15px;
+}
+body > .math {
+	font-size:50px !important;
+}
+div.math {
+	padding:0.5em; /*note: padding is not passed onto foreignObject */
+	
+}
+foreignObject {
+	/*padding:0.5em;*/
 }
 svg g g {
-	font-size:0.8em;
+	/*font-size:0.8em;*/
 }
+
 svg text {
 	padding:0.5em;
-	
 }
 
 svg line {
