@@ -13,15 +13,20 @@ object {
 	
 }
 
-svg g {
+svg g, svg circle {
 	font-size:15px;
+}
+svg circle {
+	padding:10px;
+}
+svg rect {
+	/*padding:30px;*/
 }
 body > .math {
 	font-size:50px !important;
 }
 div.math {
 	padding:0.5em; /*note: padding is not passed onto foreignObject */
-	
 }
 foreignObject {
 	/*padding:0.5em;*/
@@ -32,6 +37,7 @@ svg g g {
 
 svg text {
 	padding:0.5em;
+	/*dominant-baseline:bottom !important;*/
 }
 
 svg line {

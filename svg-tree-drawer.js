@@ -1,19 +1,25 @@
 /**
- * SVG Tree Drawer
- * by Weston Ruter
- *
- * Initially built for Syntax Tree Diagrammer
- * @todo We need to be able to define different style for the leaf nodes.
- * @todo branchHeight, labelPadding
+ * SVG Tree Drawer <http://code.google.com/p/svg-tree-drawer/>
+ * by Weston Ruter <http://weston.ruter.net/>
+ * License: GPL 3.0 <http://www.gnu.org/licenses/gpl.html>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  * @todo Implement collapsing (triangles) which are toggled by clicking the nodes
- * @todo Work up a condensed datastructure?
- * @todo Stylesheet should be named? Or when we serialize, we can just get all of the rules from all of the stylesheets.
- * @todo Try disabling native support (use the OBJECT); and try forcing Flash to see if it'll work in IE
  * @todo Publicize on MozHacks: SVG + MathML + ContentEditable + hashchange + JSON.parse/stringify
  * @todo extend/retract -- pushing the leaf nodes to the bottom
  * @todo expand/collapse -- on each node, toggling the rectangle?
- * @todo If an element without a width/height or x/y is used as a label, how are we going to get it in there? We can wrap in a G. Then we can do simple transform translations.
- * @todo We need to get a reliable way to getBoundingClientRect()
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -97,8 +103,8 @@ var T = window.TreeDrawer = function(fallbackElement, treeData){
 	}
 };
 
-T.prototype.svgDocument = null; //readonly (only set when using svgweb)
-T.prototype.svgObject = null; //readonly (only set when using svgweb)
+//T.prototype.svgDocument = null; //readonly (only set when using svgweb)
+//T.prototype.svgObject = null; //readonly (only set when using svgweb)
 T.prototype.svgElement = null; //readonly
 //T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
@@ -107,7 +113,7 @@ T.prototype.height = 0; //readonly
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
 	"line, path { stroke-width:1px; stroke:black; }",
-	"text { dominant-baseline:text-after-edge !important; }", //TODO: Does not work in WebKit
+	"text { /*dominant-baseline:text-after-edge !important;*/ }", //TODO: Does not work in WebKit
 	//"svg {font-size:20px; }",
 	//"svg > g > g > text { font-size:120px; }"
 ].join("\n");
@@ -116,7 +122,6 @@ T.prototype.cssStylesheet = [
  * The root TreeDrawer.Node
  */
 T.prototype.root = null;
-
 
 /**
  * Empty the tree
@@ -355,7 +360,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 								break;
 							case 'rect':
 							default:
-								label.setAttribute('x', label.x.baseVal.getItem(0).value + shiftLeft*(i+1));
+								var labelRect = getDimensions(label);
+								label.setAttribute('x', labelRect.x + shiftLeft*(i+1));
 								break;
 						}
 					}
@@ -376,12 +382,23 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		switch(label.localName.toLowerCase()){
 			case 'text':
 				label.setAttribute('x', labelX + 'px');
-				label.setAttribute('y', (labelY + labelFontSize) + 'px'); //@todo!!!
+				label.setAttribute('y', (labelY + labelFontSize) + 'px'); //Cannot be + labelRect.height
+				//if(!window.asdadasdasd){
+				//	window.asdadasdasd = true;
+				//	var mystyle = (window.getComputedStyle(label, null));
+				//	for(var name in mystyle){
+				//		console.info(name, mystyle[name])
+				//	}
+				//}
 				break;
 			case 'circle':
 				label.setAttribute('cx', (labelX + labelRect.width/2) + 'px');
 				label.setAttribute('cy', (labelY + labelRect.height/2) + 'px');
 				break;
+			//case 'path':
+			//	break;
+			//case 'polygon':
+			//	break;
 			case 'rect':
 			case 'foreignobject':
 				label.setAttribute('x', labelX + 'px');
@@ -395,16 +412,13 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		throw Error("Expected an SVG element to position.");
 	}
 	
-	var rect = document.createElementNS(svgns, 'rect');
-	rect.setAttribute('x', labelX + 'px');
-	rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
-	rect.setAttribute('height', labelRect.height + 'px');
-	rect.setAttribute('width', labelRect.width + 'px');
-	rect.setAttribute('style', 'fill:none; stroke:lime; stroke-width:1px;');
-	if(label.nodeName.toLowerCase() == 'rect'){
-		console.info(labelRect.width, label, label.getBoundingClientRect().width)
-	}
-	g.appendChild(rect);
+	//var rect = document.createElementNS(svgns, 'rect');
+	//rect.setAttribute('x', labelX + 'px');
+	//rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
+	//rect.setAttribute('height', labelFontSize + 'px');
+	//rect.setAttribute('width', labelRect.width + 'px');
+	//rect.setAttribute('style', 'fill:none; stroke:lime; stroke-width:1px;');
+	//g.appendChild(rect);
 
 	//TEMP: offsetLeft
 	//var line = document.createElementNS(svgns, 'line');
@@ -431,7 +445,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	//Update the dimensions of the entire "canvas"
 	tree.height = Math.max(
 		tree.height,
-		offsetTop + labelPadding.top + labelRect.height + labelPadding.bottom
+		offsetTop + labelPadding.top + labelRect.height + labelPadding.bottom,
+		offsetTop + labelPadding.top + labelFontSize + labelPadding.bottom //@todo
 	);
 	tree.width = Math.max(
 		tree.width,
@@ -490,6 +505,32 @@ TN.prototype.collapse = function collapse(){
 	this.draw();
 };
 
+
+/**
+ * Filters and actions (inspired by WordPress)
+ */
+
+
+/**
+ * Applied onto the tree of choice
+ */
+function _applyFilters(hookname, value /*...*/){
+	if(this.filters[hookname]){
+		
+	}
+	return value;
+}
+
+
+T.prototype.filters = {};
+T.prototype.addFilter = function(hookname, callback, position){
+	if(!this.filters[hookname])
+		this.filters[hookname] = [];
+	if(!isNaN(position))
+		position = this.filters[hookname].length;
+	this.filters[hookname].splice(position, 1, callback);
+};
+T.prototype.actions = {};
 
 
 /*
