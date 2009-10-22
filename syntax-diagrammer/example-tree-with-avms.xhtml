@@ -18,12 +18,10 @@
 		<script src="../svg-tree-drawer.js"></script>
 		<style>
 		svg text,
-		svg foreignObject,
-		svg foreignobject{
+		.treeNodeAVM {
 			padding:0.5em;
 			padding-left:1em;
 			padding-right:1em;
-			
 		}
 		
 		svg line {
@@ -688,7 +686,7 @@
 			
 		<script>
 		//<![CDATA[
-		var theySeemedCloseToMeToSandy = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
+		var tree = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
 			{label:/*S*/document.getElementById('s1'), children:[
 				{label:/*NP*/document.getElementById('np1'), children:[
 					//{label: 'N', children:[
@@ -717,7 +715,13 @@
 				]}
 			]}
 		);
-		theySeemedCloseToMeToSandy.draw();
+		tree.addFilter('label', function(label, treeNode){
+			if(typeof label == 'string'){
+				label = label.replace(/seemed/, 'appeared');
+			}
+			return label;
+		});
+		tree.draw();
 
 		
 		//]]>

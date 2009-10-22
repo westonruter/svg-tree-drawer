@@ -20,6 +20,7 @@
  * @todo Publicize on MozHacks: SVG + MathML + ContentEditable + hashchange + JSON.parse/stringify
  * @todo extend/retract -- pushing the leaf nodes to the bottom
  * @todo expand/collapse -- on each node, toggling the rectangle?
+ * @todo Work up an XML schema for AVMs: provide XSLT to reduce amount of MathML code needed.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -242,8 +243,10 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	var isForeignObject = false;
 	var label;
 	if(typeof treeNode.label == 'string'){
+		//var _label = tree.apply(_applyFilters, 'label', treeNode.label, treeNode);
+		var _label = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
 		label = document.createElementNS(svgns, 'text');
-		label.appendChild(document.createTextNode(treeNode.label, true));
+		label.appendChild(document.createTextNode(_label, true));
 		g.appendChild(label);
 	}
 	else if(treeNode.label.nodeType == 1/*Element*/) {
@@ -298,10 +301,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	
 	//Process each of the children
 	var subtreeElements = [label];
+	var leafNodes = []; //{label:, branch:}
 	if(branch)
 		subtreeElements.push(branch);
 	var childrenWidth = 0;
 	var childrenInfo = [];
+	treeNode.maxOffsetTop = offsetTop;
 	for(var i = 0, len = treeNode.children.length; i < len; i++){ //forEach
 		var childInfo = _drawNode(
 			tree,
@@ -316,8 +321,12 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		childrenWidth += childInfo.width;
 		
 		forEach(childInfo.subtreeElements, function(el){
-			subtreeElements.push(el);
+			
 		});
+		forEach(childInfo.leafNodes, function(el){
+			leafNodes.push(el);
+		});
+		treeNode.maxOffsetTop = Math.max(treeNode.maxOffsetTop, childInfo.maxOffsetTop); //TODO
 		childrenInfo.push(childInfo);
 	}
 	
@@ -372,9 +381,13 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 			});
 		}
 	}
-	//No children, so left edge is simply offsetLeft
+	//Leaf node: no children, so left edge is simply offsetLeft
 	else {
 		labelX = offsetLeft + labelPadding.left;
+		leafNodes.push({
+			label:label,
+			branch:branch
+		});
 	}
 	
 	//Add to the x/y position 
@@ -412,6 +425,16 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		throw Error("Expected an SVG element to position.");
 	}
 	
+	
+		
+	// If all of the leaves are supposed to be at the same vertical axis, then
+	// push them down now
+	if(childrenInfo.length && treeNode.extended){
+		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
+		
+		//@todo: Make the svg image higher if it gets higher!!!
+	}
+	
 	//var rect = document.createElementNS(svgns, 'rect');
 	//rect.setAttribute('x', labelX + 'px');
 	//rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
@@ -441,7 +464,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		childrenInfo[i].branch.setAttribute('x1', labelX + labelRect.width/2 + 'px');
 		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
 	}
-
+	
 	//Update the dimensions of the entire "canvas"
 	tree.height = Math.max(
 		tree.height,
@@ -457,8 +480,9 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	
 	return {
 		label:label,
+		maxOffsetTop:treeNode.maxOffsetTop,
 		branch:branch,
-		//containerElement:g,
+		leafNodes:leafNodes,
 		subtreeElements:subtreeElements,
 		width:Math.max(labelRect.width + labelPadding.left + labelPadding.right, childrenWidth)
 	};
@@ -482,6 +506,7 @@ TN.prototype.label = "";
 TN.prototype.collapsed = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
+TN.prototype.maxOffsetTop = 0; //readonly
 
 
 /**
@@ -509,26 +534,39 @@ TN.prototype.collapse = function collapse(){
 /**
  * Filters and actions (inspired by WordPress)
  */
+T.prototype.filters = {};
 
 
 /**
- * Applied onto the tree of choice
+ * Applied onto the tree as: _applyFilters.apply(this, [hookname, value, ...])
  */
 function _applyFilters(hookname, value /*...*/){
-	if(this.filters[hookname]){
+	var filters = this.filters[hookname];
+	if(filters && filters.length){
+		var filterArgs = [];
+		for(var i = 1; i < arguments.length; i++)
+			filterArgs.push(arguments[i]);
 		
+		var that = this;
+		forEach(filters, function(filter){
+			filterArgs[0] = filter.apply(that, filterArgs);
+		});
+		value = filterArgs[0];
 	}
 	return value;
 }
 
 
-T.prototype.filters = {};
+/**
+ * Add a filter callback for a particular hook
+ */
 T.prototype.addFilter = function(hookname, callback, position){
 	if(!this.filters[hookname])
 		this.filters[hookname] = [];
-	if(!isNaN(position))
-		position = this.filters[hookname].length;
-	this.filters[hookname].splice(position, 1, callback);
+	if(isNaN(position))
+		this.filters[hookname].push(callback);
+	else
+		this.filters[hookname].splice(position, 0, callback);
 };
 T.prototype.actions = {};
 
