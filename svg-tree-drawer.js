@@ -206,7 +206,7 @@ function getDimensions(el){
 		if(!el.height)
 			el.height = el.offsetHeight;
 		if(!rect.width || !rect.height)
-		throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox");
+		throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
 		return rect;
 	}
 	//else if(el.width && el.width.baseVal && el.height && el.height.baseVal){
@@ -242,15 +242,14 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	// Make label
 	var isForeignObject = false;
 	var label;
-	if(typeof treeNode.label == 'string'){
-		//var _label = tree.apply(_applyFilters, 'label', treeNode.label, treeNode);
-		var _label = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
-		label = document.createElementNS(svgns, 'text');
-		label.appendChild(document.createTextNode(_label, true));
-		g.appendChild(label);
-	}
-	else if(treeNode.label.nodeType == 1/*Element*/) {
-		if(treeNode.label.namespaceURI != svgns){
+	var sourceLabel = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
+	if(treeNode.label.nodeType == 1/*Element*/) {
+		if(treeNode.label.namespaceURI == svgns){
+			//@todo Should this be wrapped in a <g> element so we can translate its position?
+			label = sourceLabel;
+			g.appendChild(label);
+		}
+		else {
 			isForeignObject = true;
 			label = document.createElementNS(svgns, 'foreignObject');
 			// Set width/height to non-zero value so that display isn't disabled;
@@ -259,7 +258,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 			// This is to facilitate writing CSS style rule selectors.
 			label.setAttribute('width', 1);
 			label.setAttribute('height', 1); 
-			label.appendChild(treeNode.label);
+			label.appendChild(sourceLabel);
 			g.appendChild(label);
 			
 			// Now that element has been inserted into the DOM, calculate the
@@ -268,11 +267,11 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 			label.setAttribute('width', treeNode.label.offsetWidth);
 			label.setAttribute('height', treeNode.label.offsetHeight);
 		}
-		else {
-			//@todo Should this be wrapped in a <g> element so we can translate its position?
-			label = treeNode.label;
-			g.appendChild(label);
-		}
+	}
+	else {
+		label = document.createElementNS(svgns, 'text');
+		label.appendChild(document.createTextNode(sourceLabel.toString(), true));
+		g.appendChild(label);
 	}
 	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	
@@ -432,7 +431,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	if(childrenInfo.length && treeNode.extended){
 		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
 		
-		//@todo: Make the svg image higher if it gets higher!!!
+		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
+		console.info(leafNodes)
 	}
 	
 	//var rect = document.createElementNS(svgns, 'rect');
@@ -495,6 +495,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 var TN = T.Node = function(obj){
 	this.label = obj.label;
 	this.collapsed = !!obj.collapsed;
+	this.extended = !!obj.extended;
 	if(obj.children && obj.children.length){
 		this.children = [];
 		for(var i = 0, len = obj.children.length; i < len; i++){
