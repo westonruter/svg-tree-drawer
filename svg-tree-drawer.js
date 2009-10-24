@@ -255,7 +255,7 @@ function getDimensions(el){
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  * @todo <line> should be <path> instead
  */
-function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetTop){
+function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetTop, isAncestorExtended, isAncestorCollapsed){
 	var g, label, labelRect, branch, branchHeight, branchStyle;
 	
 	//Get or create the node container
@@ -361,8 +361,10 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 			offsetLeft + childrenWidth,
 			offsetTop + labelPadding.top
 			          + labelRect.height
-			          + labelPadding.bottom
+			          + labelPadding.bottom,
 			          //+ branchHeight //value of child branch's height is added
+			treeNode.extended || isAncestorExtended,
+			treeNode.collapsed || isAncestorCollapsed
 		);
 		childrenWidth += childInfo.width;
 		
@@ -473,28 +475,6 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	}
 	
 	
-		
-	// If all of the leaves are supposed to be at the same vertical axis, then
-	// push them down now
-	if(childrenInfo.length && treeNode.extended){
-		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
-		
-		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
-		//console.info(leafNodes)
-		forEach(leafNodes, function(leafNode){
-			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
-			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
-			if(newBranchY <= treeNode.maxOffsetTop){
-				leafNode.branch.y2.baseVal.value = newBranchY;
-				leafNode.label.setAttribute('y', leafNode.label.y.baseVal.getItem(0).value + offsetTopDiff);
-				leafNode.offsetTop += offsetTopDiff;
-			}
-			
-			//leafNode.label.y.baseVal.value += offsetTopDiff;
-		});
-		
-	}
-	
 	//var rect = document.createElementNS(svgns, 'rect');
 	//rect.setAttribute('x', labelX + 'px');
 	//rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
@@ -523,6 +503,27 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
 		childrenInfo[i].branch.setAttribute('x1', labelX + labelRect.width/2 + 'px');
 		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
+	}
+		
+	// If all of the leaves are supposed to be at the same vertical axis, then
+	// push them down now
+	if(childrenInfo.length && !isAncestorExtended && treeNode.extended){
+		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
+		
+		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
+		//console.info(leafNodes)
+		forEach(leafNodes, function(leafNode){
+			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
+			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
+			if(newBranchY <= treeNode.maxOffsetTop){
+				leafNode.branch.y2.baseVal.value = newBranchY;
+				leafNode.label.setAttribute('y', leafNode.label.y.baseVal.getItem(0).value + offsetTopDiff);
+				leafNode.offsetTop += offsetTopDiff;
+			}
+			
+			//leafNode.label.y.baseVal.value += offsetTopDiff;
+		});
+		
 	}
 	
 	//Update the dimensions of the entire "canvas"
