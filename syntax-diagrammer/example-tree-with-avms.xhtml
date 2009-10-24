@@ -687,13 +687,17 @@
 		<script>
 		//<![CDATA[
 		var tree = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
-			{label:/*S*/document.getElementById('s1'), children:[
+			{label:/*S*/document.getElementById('s1'), extended:false, children:[
 				{label:/*NP*/document.getElementById('np1'), children:[
 					//{label: 'N', children:[
-						{label: 'They'}
+						{label: 'They'},
+						{label: 'They2sadas', children:[
+							{label: 'They'},
+							
+						]}
 					//]}
 				]},
-				{label:/*VP*/document.getElementById('vp1'), extended: true, children:[
+				{label:/*VP*/document.getElementById('vp1'), extended: false, children:[
 					{label:/*V*/document.getElementById('v1'), children:[
 						{label:'seemed'}
 					]},
@@ -722,7 +726,22 @@
 			return label;
 		});
 		tree.draw();
-
+		//tree.draw(); //refresh
+		
+		document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
+			var g = e.target;
+			//console.warn(g)
+			while(g && g.nodeName.toLowerCase() != 'g'){
+				g = g.parentNode;
+			}
+			if(g && g.svgTreeDrawerNode){
+				g.svgTreeDrawerNode.extended = !g.svgTreeDrawerNode.extended;
+				tree.draw();
+			}
+			
+			//console.info(this)
+		}, false);
+		
 		
 		//]]>
 		</script>

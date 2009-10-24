@@ -32,6 +32,7 @@ var xlinkns = 'http://www.w3.org/1999/xlink';
 /**
  * Class that is associated with a given SVG element and contains methods and
  * properties that relate to the tree as a whole.
+ * @todo Should draw() automatically be called?
  */
 var T = window.TreeDrawer = function(fallbackElement, treeData){
 	if(typeof fallbackElement == 'string')
@@ -110,6 +111,7 @@ T.prototype.svgElement = null; //readonly
 //T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
 T.prototype.height = 0; //readonly
+T.prototype.isDrawn = false;
 
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
@@ -124,8 +126,9 @@ T.prototype.cssStylesheet = [
  */
 T.prototype.root = null;
 
+
 /**
- * Empty the tree
+ * Blow away all of the nodes
  */
 T.prototype.empty = function empty(){
 	var svg = this.svgElement;
@@ -139,6 +142,17 @@ T.prototype.empty = function empty(){
 		}
 	}
 	
+	//Now that all of the nodes have been removed from the document, make sure
+	// that references to those nodes are removed as well
+	function freeMemory(treeNode){
+		treeNode.branchElement = null;
+		treeNode.labelElement = null;
+		forEach(treeNode.children, freeMemory); //recursive
+	};
+	freeMemory(this.root);
+	console.warn('asd')
+	
+	//Give the SVG image zero dimensions
 	this.width = 0;
 	this.height = 0;
 	if(this.svgObject){
@@ -149,7 +163,7 @@ T.prototype.empty = function empty(){
 		this.svgElement.setAttribute('width', this.width);
 		this.svgElement.setAttribute('height', this.height);
 	}
-}
+};
 
 
 /**
@@ -159,10 +173,16 @@ T.prototype.empty = function empty(){
  * @see _drawNode()
  */
 T.prototype.draw = function draw(treeData){
-	this.empty();
+	var isRefresh = !!(treeData || this.isDrawn);
+	
+		
+	//If we're not doing a refresh, the blow away the existing nodes
+	if(!isRefresh && this.root && this.root.labelElement){
+		this.empty();
+	}
 	
 	//Get the tree data set up
-	if(treeData)
+	if(treeData instanceof Object)
 		this.root = treeData;
 	if(!this.root)
 		throw Error("No tree data has been supplied.");
@@ -170,9 +190,10 @@ T.prototype.draw = function draw(treeData){
 		this.root = new TN(this.root);
 	
 	//var fontSize = parseFloat(window.getComputedStyle(this.svgElement, null).fontSize);
-	var info = _drawNode(this, this.svgElement, this.root, 0, 0, this.labelPadding, this.branchHeight);
+	var info = _drawNode(this, isRefresh, this.svgElement, this.root, 0, 0, this.labelPadding, this.branchHeight);
 	
 	//Fire 'done' event
+	this.isDrawn = true;
 	
 	if(this.svgObject){
 		this.svgObject.width = this.width;
@@ -191,6 +212,7 @@ var forEach = Array.forEach || function forEach(object, block, context) {
 		block.call(context, object[i], i, object);
 	}
 };
+
 
 /**
  * Depending on the type of element, get its width and height
@@ -233,63 +255,87 @@ function getDimensions(el){
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  * @todo <line> should be <path> instead
  */
-function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
-	// Make container (not really necessary, but aids readibility of DOM)
-	// And allows styles to scope rules
-	var g = document.createElementNS(svgns, 'g');
-	parentElement.appendChild(g);
+function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetTop){
+	var g, label, labelRect, branch, branchHeight, branchStyle;
 	
-	// Make label
-	var isForeignObject = false;
-	var label;
-	var sourceLabel = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
-	if(treeNode.label.nodeType == 1/*Element*/) {
-		if(treeNode.label.namespaceURI == svgns){
-			//@todo Should this be wrapped in a <g> element so we can translate its position?
-			label = sourceLabel;
-			g.appendChild(label);
-		}
-		else {
-			isForeignObject = true;
-			label = document.createElementNS(svgns, 'foreignObject');
-			// Set width/height to non-zero value so that display isn't disabled;
-			// after the label is inserted into the SVG tree, then the offsetHeight
-			// and offsetWidth will be used to provide the proper dimensions.
-			// This is to facilitate writing CSS style rule selectors.
-			label.setAttribute('width', 1);
-			label.setAttribute('height', 1); 
-			label.appendChild(sourceLabel);
-			g.appendChild(label);
-			
-			// Now that element has been inserted into the DOM, calculate the
-			// size of the foreignObject's contents, and use these as the width
-			// and height.
-			label.setAttribute('width', treeNode.label.offsetWidth);
-			label.setAttribute('height', treeNode.label.offsetHeight);
+	//Get or create the node container
+	if(isRefresh){
+		g = treeNode.labelElement.parentElement;
+	}
+	else {
+		g = document.createElementNS(svgns, 'g');
+		parentElement.appendChild(g);
+	}
+	
+	//Get or create the branch which will connect this label with the parent label
+	if(isRefresh){
+		branch = treeNode.branchElement;
+	}
+	else if(parentElement.localName != 'svg'){ //not the root
+		branch = document.createElementNS(svgns, 'line');
+		treeNode.branchElement = branch;
+		g.appendChild(branch);
+	}
+	if(branch){
+		branchStyle = window.getComputedStyle(branch, null);
+		branchHeight = parseFloat(branchStyle.fontSize);
+		offsetTop += branchHeight;
+	}
+	
+	//Get or make the label
+	if(isRefresh){
+		label = treeNode.labelElement;
+		//The dimensions of the foreignObject may have been changed, so re-get
+		if(label.nodeName.toLowerCase() == 'foreignobject'){
+			labelRect = getDimensions(label.firstChild);
+			label.setAttribute('width', labelRect.width);
+			label.setAttribute('height', labelRect.height);
 		}
 	}
 	else {
-		label = document.createElementNS(svgns, 'text');
-		label.appendChild(document.createTextNode(sourceLabel.toString(), true));
-		g.appendChild(label);
+		var sourceLabel = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
+		if(treeNode.label.nodeType == 1/*Element*/) {
+			if(treeNode.label.namespaceURI == svgns){
+				//@todo Should this be wrapped in a <g> element so we can translate its position?
+				label = sourceLabel;
+				g.appendChild(label);
+			}
+			else {
+				label = document.createElementNS(svgns, 'foreignObject');
+				// Set width/height to non-zero value so that display isn't disabled;
+				// after the label is inserted into the SVG tree, then the offsetHeight
+				// and offsetWidth will be used to provide the proper dimensions.
+				// This is to facilitate writing CSS style rule selectors.
+				label.setAttribute('width', 1);
+				label.setAttribute('height', 1); 
+				label.appendChild(sourceLabel);
+				g.appendChild(label);
+				
+				// Now that element has been inserted into the DOM, calculate the
+				// size of the foreignObject's contents, and use these as the width
+				// and height.
+				labelRect = getDimensions(treeNode.label);
+				label.setAttribute('width', labelRect.width);
+				label.setAttribute('height', labelRect.height);
+			}
+		}
+		else {
+			label = document.createElementNS(svgns, 'text');
+			label.appendChild(document.createTextNode(sourceLabel.toString(), true));
+			g.appendChild(label);
+		}
+		treeNode.labelElement = label;
+		g.svgTreeDrawerNode = treeNode;
+		//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	}
-	//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
+	if(!labelRect)
+		labelRect = getDimensions(label);
 	
-	var labelRect = getDimensions(label);
-	
-	//Create branch which will connect this label with the parent label
-	var branch, branchHeight, branchStyle;
-	if(parentElement.localName != 'svg'){
-		branch = document.createElementNS(svgns, 'line');
-		g.appendChild(branch);
-		var branchStyle = window.getComputedStyle(branch, null);
-		var branchHeight = parseFloat(branchStyle.fontSize);
-		offsetTop += branchHeight;
-	}
+	//var labelRect = getDimensions(label);
 	// Allow this to be filtered
 	
 	//Get styles and dimensions
-	var labelStyle = window.getComputedStyle(label, null);
+	 labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = {
 		top:parseFloat(labelStyle.paddingTop),
@@ -309,6 +355,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 	for(var i = 0, len = treeNode.children.length; i < len; i++){ //forEach
 		var childInfo = _drawNode(
 			tree,
+			isRefresh,
 			g,
 			treeNode.children[i],
 			offsetLeft + childrenWidth,
@@ -320,7 +367,7 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		childrenWidth += childInfo.width;
 		
 		forEach(childInfo.subtreeElements, function(el){
-			
+			subtreeElements.push(el);
 		});
 		forEach(childInfo.leafNodes, function(el){
 			leafNodes.push(el);
@@ -356,20 +403,20 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		if(labelWidthBeyondChildrenWidth > 0){
 			var shiftLeft = labelWidthBeyondChildrenWidth/(childrenInfo.length+1);
 			forEach(childrenInfo, function(child, i){
-				forEach(child.subtreeElements, function(label){
-					if(label.namespaceURI == svgns){
-						switch(label.localName.toLowerCase()){
+				forEach(child.subtreeElements, function(el){
+					if(el.namespaceURI == svgns){
+						switch(el.localName.toLowerCase()){
 							case 'circle':
-								label.cx.baseVal.value += shiftLeft*(i+1);
+								el.cx.baseVal.value += shiftLeft*(i+1);
 								break;
 							case 'line':
-								label.x1.baseVal.value += shiftLeft*(i+1);
-								label.x2.baseVal.value += shiftLeft*(i+1);
+								el.x1.baseVal.value += shiftLeft*(i+1);
+								el.x2.baseVal.value += shiftLeft*(i+1);
 								break;
 							case 'rect':
 							default:
-								var labelRect = getDimensions(label);
-								label.setAttribute('x', labelRect.x + shiftLeft*(i+1));
+								var elRect = getDimensions(el);
+								el.setAttribute('x', elRect.x + shiftLeft*(i+1));
 								break;
 						}
 					}
@@ -385,7 +432,8 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		labelX = offsetLeft + labelPadding.left;
 		leafNodes.push({
 			label:label,
-			branch:branch
+			branch:branch,
+			offsetTop:offsetTop
 		});
 	}
 	
@@ -432,7 +480,19 @@ function _drawNode(tree, parentElement, treeNode, offsetLeft, offsetTop){
 		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
 		
 		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
-		console.info(leafNodes)
+		//console.info(leafNodes)
+		forEach(leafNodes, function(leafNode){
+			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
+			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
+			if(newBranchY <= treeNode.maxOffsetTop){
+				leafNode.branch.y2.baseVal.value = newBranchY;
+				leafNode.label.setAttribute('y', leafNode.label.y.baseVal.getItem(0).value + offsetTopDiff);
+				leafNode.offsetTop += offsetTopDiff;
+			}
+			
+			//leafNode.label.y.baseVal.value += offsetTopDiff;
+		});
+		
 	}
 	
 	//var rect = document.createElementNS(svgns, 'rect');
@@ -508,7 +568,8 @@ TN.prototype.collapsed = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
 TN.prototype.maxOffsetTop = 0; //readonly
-
+TN.prototype.branchElement = null;
+TN.prototype.labelElement = null;
 
 /**
  * If the node is collapsed, then expand it and draw.
