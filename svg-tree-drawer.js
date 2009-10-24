@@ -221,12 +221,12 @@ function getDimensions(el){
 	}
 	else if(el.getBoundingClientRect){
 		var rect = el.getBoundingClientRect();
-		if(!el.width)
-			el.width = el.offsetWidth;
-		if(!el.height)
-			el.height = el.offsetHeight;
+		if(!rect.width)
+			rect.width = el.offsetWidth;
+		if(!rect.height)
+			rect.height = el.offsetHeight;
 		if(!rect.width || !rect.height)
-		throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
+			throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
 		return rect;
 	}
 	//else if(el.width && el.width.baseVal && el.height && el.height.baseVal){
