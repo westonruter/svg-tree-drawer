@@ -365,7 +365,6 @@
 					data = hashData;
 				
 				tree = new TreeDrawer(container, data.root);
-				
 				tree.draw();
 			}
 			catch(e){
@@ -377,15 +376,10 @@
 			//Watch for change in location.hash and
 			function monitorBookmark(e){
 				if(e && e.type)
-					clearInterval(interval);
+					clearInterval(interval); //browser supports hashchange event
 				var data = parseHash();
-				if(data){
-					if(data.labelStyle)
-						tree.labelStyle = data.labelStyle;
-					if(data.branchStyle)
-						tree.branchStyle = data.branchStyle;
-					if(data.root)
-						tree.populate(data.root);
+				if(data && data.root){
+					tree.draw(data.root);
 				}
 			}
 			window.addEventListener('hashchange', monitorBookmark, false);
@@ -434,25 +428,6 @@
 			<p><button type="button" onclick="bookmarkTree()">Save Tree to location hash</button></p>
 		</fieldset>
 		
-		
-		<!--
-				<svg
-				   xmlns="http://www.w3.org/2000/svg"
-				   xmlns:xlink="http://www.w3.org/1999/xlink"
-				   version="1.1" baseProfile="full"
-				   style="border:solid 1px red;"
-				   width="200"
-				   height="200">
-				   
-					<rect x="25" y="25" 
-							  id="myRect" 
-							  rx="0.6" ry="0.6" 
-							  width="150" height="150" 
-							  fill="green" 
-							  stroke="yellow" stroke-width="8"/>
-					
-				</svg>
-		-->
 		<hr />
 		<footer>
 			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>

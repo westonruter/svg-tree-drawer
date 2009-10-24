@@ -1,5 +1,5 @@
 /**
- * SVG Tree Drawer <http://code.google.com/p/svg-tree-drawer/>
+ * SVG Tree Drawer <http://github.com/westonruter/svg-tree-drawer/>
  * by Weston Ruter <http://weston.ruter.net/>
  * License: GPL 3.0 <http://www.gnu.org/licenses/gpl.html>
  * 
@@ -150,7 +150,7 @@ T.prototype.empty = function empty(){
 		forEach(treeNode.children, freeMemory); //recursive
 	};
 	freeMemory(this.root);
-	console.warn('asd')
+	this.isDrawn = false;
 	
 	//Give the SVG image zero dimensions
 	this.width = 0;
@@ -173,13 +173,7 @@ T.prototype.empty = function empty(){
  * @see _drawNode()
  */
 T.prototype.draw = function draw(treeData){
-	var isRefresh = !!(treeData || this.isDrawn);
-	
-		
-	//If we're not doing a refresh, the blow away the existing nodes
-	if(!isRefresh && this.root && this.root.labelElement){
-		this.empty();
-	}
+	var isRefresh = (!treeData && this.isDrawn);
 	
 	//Get the tree data set up
 	if(treeData instanceof Object)
@@ -188,6 +182,10 @@ T.prototype.draw = function draw(treeData){
 		throw Error("No tree data has been supplied.");
 	if(!(this.root instanceof TN))
 		this.root = new TN(this.root);
+	
+	//If we're not doing a refresh, the blow away the existing nodes
+	if(!isRefresh && this.isDrawn)
+		this.empty();
 	
 	//var fontSize = parseFloat(window.getComputedStyle(this.svgElement, null).fontSize);
 	var info = _drawNode(this, isRefresh, this.svgElement, this.root, 0, 0, this.labelPadding, this.branchHeight);
