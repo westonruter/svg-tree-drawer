@@ -21,6 +21,8 @@
  * @todo extend/retract -- pushing the leaf nodes to the bottom
  * @todo expand/collapse -- on each node, toggling the rectangle?
  * @todo Work up an XML schema for AVMs: provide XSLT to reduce amount of MathML code needed.
+ * @todo Get the text vertical spacing working
+ * @todo Figure out why the lines aren't completely vertical.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -248,6 +250,18 @@ function getDimensions(el){
 
 
 /**
+ * This is necessary because el.getBBox().x is not always the same as el.x.baseVal.value
+ */
+function getX(el){
+	var baseValX = el.x.baseVal;
+	if(baseValX.getItem)
+		return baseValX.getItem(0).value;
+	else
+		return baseValX.value;
+}
+
+
+/**
  * Recursive function called by TreeDrawer.draw()
  * @param offsetTop The distance from the top to the bottom of the lower end of the branches
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
@@ -328,12 +342,13 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	}
 	if(!labelRect)
 		labelRect = getDimensions(label);
+	console.info(labelRect.width)
 	
 	//var labelRect = getDimensions(label);
 	// Allow this to be filtered
 	
 	//Get styles and dimensions
-	 labelStyle = window.getComputedStyle(label, null);
+	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
 	var labelPadding = {
 		top:parseFloat(labelStyle.paddingTop),
@@ -382,19 +397,20 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//If there are children, then x is in the middle of their first and last children
 	//TODO: if labelRect.width > childrenWidth, we could pass in the labelRect.width
 	if(childrenInfo.length){
-		var firstChildLabel = childrenInfo[0].label;
-		var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
-		var firstChildRect = getDimensions(firstChildLabel);
-		if(firstChildLabel == lastChildLabel)
-			lastChildRect = firstChildRect;
-		else
-			lastChildRect = getDimensions(lastChildLabel);
-		var leftX = firstChildRect.x + firstChildRect.width/2;
-		var rightX = lastChildRect.x + lastChildRect.width/2;
-		labelX = leftX + (rightX - leftX)/2 - labelRect.width/2;
-		
-		//Make sure that parent labels which are wider than their children don't get placed outside of viewbox
-		labelX = Math.max(0, labelX, offsetLeft+labelPadding.left);
+		if(childrenInfo.length == 1){
+			labelX = offsetLeft+labelPadding.left;
+		}
+		else {
+			var firstChildLabel = childrenInfo[0].label;
+			var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
+			var leftX = getX(firstChildLabel) + getDimensions(firstChildLabel).width/2;
+			var rightX = getX(lastChildLabel) + getDimensions(lastChildLabel).width/2;
+			labelX = Math.max(
+				0, //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
+				leftX + (rightX - leftX)/2 - labelRect.width/2,
+				offsetLeft+labelPadding.left
+			);
+		}
 		
 		// If the children were narrower than the the parent label, then distribute
 		// the children out under the parent. Requires that all subtree graphic
@@ -405,18 +421,20 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 			forEach(childrenInfo, function(child, i){
 				forEach(child.subtreeElements, function(el){
 					if(el.namespaceURI == svgns){
+						var elDimensions = getDimensions(el);
+						var thisShiftLeft = shiftLeft*(i+1)/* - elDimensions.width/2*/;
 						switch(el.localName.toLowerCase()){
 							case 'circle':
-								el.cx.baseVal.value += shiftLeft*(i+1);
+								el.cx.baseVal.value += thisShiftLeft;
 								break;
 							case 'line':
-								el.x1.baseVal.value += shiftLeft*(i+1);
-								el.x2.baseVal.value += shiftLeft*(i+1);
+								el.x1.baseVal.value += thisShiftLeft;
+								el.x2.baseVal.value += thisShiftLeft;
 								break;
 							case 'rect':
 							default:
 								var elRect = getDimensions(el);
-								el.setAttribute('x', elRect.x + shiftLeft*(i+1));
+								el.setAttribute('x', elRect.x + thisShiftLeft);
 								break;
 						}
 					}
@@ -430,6 +448,7 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//Leaf node: no children, so left edge is simply offsetLeft
 	else {
 		labelX = offsetLeft + labelPadding.left;
+		console.info(labelX)
 		leafNodes.push({
 			label:label,
 			branch:branch,
@@ -443,13 +462,6 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 			case 'text':
 				label.setAttribute('x', labelX + 'px');
 				label.setAttribute('y', (labelY + labelFontSize) + 'px'); //Cannot be + labelRect.height
-				//if(!window.asdadasdasd){
-				//	window.asdadasdasd = true;
-				//	var mystyle = (window.getComputedStyle(label, null));
-				//	for(var name in mystyle){
-				//		console.info(name, mystyle[name])
-				//	}
-				//}
 				break;
 			case 'circle':
 				label.setAttribute('cx', (labelX + labelRect.width/2) + 'px');
@@ -478,7 +490,7 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//rect.setAttribute('y', (offsetTop + labelPadding.top) + 'px');
 	//rect.setAttribute('height', labelFontSize + 'px');
 	//rect.setAttribute('width', labelRect.width + 'px');
-	//rect.setAttribute('style', 'fill:none; stroke:lime; stroke-width:1px;');
+	//rect.setAttribute('style', 'fill:none; stroke:red; stroke-width:1px;');
 	//g.appendChild(rect);
 
 	//TEMP: offsetLeft
@@ -492,14 +504,16 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	
 	
 	//Position branch directly above the label
+	var branchX = (labelX + labelRect.width/2);
 	if(branch){
-		branch.setAttribute('x2', labelX + labelRect.width/2  + 'px');
+		
+		branch.setAttribute('x2', branchX + 'px');
 		branch.setAttribute('y2', offsetTop + 'px');
 	}
 	
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
-		childrenInfo[i].branch.setAttribute('x1', labelX + labelRect.width/2 + 'px');
+		childrenInfo[i].branch.setAttribute('x1', branchX + 'px');
 		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
 	}
 		
@@ -509,19 +523,16 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
 		
 		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
-		//console.info(leafNodes)
 		forEach(leafNodes, function(leafNode){
 			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
 			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
-			if(newBranchY <= treeNode.maxOffsetTop){
+			if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
 				leafNode.branch.y2.baseVal.value = newBranchY;
 				leafNode.label.setAttribute('y', leafNode.label.y.baseVal.getItem(0).value + offsetTopDiff);
 				leafNode.offsetTop += offsetTopDiff;
 			}
-			
 			//leafNode.label.y.baseVal.value += offsetTopDiff;
 		});
-		
 	}
 	
 	//Update the dimensions of the entire "canvas"
@@ -555,6 +566,7 @@ var TN = T.Node = function(obj){
 	this.label = obj.label;
 	this.collapsed = !!obj.collapsed;
 	this.extended = !!obj.extended;
+	
 	if(obj.children && obj.children.length){
 		this.children = [];
 		for(var i = 0, len = obj.children.length; i < len; i++){
@@ -569,6 +581,7 @@ TN.prototype.children = [];
 TN.prototype.maxOffsetTop = 0; //readonly
 TN.prototype.branchElement = null;
 TN.prototype.labelElement = null;
+
 
 /**
  * If the node is collapsed, then expand it and draw.
