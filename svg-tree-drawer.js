@@ -342,7 +342,6 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	}
 	if(!labelRect)
 		labelRect = getDimensions(label);
-	console.info(labelRect.width)
 	
 	//var labelRect = getDimensions(label);
 	// Allow this to be filtered
@@ -397,20 +396,21 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//If there are children, then x is in the middle of their first and last children
 	//TODO: if labelRect.width > childrenWidth, we could pass in the labelRect.width
 	if(childrenInfo.length){
-		if(childrenInfo.length == 1){
-			labelX = offsetLeft+labelPadding.left;
+		var leftX, rightX;
+		var firstChild = childrenInfo[0].label;
+		var lastChild = childrenInfo[childrenInfo.length-1].label;
+		if(firstChild == lastChild){
+			leftX = rightX = getX(firstChild) + getDimensions(firstChild).width/2;
 		}
 		else {
-			var firstChildLabel = childrenInfo[0].label;
-			var lastChildLabel = childrenInfo[childrenInfo.length-1].label;
-			var leftX = getX(firstChildLabel) + getDimensions(firstChildLabel).width/2;
-			var rightX = getX(lastChildLabel) + getDimensions(lastChildLabel).width/2;
-			labelX = Math.max(
-				0, //Make sure that parent labels which are wider than their children don't get placed outside of viewbox
-				leftX + (rightX - leftX)/2 - labelRect.width/2,
-				offsetLeft+labelPadding.left
-			);
+			leftX = getX(firstChild) + getDimensions(firstChild).width/2;
+			rightX = getX(lastChild) + getDimensions(lastChild).width/2;
 		}
+		labelX = Math.max(
+			0,
+			leftX + (rightX - leftX)/2 - labelRect.width/2,
+			offsetLeft + labelPadding.left
+		);
 		
 		// If the children were narrower than the the parent label, then distribute
 		// the children out under the parent. Requires that all subtree graphic
@@ -448,7 +448,6 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//Leaf node: no children, so left edge is simply offsetLeft
 	else {
 		labelX = offsetLeft + labelPadding.left;
-		console.info(labelX)
 		leafNodes.push({
 			label:label,
 			branch:branch,
