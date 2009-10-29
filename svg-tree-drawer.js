@@ -118,7 +118,7 @@ T.prototype.isDrawn = false;
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
 	"line, path { stroke-width:1px; stroke:black; }",
-	"text { /*dominant-baseline:text-after-edge !important;*/ }", //TODO: Does not work in WebKit
+	"text { dominant-baseline:text-after-edge !important; }", //TODO: Does not work in WebKit
 	//"svg {font-size:20px; }",
 	//"svg > g > g > text { font-size:120px; }"
 ].join("\n");
@@ -222,11 +222,18 @@ function getDimensions(el){
 		return el.getBBox();
 	}
 	else if(el.getBoundingClientRect){
-		var rect = el.getBoundingClientRect();
-		if(!rect.width)
-			rect.width = el.offsetWidth;
-		if(!rect.height)
-			rect.height = el.offsetHeight;
+		var _rect = el.getBoundingClientRect();
+		var rect = {
+			width: _rect.width || el.offsetWidth,
+			height: _rect.height || el.offsetHeight,
+			x: _rect.x,
+			y: _rect.y
+		};
+		console.info([el, rect])
+		//if(!rect.width)
+		//	rect.width = el.offsetWidth;
+		//if(!rect.height)
+		//	rect.height = el.offsetHeight;
 		if(!rect.width || !rect.height)
 			throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
 		return rect;
