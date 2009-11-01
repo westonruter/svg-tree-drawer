@@ -224,12 +224,11 @@ function getDimensions(el){
 	else if(el.getBoundingClientRect){
 		var _rect = el.getBoundingClientRect();
 		var rect = {
-			width: _rect.width || el.offsetWidth,
-			height: _rect.height || el.offsetHeight,
+			width: _rect.width || el.offsetWidth || el.clientWidth,
+			height: _rect.height || el.offsetHeight || el.clientHeight,
 			x: _rect.x,
 			y: _rect.y
 		};
-		console.info([el, rect])
 		//if(!rect.width)
 		//	rect.width = el.offsetWidth;
 		//if(!rect.height)
