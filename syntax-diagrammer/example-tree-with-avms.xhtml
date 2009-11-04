@@ -64,21 +64,23 @@
 		<h1>Example Phrase Structure Tree with <abbr title="Attribute Value Matrix">AVM</abbr> Nodes</h1>
 		
 		<p>This example demonstrates the functionality of the <a href="http://github.com/westonruter/svg-tree-Drawer">SVG Tree Drawer</a>.
-		What follows is the phrase structure tree of “They seemed close to
+		What follows is the phrase structure tree of “They appeared close to
 		me.” <strong>You must have Firefox 3+ to view this tree
 		properly,</strong> because only this browser currently supports both MathML and SVG.
-		If you don't have Firefox 3+, see <a href="example-tree-with-avms.pdf">this page printed to PDF</a>.</p>
+		If you don't have Firefox 3+, see <a href="example-tree-with-avms.pdf">this page printed to PDF</a>.
+		Note that the boxed numbers aren't completely refined due to a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=297467" title=" Bug 297467 -  menclose is shown wrong (not implemented)  ">bug</a> in Firefox which will be fixed in 3.6.
+		</p>
 		
 		<p>
 			<button id="toggleColorsBtn" class="on">Turn Colors On</button>
-			Clicking on a node whose children don't have even heights and they will extend down to be the same level.
+			<small>Click on a node whose children don't have even heights and they will extend down to be the same level.</small>
 		</p>
 		
 		<p id="treeTheySeemedCloseToMe"><em>Tree for “The seemed close to me.” goes here… if it doesn't load, you're probably not using Firefox 3+!</em></p>
 		<!-- include XSLT; add XSLT to syntax-diagrammer Git repo -->
 		
 		<div class="treeNode" id="S">
-		<avm category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+		<avm type="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
 			<attr name="HEAD" tag="1" />
 			<attr name="VAL">
 				<avm>
@@ -90,9 +92,9 @@
 		</div>
 		
 			<div class="treeNode" id="N_they">
-			<avm tag="2" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+			<avm tag="2" type="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
 				<attr name="HEAD">
-					<avm category="noun">
+					<avm type="noun">
 						<attr name="AGR" tag="3" />
 					</avm>
 				</attr>
@@ -106,9 +108,9 @@
 			</div>
 			
 			<div class="treeNode" id="VP_appearedCloseToMe" >
-			<avm category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+			<avm type="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
 				<attr name="HEAD">
-					<avm category="verb" tag="1">
+					<avm type="verb" tag="1">
 						<attr name="AGR" tag="3" />
 					</avm>
 				</attr>
@@ -124,11 +126,11 @@
 			</div>
 			
 				<div class="treeNode" id="V_appeared">
-				<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+				<avm type="word" xmlns="http://weston.ruter.net/ns/hpsg">
 					<attr name="HEAD">
-						<avm tag="1" category="verb">
+						<avm tag="1" type="verb">
 							<attr name="AGR">
-								<avm category="plural">
+								<avm type="plural">
 									<attr name="NUM">pl</attr>
 									<attr name="PER">3rd</attr>
 								</avm>
@@ -149,9 +151,9 @@
 				</div>
 			
 				<div class="treeNode" id="AP_closeToMe">
-				<avm tag="5" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+				<avm tag="5" type="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
 					<attr name="HEAD">
-						<avm tag="7" category="adj" />
+						<avm tag="7" type="adj" />
 					</attr>
 					<attr name="VAL">
 						<avm tag="4">
@@ -167,9 +169,9 @@
 				</div>
 			
 					<div class="treeNode" id="A_close">
-					<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+					<avm type="word" xmlns="http://weston.ruter.net/ns/hpsg">
 						<attr name="HEAD">
-							<avm tag="7" category="adj" />
+							<avm tag="7" type="adj" />
 						</attr>
 						<attr name="VAL">
 							<avm>
@@ -187,9 +189,9 @@
 					</div>
 			
 					<div class="treeNode" id="PP_toMe">
-					<avm tag="8" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+					<avm tag="8" type="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
 						<attr name="HEAD">
-							<avm tag="9" category="prep" />
+							<avm tag="9" type="prep" />
 						</attr>
 						<attr name="VAL">
 							<avm>
@@ -205,9 +207,9 @@
 					</div>
 						
 						<div class="treeNode" id="P_to">
-						<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+						<avm type="word" xmlns="http://weston.ruter.net/ns/hpsg">
 							<attr name="HEAD">
-								<avm tag="9" category="prep" />
+								<avm tag="9" type="prep" />
 							</attr>
 							<attr name="VAL">
 								<avm>
@@ -225,11 +227,11 @@
 						</div>
 				
 						<div class="treeNode" id="N_me">
-						<avm tag="10" category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+						<avm tag="10" type="word" xmlns="http://weston.ruter.net/ns/hpsg">
 							<attr name="HEAD">
-								<avm category="noun">
+								<avm type="noun">
 									<attr name="AGR">
-										<avm category="1sing">
+										<avm type="1sing">
 											<attr name="NUM">sg</attr>
 											<attr name="PER">1st</attr>
 										</avm>
@@ -259,7 +261,7 @@
 			};
 			
 			var tree = new TreeDrawer('treeTheySeemedCloseToMe',
-				{label:$('S'), extended:true, children:[
+				{label:$('S'), extended:false, children:[
 					
 					{label:$('N_they'), children:[
 						{label: 'They'}

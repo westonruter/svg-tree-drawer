@@ -1,0 +1,6 @@
+RewriteEngine On
+
+RewriteCond %{HTTP_ACCEPT} !application/xhtml\+xml\s*(,|$|;\s*q=([1-9]|0\.[1-9]))
+RewriteCond %{REQUEST_URI} \.xhtml$
+RewriteRule .* - [T=text/html;charset=utf-8]
+

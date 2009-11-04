@@ -48,10 +48,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			math.hpsg .tag > mi {
 				font-style:normal;
 			}
-			math.hpsg menclose.tag + .category {
+			math.hpsg menclose.tag + .type {
 				
 			}
-			math.hpsg mi.category {
+			math.hpsg mi.type {
 				font-style:italic;
 			}
 			math.hpsg .reln{
@@ -179,9 +179,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</xsl:template>
 	
 	
-	<!-- category attributes -->
-	<xsl:template match="@category[parent::hpsg:*]">
-		<mi class='category'>
+	<!-- type attributes -->
+	<xsl:template match="@type[parent::hpsg:*]">
+		<mi class='type'>
 			<xsl:value-of select="." />
 		</mi>
 	</xsl:template>
@@ -203,7 +203,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					- (tag) abbr (index)
 					- tag | index
 				-->
-				<xsl:when test="not(./hpsg:attr) and not(@category)">
+				<xsl:when test="not(./hpsg:attr) and not(@type)">
 					<xsl:choose>
 						
 						<!-- tag and index and abbr -->
@@ -234,16 +234,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				
 				<!--
 				Still don't need brackets
-					- (tag) category (index)
+					- (tag) type (index)
 				-->
-				<xsl:when test="not(./hpsg:attr) and @category and not(@abbr)">
+				<xsl:when test="not(./hpsg:attr) and @type and not(@abbr)">
 					<xsl:choose>
 						<!-- has index (subscript) -->
 						<xsl:when test="@index">
 							<msub>
 								<mrow>
 									<xsl:apply-templates select="@tag" />
-									<xsl:apply-templates select="@category" />
+									<xsl:apply-templates select="@type" />
 								</mrow>
 								<xsl:apply-templates select="@index" />
 							</msub>
@@ -252,18 +252,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 						<!-- no index (no subscript needed) -->
 						<xsl:otherwise>
 							<xsl:apply-templates select="@tag" />
-							<xsl:apply-templates select="@category" />
+							<xsl:apply-templates select="@type" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
 				
 				
 				<!--
-				Otherwise we need to attach @index and @tag to the abbr and category
-					- (tag) abbr (index) [ category ]
+				Otherwise we need to attach @index and @tag to the abbr and type
+					- (tag) abbr (index) [ type ]
 					- (tag) abbr (index) [ attrs ]
 				-->
-				<xsl:when test="@abbr and (@category or ./hpsg:attr)">
+				<xsl:when test="@abbr and (@type or ./hpsg:attr)">
 					
 					
 					
@@ -293,9 +293,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 						<!-- now put what is under -->
 						<mfenced open="[" close="]">
 							<mtable>
-								<xsl:if test="@category">
+								<xsl:if test="@type">
 									<mtr>
-										<mtd><xsl:apply-templates select="@category" /></mtd>
+										<mtd><xsl:apply-templates select="@type" /></mtd>
 									</mtr>
 								</xsl:if>
 								<xsl:apply-templates select="hpsg:attr" />
@@ -314,9 +314,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					
 					<mfenced open="[" close="]">
 						<mtable>
-							<xsl:if test="@category">
+							<xsl:if test="@type">
 								<mtr>
-									<mtd columnspan="2"><xsl:apply-templates select="@category" /></mtd>
+									<mtd columnspan="2"><xsl:apply-templates select="@type" /></mtd>
 								</mtr>
 							</xsl:if>
 							<xsl:apply-templates select="hpsg:attr" />

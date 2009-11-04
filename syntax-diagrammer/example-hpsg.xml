@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="hpsg-mathml.xslt" type="text/xsl" ?>
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		
-	</head>
-	<body>
-		<h1>hello</h1>
-<avm tag="1" category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+<!--<html xmlns="http://www.w3.org/1999/xhtml">-->
+<!--	<head>-->
+<!--		-->
+<!--	</head>-->
+<!--	<body>-->
+<!--		<h1>hello</h1>-->
+<avm tag="1" type="word" xmlns="http://weston.ruter.net/ns/hpsg">
 	<attr name="HEAD">
-		<avm category="prep" />
+		<avm type="prep" />
 	</attr>
 	<attr name="VAL">
 		<avm>
@@ -23,5 +23,5 @@
 </avm>
 
 
-	</body>
-</html>
+<!--	</body>-->
+<!--</html>-->
