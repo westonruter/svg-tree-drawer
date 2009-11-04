@@ -4,14 +4,102 @@
 	xmlns:math="http://www.w3.org/1998/Math/MathML"
 	xmlns="http://www.w3.org/1998/Math/MathML"
 	xmlns:html="http://www.w3.org/1999/xhtml"
-	xmlns:hpsg="http://weston.ruter.net/ns/hpsg">
-<!--exclude-result-prefixes="xhtml xsl xs"-->
+	xmlns:hpsg="http://weston.ruter.net/ns/hpsg">	
+	
+	<xsl:template name="css">
+		<html:style type="text/css">
+			math.hpsg {
+				font-size:1em;
+			}
+			math.hpsg .tag {
+				display:inline-block;
+				text-align:center;
+				min-width:1.1em;
+				line-height:1em;
+				/*max-height:1em;*/
+				font-size:1em;
+				vertical-align:middle;
+				border:solid 1px black;
+				color:black;
+				/*margin-right:0.25em;*/
+				
+				vertical-align:bottom;
+			}
+			math.hpsg .tag > mi {
+				font-style:normal;
+			}
+			math.hpsg menclose.tag + .category {
+				
+			}
+			math.hpsg mi.category {
+				font-style:italic;
+			}
+			math.hpsg .reln{
+				font-weight:bold !important;
+			}
+			math.hpsg munder > mfenced {
+				font-size:1em;
+			}
+			math.hpsg mtd {
+				text-align:left;
+			}
+			math.hpsg .attr-name-RELN > .attr-value {
+				font-weight:bold;
+			}
+			math.hpsg .tag + mi {
+				margin-left:0.5ex;
+			}
+			math.hpsg .abbr {
+				font-style:normal;
+				/*font-size:larger;*/
+			}
+			math.hpsg mi.headed {
+				font-weight:bold;
+				font-style:normal;
+			}
+			
+			/*math.hpsg .tag-A, math.hpsg .tag-A ~ * { border-color:blue; color:blue; }
+			math.hpsg .tag-B, math.hpsg .tag-B ~ * { border-color:red; color:red; }
+			math.hpsg .tag-C, math.hpsg .tag-C ~ * { border-color:green; color:green; }
+			math.hpsg .tag-D, math.hpsg .tag-D ~ * { border-color:purple; color:purple; }*/
+			
+			math.hpsg .tag-1, math.hpsg .tag-1 ~ * { border-color:blue; color:blue; }
+			math.hpsg .tag-2, math.hpsg .tag-2 ~ * { border-color:red; color:red; }
+			math.hpsg .tag-3, math.hpsg .tag-3 ~ * { border-color:green; color:green; }
+			math.hpsg .tag-4, math.hpsg .tag-4 ~ * { border-color:purple; color:purple; }
+			math.hpsg .tag-5, math.hpsg .tag-5 ~ * { border-color:#CC7722; color:#CC7722; }
+			math.hpsg .tag-6, math.hpsg .tag-6 ~ * { border-color:brown; color:brown; }
+			math.hpsg .tag-7, math.hpsg .tag-7 ~ * { border-color:#E32636; color:#E32636; }
+			math.hpsg .tag-8, math.hpsg .tag-8 ~ * { border-color:magenta; color:magenta; }
+			math.hpsg .tag-9, math.hpsg .tag-9 ~ * { border-color:#EC5800; color:#EC5800; }
+			math.hpsg .tag-10, math.hpsg .tag-10 ~ * { border-color:#4B5320; color:#4B5320; }
+			math.hpsg .tag-11, math.hpsg .tag-11 ~ * { border-color:#00008B; color:#00008B; }
+			math.hpsg .tag-12, math.hpsg .tag-12 ~ * { border-color:#228B22; color:#228B22; }
+			math.hpsg .tag-13, math.hpsg .tag-13 ~ * { border-color:#00416A; color:#00416A; }
+			math.hpsg .tag-14, math.hpsg .tag-14 ~ * { border-color:#CF1020; color:#CF1020; }
+			math.hpsg .tag-15, math.hpsg .tag-15 ~ * { border-color:#FF4500; color:#FF4500; }
+			math.hpsg .tag-16, math.hpsg .tag-16 ~ * { border-color:#40404F; color:#40404F; }
+			
+			math.hpsg .index.index-i { background-color:yellow; }
+			math.hpsg .index.index-j { background-color:cyan; }
+			math.hpsg .index.index-k { background-color:magenta; }
+			math.hpsg .index.index-l { background-color:lime; }
+		</html:style>
+	</xsl:template>
 	
 	
 	<xsl:template match="/html:html">
 		<xsl:copy>
 			<xsl:apply-templates  />
 		</xsl:copy>
+	</xsl:template>
+	
+	<xsl:template match="/[hpsg:*]">
+		<math display="inline" class="hpsg">
+			<mrow>
+				<xsl:apply-templates select="hpsg:*" />
+			</mrow>
+		</math>
 	</xsl:template>
 	
 	<!-- The identity template, and CSS Styles -->
@@ -33,88 +121,9 @@
 				</xsl:choose>
 			</xsl:for-each>
 			
-			
-
 			<!-- Add stylesheet to document -->
 			<xsl:if test="self::html:head">
-				<html:style type="text/css">
-					math.hpsg {
-						font-size:1em;
-					}
-					math.hpsg .tag {
-						display:inline-block;
-						text-align:center;
-						min-width:1.1em;
-						line-height:1em;
-						/*max-height:1em;*/
-						font-size:1em;
-						vertical-align:middle;
-						border:solid 1px black;
-						color:black;
-						/*margin-right:0.25em;*/
-						
-						vertical-align:bottom;
-					}
-					math.hpsg .tag > mi {
-						font-style:normal;
-					}
-					math.hpsg menclose.tag + .category {
-						
-					}
-					math.hpsg mi.category {
-						font-style:italic;
-					}
-					math.hpsg .reln{
-						font-weight:bold !important;
-					}
-					math.hpsg munder > mfenced {
-						font-size:1em;
-					}
-					math.hpsg mtd {
-						text-align:left;
-					}
-					math.hpsg .attr-name-RELN > .attr-value {
-						font-weight:bold;
-					}
-					math.hpsg .tag + mi {
-						margin-left:0.5ex;
-					}
-					math.hpsg .abbr {
-						font-style:normal;
-						/*font-size:larger;*/
-					}
-					math.hpsg mi.headed {
-						font-weight:bold;
-						font-style:normal;
-					}
-					
-					/*math.hpsg .tag-A, math.hpsg .tag-A ~ * { border-color:blue; color:blue; }
-					math.hpsg .tag-B, math.hpsg .tag-B ~ * { border-color:red; color:red; }
-					math.hpsg .tag-C, math.hpsg .tag-C ~ * { border-color:green; color:green; }
-					math.hpsg .tag-D, math.hpsg .tag-D ~ * { border-color:purple; color:purple; }*/
-					
-					math.hpsg .tag-1, math.hpsg .tag-1 ~ * { border-color:blue; color:blue; }
-					math.hpsg .tag-2, math.hpsg .tag-2 ~ * { border-color:red; color:red; }
-					math.hpsg .tag-3, math.hpsg .tag-3 ~ * { border-color:green; color:green; }
-					math.hpsg .tag-4, math.hpsg .tag-4 ~ * { border-color:purple; color:purple; }
-					math.hpsg .tag-5, math.hpsg .tag-5 ~ * { border-color:#CC7722; color:#CC7722; }
-					math.hpsg .tag-6, math.hpsg .tag-6 ~ * { border-color:brown; color:brown; }
-					math.hpsg .tag-7, math.hpsg .tag-7 ~ * { border-color:#E32636; color:#E32636; }
-					math.hpsg .tag-8, math.hpsg .tag-8 ~ * { border-color:magenta; color:magenta; }
-					math.hpsg .tag-9, math.hpsg .tag-9 ~ * { border-color:#EC5800; color:#EC5800; }
-					math.hpsg .tag-10, math.hpsg .tag-10 ~ * { border-color:#4B5320; color:#4B5320; }
-					math.hpsg .tag-11, math.hpsg .tag-11 ~ * { border-color:#00008B; color:#00008B; }
-					math.hpsg .tag-12, math.hpsg .tag-12 ~ * { border-color:#228B22; color:#228B22; }
-					math.hpsg .tag-13, math.hpsg .tag-13 ~ * { border-color:#00416A; color:#00416A; }
-					math.hpsg .tag-14, math.hpsg .tag-14 ~ * { border-color:#CF1020; color:#CF1020; }
-					math.hpsg .tag-15, math.hpsg .tag-15 ~ * { border-color:#FF4500; color:#FF4500; }
-					math.hpsg .tag-16, math.hpsg .tag-16 ~ * { border-color:#40404F; color:#40404F; }
-					
-					math.hpsg .index.index-i { background-color:yellow; }
-					math.hpsg .index.index-j { background-color:cyan; }
-					math.hpsg .index.index-k { background-color:magenta; }
-					math.hpsg .index.index-l { background-color:lime; }
-				</html:style>
+				<xsl:call-template name="css" />
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
