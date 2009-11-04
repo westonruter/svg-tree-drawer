@@ -1,6 +1,6 @@
 /**
  * SVG Tree Drawer <http://github.com/westonruter/svg-tree-drawer/>
- * by Weston Ruter <http://weston.ruter.net/>
+ * by Weston Ruter <http://weston.ruter.net/>, 2009
  * License: GPL 3.0 <http://www.gnu.org/licenses/gpl.html>
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -48,6 +48,7 @@ var T = window.TreeDrawer = function(fallbackElement, treeData){
 	// Create the SVG document
 	if(isNativeSVG){
 		var svg = document.createElementNS(svgns, 'svg');
+		svg.id = fallbackElement.id;
 		svg.setAttribute('width', 0);
 		svg.setAttribute('height', 0);
 		fallbackElement.parentNode.replaceChild(svg, fallbackElement);

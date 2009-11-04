@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<?xml-stylesheet href="hpsg-mathml.xslt" type="text/xsl" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta charset='utf8' />
@@ -14,61 +15,52 @@
 			}
 		}
 		</script>
-		<!--<script src="../svgweb/src/svg-uncompressed.js" data-path="../svgweb/src"></script>-->
 		<script src="../svg-tree-drawer.js"></script>
 		<style>
 		svg text,
-		.treeNodeAVM {
+		.treeNode {
 			padding:0.5em;
 			padding-left:1em;
 			padding-right:1em;
 		}
-		
 		svg line {
-			font-size:2em; /*height not honored here by WebKit*/
+			font-size:2em;
 		}
-		math mtd {
-			text-align:left;
-		}
-		math {
-			
-		}
-		.treeNodeAVM {
+		.treeNode {
 			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
 		}
-		li math {
-			
+		body.no-colors #treeTheySeemedCloseToMe * {
+			color:black !important;
+			background:transparent !important;
+			border-color:black !important;
 		}
-		ol > li {
-			margin-top:1em;
-			padding-top:1em;
-			border-top:solid 1px gray;
+		#toggleColorsBtn.off {
+			color:red;
 		}
-		ol > li:first-child {
-			border-top:0;
-			padding-top:0;
-			margin-top:0;
-		}
-		math,svg {
-			page-break-inside:avoid;
-		}
-		li svg {
-			vertical-align:top;
-			
-		}
-		li.treeTheySeemedCloseToMeToSandy {
-			
-		}
-		ol {
-			margin-left:0;
-			
-		}
-		li.treeTheySeemedCloseToMeToSandy svg {
-			/*-moz-transform:rotate(90deg);*/
+		#toggleColorsBtn.on {
+			color:green;
 		}
 		</style>
+		<script>
+		window.addEventListener('load', function(){
+			document.getElementById('toggleColorsBtn').addEventListener('click', function(e){
+				var body = document.getElementsByTagName('body')[0];
+				if(body.className.indexOf('no-colors') == -1){ //colors turned off
+					this.innerHTML = "Turn Colors On";
+					this.className = 'on';
+					body.className += ' no-colors';
+				}
+				else {
+					this.innerHTML = "Turn Colors Off";
+					this.className = 'off';
+					body.className = body.className.replace(/\s*no-colors/, '');
+				}
+				//treeTheySeemedCloseToMe
+			}, false)
+		}, false);
+		</script>
 	</head>
-	<body>
+	<body class='no-colors'>
 		<h1>Example Phrase Structure Tree with <abbr title="Attribute Value Matrix">AVM</abbr> Nodes</h1>
 		
 		<p>This example demonstrates the functionality of the <a href="http://github.com/westonruter/svg-tree-Drawer">SVG Tree Drawer</a>.
@@ -77,686 +69,254 @@
 		properly,</strong> because only this browser currently supports both MathML and SVG.
 		If you don't have Firefox 3+, see <a href="example-tree-with-avms.pdf">this page printed to PDF</a>.</p>
 		
-		<p><em>New!</em> Now click on a node whose children don't have even heights and they will extend down to be the same level.</p>
+		<p>
+			<button id="toggleColorsBtn" class="on">Turn Colors On</button>
+			Clicking on a node whose children don't have even heights and they will extend down to be the same level.
+		</p>
 		
 		<p id="treeTheySeemedCloseToMe"><em>Tree for “The seemed close to me.” goes here… if it doesn't load, you're probably not using Firefox 3+!</em></p>
 		<!-- include XSLT; add XSLT to syntax-diagrammer Git repo -->
 		
-		
-		
-		<hr />
-		<p>OLD:</p>
-		
-		
-		<div id="s1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mfenced open='[' close=']'>
-					<mtable>
-						<mtr>
-							<mtd><mi style="font-style:italic">phrase</mi></mtd>
-						</mtr>
-						
-						<mtr>
-							<mtd><mi>HEAD</mi></mtd>
-							<mtd>
-								<mi style="color:red">①</mi>
-								<!--<mfenced open='[' close=']'>
-									<mtable>
-										<mtr>
-											<mtd>
-												<mi style='font-style:italic'>verb</mi>
-											</mtd>
-											<mtd>
-												
-											</mtd>
-										</mtr>
-									</mtable>
-								</mfenced>-->
-							</mtd>
-						</mtr>
-						<mtr>
-							<mtd><mi>VAL</mi></mtd>
-							<mtd>
-								
-								<mfenced open='[' close=']'>
-									<mtable>
-										<!--<mtr>-->
-										<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
-										<!--</mtr>-->
-										<mtr>
-											<mtd><mtext>COMPS</mtext></mtd>
-											<mtd>
-												
-												<mfenced open='〈' close='〉' separators="">
-
-												</mfenced>
-												
-											</mtd>
-										</mtr>
-										<mtr>
-											<mtd><mtext>SPR</mtext></mtd>
-											<mtd>
-												<mfenced open='〈' close='〉' separators="&#8199;">
-												</mfenced>
-											</mtd>
-										</mtr>
-											
-									</mtable>
-								</mfenced>
-								
-							</mtd>
-						</mtr>
-					</mtable>
-				</mfenced>
-			</math>
+		<div class="treeNode" id="S">
+		<avm category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+			<attr name="HEAD" tag="1" />
+			<attr name="VAL">
+				<avm>
+					<attr name="COMPS"><list /></attr>
+					<attr name="SPR"><list /></attr>
+				</avm>
+			</attr>
+		</avm>
 		</div>
 		
-		
-		
-
-		<div id="np1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mi style="color:blue">②</mi>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">phrase</mi></mtd>
-							</mtr>
-							
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="2">
-													<mi style='font-style:italic'>noun</mi>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd>
-													<mi>AGR</mi>
-												</mtd>
-												<mtd>
-													<mi style="color:green">③</mi>
-													<!--<mi style="color:red">①</mi>-->
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									
-									<mfenced open='[' close=']'>
-										<mtable>
-											<!--<mtr>-->
-											<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
-											<!--</mtr>-->
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													
-													<mfenced open='〈' close='〉' separators="">
-
-													</mfenced>
-													
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-	
-
-		<div id="vp1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">phrase</mi></mtd>
-							</mtr>
-							
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:red">①</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="2">
-													<mi style='font-style:italic'>verb</mi>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd>
-													<mi>AGR</mi>
-												</mtd>
-												<mtd>
-													<mi style="color:green">③</mi>
-													<!--<mi style="color:red">①</mi>-->
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mi style="color:purple">④</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<!--<mtr>-->
-											<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
-											<!--</mtr>-->
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													
-													<mfenced open='〈' close='〉' separators="">
-
-													</mfenced>
-													
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														<mi style="color:blue">②</mi>
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-
-		<div id="v1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">word</mi></mtd>
-							</mtr>
-							
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:red">①</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="2">
-													<mi style='font-style:italic'>verb</mi>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd>AGR</mtd>
-												<mtd>
-													<mfenced open='[' close=']'>
-														<mtable>
-															<mtr>
-																<mtd><mi style="font-style:italic">plural</mi></mtd>
-															</mtr>
-															<mtr>
-																<mtd>NUM</mtd>
-																<mtd>pl</mtd>
-															</mtr>
-															<mtr>
-																<mtd>PER</mtd>
-																<mtd>3rd</mtd>
-															</mtr>
-														</mtable>
-													</mfenced>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mi style="color:purple">④</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<!--<mtr>-->
-											<!--	<mtd columnspan="2" style="font-style:italic">val-cat</mtd>-->
-											<!--</mtr>-->
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													
-													<mfenced open='〈' close='〉' separators=",">
-														<mi style="color:orange">⑤</mi>
-														<!--<mi>⑥</mi>-->
-													</mfenced>
-													
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														<mi style="color:blue">②</mi>
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-
-
-
-
-		<div id="ap1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mi style="color:orange">⑤</mi>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">phrase</mi></mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:brown">⑦</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="1">
-													<mi style='font-style:italic'>adj</mi>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators=",">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-		<div id="a1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">word</mi></mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:brown">⑦</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="1">
-													<mi style='font-style:italic'>adj</mi>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators=",">
-														<mi style="color:pink">⑧</mi>
-													</mfenced>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-		<div id="pp1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mi style="color:pink">⑧</mi>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">phrase</mi></mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:violet">⑨</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="1">
-													<mi style='font-style:italic'>prep</mi>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators=",">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-		<div id="p1" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">word</mi></mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mi style="color:violet">⑨</mi>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="1">
-													<mi style='font-style:italic'>prep</mi>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators=",">
-														<mi style="color:magenta">⑩</mi>
-													</mfenced>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-		<div id="np2" class='treeNodeAVM'>
-			<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML">
-				<mrow>
-					<mi style="color:magenta">⑩</mi>
-					<mfenced open='[' close=']'>
-						<mtable>
-							<mtr>
-								<mtd><mi style="font-style:italic">word</mi></mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>HEAD</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd columnspan="2">
-													<mi style='font-style:italic'>noun</mi>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd>AGR</mtd>
-												<mtd>
-													<mfenced open='[' close=']'>
-														<mtable>
-															<mtr>
-																<mtd><mi style="font-style:italic">1sing</mi></mtd>
-															</mtr>
-															<mtr>
-																<mtd>NUM</mtd>
-																<mtd>sg</mtd>
-															</mtr>
-															<mtr>
-																<mtd>PER</mtd>
-																<mtd>1st</mtd>
-															</mtr>
-														</mtable>
-													</mfenced>
-												</mtd>
-											</mtr>
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-							<mtr>
-								<mtd><mi>VAL</mi></mtd>
-								<mtd>
-									<mfenced open='[' close=']'>
-										<mtable>
-											<mtr>
-												<mtd><mtext>COMPS</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators=",">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-											<mtr>
-												<mtd><mtext>SPR</mtext></mtd>
-												<mtd>
-													<mfenced open='〈' close='〉' separators="&#8199;">
-														
-													</mfenced>
-												</mtd>
-											</mtr>
-												
-										</mtable>
-									</mfenced>
-									
-								</mtd>
-							</mtr>
-						</mtable>
-					</mfenced>
-				</mrow>
-			</math>
-		</div>
-
-			<div id="treeTheySeemedCloseToMeToSandy"><em>Tree goes here… if it doesn't load, you're probably not using Firefox 3+!</em></div>
+			<div class="treeNode" id="N_they">
+			<avm tag="2" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+				<attr name="HEAD">
+					<avm category="noun">
+						<attr name="AGR" tag="3" />
+					</avm>
+				</attr>
+				<attr name="VAL">
+					<avm>
+						<attr name="COMPS"><list /></attr>
+						<attr name="SPR"><list /></attr>
+					</avm>
+				</attr>
+			</avm>
+			</div>
 			
+			<div class="treeNode" id="VP_appearedCloseToMe" >
+			<avm category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+				<attr name="HEAD">
+					<avm category="verb" tag="1">
+						<attr name="AGR" tag="3" />
+					</avm>
+				</attr>
+				<attr name="VAL">
+					<avm tag="4">
+						<attr name="COMPS"><list /></attr>
+						<attr name="SPR">
+							<list><avm tag="2" /></list>
+						</attr>
+					</avm>
+				</attr>
+			</avm>
+			</div>
+			
+				<div class="treeNode" id="V_appeared">
+				<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+					<attr name="HEAD">
+						<avm tag="1" category="verb">
+							<attr name="AGR">
+								<avm category="plural">
+									<attr name="NUM">pl</attr>
+									<attr name="PER">3rd</attr>
+								</avm>
+							</attr>
+						</avm>
+					</attr>
+					<attr name="VAL">
+						<avm tag="4">
+							<attr name="COMPS">
+								<list><avm tag="5" /></list>
+							</attr>
+							<attr name="SPR">
+								<list><avm tag="2" /></list>
+							</attr>
+						</avm>
+					</attr>
+				</avm>
+				</div>
+			
+				<div class="treeNode" id="AP_closeToMe">
+				<avm tag="5" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+					<attr name="HEAD">
+						<avm tag="7" category="adj" />
+					</attr>
+					<attr name="VAL">
+						<avm tag="4">
+							<attr name="COMPS">
+								<list />
+							</attr>
+							<attr name="SPR">
+								<list />
+							</attr>
+						</avm>
+					</attr>
+				</avm>
+				</div>
+			
+					<div class="treeNode" id="A_close">
+					<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+						<attr name="HEAD">
+							<avm tag="7" category="adj" />
+						</attr>
+						<attr name="VAL">
+							<avm>
+								<attr name="COMPS">
+									<list>
+										<avm tag="8" />
+									</list>
+								</attr>
+								<attr name="SPR">
+									<list />
+								</attr>
+							</avm>
+						</attr>
+					</avm>
+					</div>
+			
+					<div class="treeNode" id="PP_toMe">
+					<avm tag="8" category="phrase" xmlns="http://weston.ruter.net/ns/hpsg">
+						<attr name="HEAD">
+							<avm tag="9" category="prep" />
+						</attr>
+						<attr name="VAL">
+							<avm>
+								<attr name="COMPS">
+									<list />
+								</attr>
+								<attr name="SPR">
+									<list />
+								</attr>
+							</avm>
+						</attr>
+					</avm>
+					</div>
+						
+						<div class="treeNode" id="P_to">
+						<avm category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+							<attr name="HEAD">
+								<avm tag="9" category="prep" />
+							</attr>
+							<attr name="VAL">
+								<avm>
+									<attr name="COMPS">
+										<list>
+											<avm tag="10" />
+										</list>
+									</attr>
+									<attr name="SPR">
+										<list />
+									</attr>
+								</avm>
+							</attr>
+						</avm>
+						</div>
+				
+						<div class="treeNode" id="N_me">
+						<avm tag="10" category="word" xmlns="http://weston.ruter.net/ns/hpsg">
+							<attr name="HEAD">
+								<avm category="noun">
+									<attr name="AGR">
+										<avm category="1sing">
+											<attr name="NUM">sg</attr>
+											<attr name="PER">1st</attr>
+										</avm>
+									</attr>
+								</avm>
+							</attr>
+							<attr name="VAL">
+								<avm>
+									<attr name="COMPS">
+										<list></list>
+									</attr>
+									<attr name="SPR">
+										<list />
+									</attr>
+								</avm>
+							</attr>
+						</avm>
+						</div>
+		
 		<script>
 		//<![CDATA[
-		var tree = new TreeDrawer('treeTheySeemedCloseToMeToSandy',
-			{label:/*S*/document.getElementById('s1'), extended:false, children:[
-				{label:/*NP*/document.getElementById('np1'), extended:true, children:[
-					//{label: 'N', children:[
+		window.addEventListener('load', function(){
+			var $ = function(id){
+				if(!document.getElementById(id))
+					alert(id);
+				return document.getElementById(id);
+			};
+			
+			var tree = new TreeDrawer('treeTheySeemedCloseToMe',
+				{label:$('S'), extended:true, children:[
+					
+					{label:$('N_they'), children:[
 						{label: 'They'}
-					//]}
-				]},
-				{label:/*VP*/document.getElementById('vp1'), extended: false, children:[
-					{label:/*V*/document.getElementById('v1'), children:[
-						{label:'seemed'}
 					]},
-					{label:/*AP ⑤*/document.getElementById('ap1'), children:[
-						{label:/*A*/document.getElementById('a1'), children:[
-							{label:'close'}
+					{label:$('VP_appearedCloseToMe'), children:[
+						{label:$('V_appeared'), children:[
+							{label:'seemed'}
 						]},
-						{label:/*PP ⑧*/document.getElementById('pp1'), children:[
-							{label:/*P*/document.getElementById('p1'), children:[
-								{label:'to'}
+						{label:$('AP_closeToMe'), children:[
+							{label:$('A_close'), children:[
+								{label:'close'}
 							]},
-							{label:/*NP ⑩*/document.getElementById('np2'), children:[
-								//{label:'N', children: [
+							{label:$('PP_toMe'), children:[
+								{label:$('P_to'), children:[
+									{label:'to'}
+								]},
+								{label:$('N_me'), children:[
 									{label:'me'}
-								//]}
+								]}
 							]}
 						]}
 					]}
 				]}
-			]}
-		);
-		tree.addFilter('label', function(label, treeNode){
-			if(typeof label == 'string'){
-				label = label.replace(/seemed/, 'appeared');
-			}
-			return label;
-		});
-		tree.draw();
-		//tree.draw(); //refresh
-		
-		document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
-			var g = e.target;
-			//console.warn(g)
-			while(g && g.nodeName.toLowerCase() != 'g'){
-				g = g.parentNode;
-			}
-			if(g && g.svgTreeDrawerNode){
-				g.svgTreeDrawerNode.extended = !g.svgTreeDrawerNode.extended;
-				tree.draw();
-			}
+			);
+			tree.addFilter('label', function(label, treeNode){
+				if(typeof label == 'string'){
+					label = label.replace(/seemed/, 'appeared');
+				}
+				return label;
+			});
+			tree.draw();
+			//tree.draw(); //refresh
 			
-			//console.info(this)
+			document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
+				var g = e.target;
+				//console.warn(g)
+				while(g && g.nodeName.toLowerCase() != 'g'){
+					g = g.parentNode;
+				}
+				if(g && g.svgTreeDrawerNode){
+					g.svgTreeDrawerNode.extended = !g.svgTreeDrawerNode.extended;
+					tree.draw();
+				}
+				
+				//console.info(this)
+			}, false);
+			
 		}, false);
-		
 		
 		//]]>
 		</script>
 		
+		
 		<hr />
 		<footer>
 			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
-			<time>2009-10-19</time>
+			<time pubdate="">2009-11-04</time>
 		</footer>
 	</body>
 </html>

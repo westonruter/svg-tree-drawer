@@ -1,4 +1,23 @@
 <?xml version="1.0"?>
+<!--
+XSLT to Convert HPSG XML into MathML <http://github.com/westonruter/svg-tree-drawer/>
+by Weston Ruter <http://weston.ruter.net/>, 2009
+License: GPL 3.0 <http://www.gnu.org/licenses/gpl.html>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:math="http://www.w3.org/1998/Math/MathML"
@@ -8,6 +27,7 @@
 	
 	<xsl:template name="css">
 		<html:style type="text/css">
+			<![CDATA[
 			math.hpsg {
 				font-size:1em;
 			}
@@ -84,37 +104,43 @@
 			math.hpsg .index.index-j { background-color:cyan; }
 			math.hpsg .index.index-k { background-color:magenta; }
 			math.hpsg .index.index-l { background-color:lime; }
+			]]>
 		</html:style>
 	</xsl:template>
 	
 	
-	<xsl:template match="/html:html">
-		<xsl:copy>
-			<xsl:apply-templates  />
-		</xsl:copy>
+	<xsl:template match="/">
+		<xsl:choose>
+			<!-- Root is HPSG element -->
+			<xsl:when test="hpsg:*">
+				<math display="inline" class="hpsg">
+					<xsl:call-template name="css" />
+					<mrow><xsl:apply-templates select="hpsg:*" /></mrow>
+				</math>
+			</xsl:when>
+			
+			<!-- Root is some element in another namespace, i.e. XHTML -->
+			<xsl:otherwise>
+				<xsl:apply-templates  />
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
-	<xsl:template match="/[hpsg:*]">
-		<math display="inline" class="hpsg">
-			<mrow>
-				<xsl:apply-templates select="hpsg:*" />
-			</mrow>
-		</math>
-	</xsl:template>
 	
-	<!-- The identity template, and CSS Styles -->
-	<xsl:template match="@*|node()[not(self::hpsg:*)]">
+	
+	<!-- The identity template: for non-HPSG-namespaced elements (i.e. XHTML) -->
+	<xsl:template match="@*|node()[not(self::hpsg:*)]"><!-- what about PIs? -->
 		<xsl:copy>
 			<xsl:for-each select="./@*|./node()">
 				<xsl:choose>
 					<!-- MathML root -->
 					<xsl:when test="self::hpsg:*">
 						<math display="inline" class="hpsg">
-							<mrow>
-								<xsl:apply-templates select="self::hpsg:*" />
-							</mrow>
+							<mrow><xsl:apply-templates select="self::hpsg:*" /></mrow>
 						</math>
 					</xsl:when>
+					
+					<!-- Copy over all source elements -->
 					<xsl:otherwise>
 						<xsl:apply-templates select="." />
 					</xsl:otherwise>
