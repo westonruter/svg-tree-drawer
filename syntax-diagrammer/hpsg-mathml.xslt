@@ -355,8 +355,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<mtd class='attr-name'>
 				<mi><xsl:value-of select="@name" /></mi>
 			</mtd>
-			<mtd class='attr-value'>
+			<mtd>
 				<xsl:attribute name="class">
+					attr-value
 					<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>
 					<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
 				</xsl:attribute>
