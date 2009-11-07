@@ -174,10 +174,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- index attributes -->
 	<xsl:template match="@index[parent::hpsg:*]">
-		<mi>
-			<xsl:attribute name="class">index index-<xsl:value-of select="." /></xsl:attribute>
-			<xsl:value-of select="." />
-		</mi>
+		<xsl:choose>
+			<xsl:when test="string-length(.) > 1">
+				<msub>
+					<!--substring(string, number, number?)-->
+					<xsl:attribute name="class">index index-<xsl:value-of select="." /></xsl:attribute>
+					<mi><xsl:value-of select="substring(., 1, 1)" /></mi>
+					<mi><xsl:value-of select="substring(., 2)" /></mi>
+				</msub>
+			</xsl:when>
+			<xsl:otherwise>
+				<mi>
+					<xsl:attribute name="class">index index-<xsl:value-of select="." /></xsl:attribute>
+					<xsl:value-of select="." />
+				</mi>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+		<!--<mi>-->
+		<!--	<xsl:attribute name="class">index index-<xsl:value-of select="." /></xsl:attribute>-->
+		<!--	<xsl:choose>-->
+		<!--		<xsl:when test="'true'">-->
+		<!--			test-->
+		<!--		</xsl:when>-->
+		<!--		<xsl:otherwise>-->
+		<!--			<xsl:value-of select="." />-->
+		<!--		</xsl:otherwise>-->
+		<!--	</xsl:choose>-->
+		<!--</mi>-->
 	</xsl:template>
 	
 	<!-- abbr attributes -->
@@ -406,7 +430,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</xsl:template>
 		
 	
-	<!-- sum -->
+	<!-- disjunction -->
 	<xsl:template match="hpsg:switch" >
 		<mfenced open='' close='' separators="|">
 			<xsl:apply-templates select="*" />
