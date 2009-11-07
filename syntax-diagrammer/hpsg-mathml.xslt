@@ -81,6 +81,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			math.hpsg mrow.function > msub > mi {
 				font-style:normal;
 			}
+			math.hpsg mrow.function > msub > mi.name {
+				font-style:italic;
+			}
 			
 			/*math.hpsg .tag-A, math.hpsg .tag-A ~ * { border-color:blue; color:blue; }
 			math.hpsg .tag-B, math.hpsg .tag-B ~ * { border-color:red; color:red; }
@@ -197,12 +200,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<!-- Attribute-Value Matrix -->
 	<xsl:template match="hpsg:avm" >
 		<mrow>
-			<xsl:if test="@index">
-				<xsl:attribute name="class">indexed index-<xsl:value-of select="@index" /></xsl:attribute>
-			</xsl:if>
-			<xsl:if test="@tag">
-				<xsl:attribute name="class">tagged tag-<xsl:value-of select="@tag" /></xsl:attribute>
-			</xsl:if>
+			<xsl:attribute name="class">
+				<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>
+				<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
+			</xsl:attribute>
 			
 			<xsl:choose>
 				<!--
@@ -345,18 +346,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<!-- avm > attr -->
 	<xsl:template match="hpsg:attr[parent::hpsg:avm]" >
 		<mtr>
-			<xsl:if test="@index">
-				<xsl:attribute name="class">indexed index-<xsl:value-of select="@index" /></xsl:attribute>
-			</xsl:if>
-			<xsl:if test="@tag">
-				<xsl:attribute name="class">tagged tag-<xsl:value-of select="@tag" /></xsl:attribute>
-			</xsl:if>
-			<xsl:attribute name="class">attr-name-<xsl:value-of select="@name" /></xsl:attribute>
+			<xsl:attribute name="class">
+				<!--<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>-->
+				<!--<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>-->
+				attr-name-<xsl:value-of select="@name" />
+			</xsl:attribute>
 			
 			<mtd class='attr-name'>
 				<mi><xsl:value-of select="@name" /></mi>
 			</mtd>
 			<mtd class='attr-value'>
+				<xsl:attribute name="class">
+					<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>
+					<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
+				</xsl:attribute>
+				
 				<xsl:apply-templates select="@tag" />
 				<xsl:apply-templates select="@index" />
 				
@@ -462,7 +466,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<mrow class="function">
 			<msub>
 				<mi>F</mi>
-				<mi><xsl:value-of select="@name" /></mi>
+				<mi class='name'><xsl:value-of select="@name" /></mi>
 			</msub>
 			<mfenced open="(" close=")">
 				<xsl:apply-templates select="*" />
