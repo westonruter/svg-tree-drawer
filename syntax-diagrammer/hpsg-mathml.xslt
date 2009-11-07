@@ -78,6 +78,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				font-style:normal;
 			}
 			
+			math.hpsg mrow.function > msub > mi {
+				font-style:normal;
+			}
+			
 			/*math.hpsg .tag-A, math.hpsg .tag-A ~ * { border-color:blue; color:blue; }
 			math.hpsg .tag-B, math.hpsg .tag-B ~ * { border-color:red; color:red; }
 			math.hpsg .tag-C, math.hpsg .tag-C ~ * { border-color:green; color:green; }
@@ -445,7 +449,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		
 	<!-- word -->
 	<xsl:template match="hpsg:word">
-		<mtext><xsl:value-of select="." /></mtext>
+		<xsl:apply-templates select="@tag" />
+		<xsl:if test="./* or not(@tag)">
+			<mtext class='word'><xsl:value-of select="." /></mtext>
+		</xsl:if>
+	</xsl:template>
+		
+		
+		
+	<!-- function -->
+	<xsl:template match="hpsg:function">
+		<mrow class="function">
+			<msub>
+				<mi>F</mi>
+				<mi><xsl:value-of select="@name" /></mi>
+			</msub>
+			<mfenced open="(" close=")">
+				<xsl:apply-templates select="*" />
+			</mfenced>
+		</mrow>
 	</xsl:template>
 
 </xsl:stylesheet>
