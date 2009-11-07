@@ -17,12 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * @todo Implement collapsing (triangles) which are toggled by clicking the nodes
- * @todo Publicize on MozHacks: SVG + MathML + ContentEditable + hashchange + JSON.parse/stringify
- * @todo extend/retract -- pushing the leaf nodes to the bottom
+ * @todo Diagrammer: SVG + XML + XSLT + MathML + ContentEditable + hashchange + JSON.parse/stringify
  * @todo expand/collapse -- on each node, toggling the rectangle?
- * @todo Work up an XML schema for AVMs: provide XSLT to reduce amount of MathML code needed.
  * @todo Get the text vertical spacing working
- * @todo Figure out why the lines aren't completely vertical.
+ * @todo Add a style property which gets assigned to the <g>
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')

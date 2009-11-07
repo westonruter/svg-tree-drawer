@@ -83,27 +83,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			math.hpsg .tag-C, math.hpsg .tag-C ~ * { border-color:green; color:green; }
 			math.hpsg .tag-D, math.hpsg .tag-D ~ * { border-color:purple; color:purple; }*/
 			
-			math.hpsg .tag-1, math.hpsg .tag-1 ~ * { border-color:blue; color:blue; }
-			math.hpsg .tag-2, math.hpsg .tag-2 ~ * { border-color:red; color:red; }
-			math.hpsg .tag-3, math.hpsg .tag-3 ~ * { border-color:green; color:green; }
-			math.hpsg .tag-4, math.hpsg .tag-4 ~ * { border-color:purple; color:purple; }
-			math.hpsg .tag-5, math.hpsg .tag-5 ~ * { border-color:#CC7722; color:#CC7722; }
-			math.hpsg .tag-6, math.hpsg .tag-6 ~ * { border-color:brown; color:brown; }
-			math.hpsg .tag-7, math.hpsg .tag-7 ~ * { border-color:#E32636; color:#E32636; }
-			math.hpsg .tag-8, math.hpsg .tag-8 ~ * { border-color:magenta; color:magenta; }
-			math.hpsg .tag-9, math.hpsg .tag-9 ~ * { border-color:#EC5800; color:#EC5800; }
-			math.hpsg .tag-10, math.hpsg .tag-10 ~ * { border-color:#4B5320; color:#4B5320; }
-			math.hpsg .tag-11, math.hpsg .tag-11 ~ * { border-color:#00008B; color:#00008B; }
-			math.hpsg .tag-12, math.hpsg .tag-12 ~ * { border-color:#228B22; color:#228B22; }
-			math.hpsg .tag-13, math.hpsg .tag-13 ~ * { border-color:#00416A; color:#00416A; }
-			math.hpsg .tag-14, math.hpsg .tag-14 ~ * { border-color:#CF1020; color:#CF1020; }
-			math.hpsg .tag-15, math.hpsg .tag-15 ~ * { border-color:#FF4500; color:#FF4500; }
-			math.hpsg .tag-16, math.hpsg .tag-16 ~ * { border-color:#40404F; color:#40404F; }
+			math.hpsg .tag-1  { border-color:blue; color:blue; }
+			math.hpsg .tag-2  { border-color:red; color:red; }
+			math.hpsg .tag-3  { border-color:green; color:green; }
+			math.hpsg .tag-4  { border-color:purple; color:purple; }
+			math.hpsg .tag-5  { border-color:#CC7722; color:#CC7722; }
+			math.hpsg .tag-6  { border-color:brown; color:brown; }
+			math.hpsg .tag-7  { border-color:#E32636; color:#E32636; }
+			math.hpsg .tag-8  { border-color:magenta; color:magenta; }
+			math.hpsg .tag-9  { border-color:#EC5800; color:#EC5800; }
+			math.hpsg .tag-10 { border-color:#4B5320; color:#4B5320; }
+			math.hpsg .tag-11 { border-color:#00008B; color:#00008B; }
+			math.hpsg .tag-12 { border-color:#228B22; color:#228B22; }
+			math.hpsg .tag-13 { border-color:#00416A; color:#00416A; }
+			math.hpsg .tag-14 { border-color:#CF1020; color:#CF1020; }
+			math.hpsg .tag-15 { border-color:#FF4500; color:#FF4500; }
+			math.hpsg .tag-16 { border-color:#40404F; color:#40404F; }
 			
+			math.hpsg .index.index-s { background-color:#BCFFA1; }
 			math.hpsg .index.index-i { background-color:yellow; }
 			math.hpsg .index.index-j { background-color:cyan; }
-			math.hpsg .index.index-k { background-color:magenta; }
+			math.hpsg .index.index-k { background-color:#FFD6FC; }
 			math.hpsg .index.index-l { background-color:lime; }
+			
+			math.hpsg .index { color:black; }
 			]]>
 		</html:style>
 	</xsl:template>
@@ -399,6 +402,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<mfenced open='' close='' separators="|">
 			<xsl:apply-templates select="*" />
 		</mfenced>
+	</xsl:template>
+		
+	
+	<!-- ellipsis -->
+	<xsl:template match="hpsg:ellipsis" >
+		<mi class='ellipsis'>…</mi>
 	</xsl:template>
 	
 	
