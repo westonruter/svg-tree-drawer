@@ -90,15 +90,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			math.hpsg .tag-C, math.hpsg .tag-C ~ * { border-color:green; color:green; }
 			math.hpsg .tag-D, math.hpsg .tag-D ~ * { border-color:purple; color:purple; }*/
 			
-			math.hpsg .tag-1  { border-color:blue; color:blue; }
-			math.hpsg .tag-2  { border-color:red; color:red; }
-			math.hpsg .tag-3  { border-color:green; color:green; }
-			math.hpsg .tag-4  { border-color:purple; color:purple; }
-			math.hpsg .tag-5  { border-color:#CC7722; color:#CC7722; }
-			math.hpsg .tag-6  { border-color:brown; color:brown; }
-			math.hpsg .tag-7  { border-color:#E32636; color:#E32636; }
-			math.hpsg .tag-8  { border-color:magenta; color:magenta; }
-			math.hpsg .tag-9  { border-color:#EC5800; color:#EC5800; }
+			math.hpsg .tag-1, math.hpsg .tag-A  { border-color:blue; color:blue; }
+			math.hpsg .tag-2, math.hpsg .tag-B  { border-color:red; color:red; }
+			math.hpsg .tag-3, math.hpsg .tag-C  { border-color:green; color:green; }
+			math.hpsg .tag-4, math.hpsg .tag-D  { border-color:purple; color:purple; }
+			math.hpsg .tag-5, math.hpsg .tag-E  { border-color:#CC7722; color:#CC7722; }
+			math.hpsg .tag-6, math.hpsg .tag-F  { border-color:brown; color:brown; }
+			math.hpsg .tag-7, math.hpsg .tag-G  { border-color:#E32636; color:#E32636; }
+			math.hpsg .tag-8, math.hpsg .tag-H  { border-color:magenta; color:magenta; }
+			math.hpsg .tag-9, math.hpsg .tag-I  { border-color:#EC5800; color:#EC5800; }
 			math.hpsg .tag-10 { border-color:#4B5320; color:#4B5320; }
 			math.hpsg .tag-11 { border-color:#00008B; color:#00008B; }
 			math.hpsg .tag-12 { border-color:#228B22; color:#228B22; }
@@ -108,6 +108,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			math.hpsg .tag-16 { border-color:#40404F; color:#40404F; }
 			
 			math.hpsg .index.index-s { background-color:#BCFFA1; }
+			math.hpsg .index.index-s0 { background-color:#BCFFA1; }
+			math.hpsg .index.index-s1 { background-color:#FFCCD6; }
+			math.hpsg .index.index-s2 { background-color:#C7E8FF; }
+			math.hpsg .index.index-s3 { background-color:#FFE9B8; }
+			math.hpsg .index.index-s4 { background-color:#F8FF99; }
+			math.hpsg .index.index-s5 { background-color:#E8C4FF; }
+			math.hpsg .index.index-s6 { background-color:#FFD4F4; }
 			math.hpsg .index.index-i { background-color:yellow; }
 			math.hpsg .index.index-j { background-color:cyan; }
 			math.hpsg .index.index-k { background-color:#FFD6FC; }
@@ -123,7 +130,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<xsl:choose>
 			<!-- Root is HPSG element -->
 			<xsl:when test="hpsg:*">
-				<math display="inline" class="hpsg">
+				<math display="inline">
+					<xsl:attribute name="class">
+						hpsg
+						<!--<xsl:value-of select=".@id" />-->
+					</xsl:attribute>
+					
 					<xsl:call-template name="css" />
 					<mrow><xsl:apply-templates select="hpsg:*" /></mrow>
 				</math>
@@ -146,6 +158,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<!-- MathML root -->
 					<xsl:when test="self::hpsg:*">
 						<math display="inline" class="hpsg">
+							<xsl:attribute name="id">
+								<xsl:value-of select="@id" />
+							</xsl:attribute>
 							<mrow><xsl:apply-templates select="self::hpsg:*" /></mrow>
 						</math>
 					</xsl:when>
@@ -178,8 +193,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<xsl:when test="string-length(.) > 1">
 				<msub>
 					<!--substring(string, number, number?)-->
-					<xsl:attribute name="class">index index-<xsl:value-of select="." /></xsl:attribute>
-					<mi><xsl:value-of select="substring(., 1, 1)" /></mi>
+					<xsl:attribute name="class">index index-<xsl:value-of select="." /> index-base-<xsl:value-of select="substring(., 1, 1)" /></xsl:attribute>
+					<mi class='base'><xsl:value-of select="substring(., 1, 1)" /></mi>
 					<mi><xsl:value-of select="substring(., 2)" /></mi>
 				</msub>
 			</xsl:when>
@@ -385,18 +400,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>
 					<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
 				</xsl:attribute>
-				
-				<xsl:apply-templates select="@tag" />
-				<xsl:apply-templates select="@index" />
-				
-				<xsl:choose>
-					<xsl:when test="not(./*)">
-						<mi><xsl:value-of select="./text()" /></mi>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:apply-templates select="./*" />
-					</xsl:otherwise>
-				</xsl:choose>
+				<mrow>
+					<xsl:apply-templates select="@tag" />
+					<xsl:apply-templates select="@index" />
+					
+					<xsl:choose>
+						<xsl:when test="not(./*)">
+							<mi><xsl:value-of select="./text()" /></mi>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:apply-templates select="./*" />
+						</xsl:otherwise>
+					</xsl:choose>
+				</mrow>
 			</mtd>
 		</mtr>
 		
@@ -410,12 +426,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- list -->
 	<xsl:template match="hpsg:list" >
-		<xsl:apply-templates select="@tag" />
-		<xsl:if test="./* or not(@tag)">
-			<mfenced open='〈' close='〉' separators=",">
-				<xsl:apply-templates select="*" />
-			</mfenced>
-		</xsl:if>
+		<mrow>
+			<xsl:attribute name="class">
+				attr-value
+				<xsl:if test="@index">indexed index-<xsl:value-of select="@index" /></xsl:if>
+				<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
+			</xsl:attribute>
+			<xsl:apply-templates select="@tag" />
+			<!--<xsl:apply-templates select="@index" />-->
+			<xsl:if test="./* or not(@tag)">
+				<mfenced open='〈' close='〉' separators=",">
+					<xsl:apply-templates select="*" />
+				</mfenced>
+			</xsl:if>
+		</mrow>
 	</xsl:template>
 		
 	
