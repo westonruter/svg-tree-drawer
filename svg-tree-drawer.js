@@ -171,6 +171,7 @@ T.prototype.empty = function empty(){
  * Renders the tree onto the SVG canvas, resizing the canvas as necessary
  * This function does the heavy lifting of the code
  * @param optional treeData The data structure to be drawn; if not specified, uses this.root
+ * @todo Should we save the data before redrawing? In case of error, we could then restore the original?
  * @see _drawNode()
  */
 T.prototype.draw = function draw(treeData){

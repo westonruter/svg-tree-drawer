@@ -1,3 +1,35 @@
+
+hgroup {
+	display:block;
+}
+h2 {
+	margin-bottom:0;
+	font-size:medium;
+}
+h1 {
+	margin-top:0;
+	margin-bottom:0;
+}
+h1 + p {
+	margin-top:0;
+}
+
+svg {
+	display:block;
+}
+svg text {
+	padding:0.5em 1em 0.5em 1em;
+}
+#ui textarea {
+	min-width:300px;
+	vertical-align:middle;
+	font-family:monospace;
+	min-height:6em;
+	/*@todo Auto size to fit content!*/
+}
+
+
+/** OLD **/
 body {
 	
 }

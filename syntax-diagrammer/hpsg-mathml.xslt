@@ -491,7 +491,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<!-- optional -->
 	<xsl:template match="hpsg:optional" >
 		<xsl:apply-templates select="@tag" />
-		<mfenced open='(' close=')' separators="|">
+		<mfenced open='&#xFD3E;' close='&#xFD3F;' separators="|">
 			<!--<mrow>-->
 				<xsl:apply-templates select="*" />
 			<!--</mrow>-->
