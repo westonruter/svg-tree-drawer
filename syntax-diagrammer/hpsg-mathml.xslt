@@ -152,6 +152,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- The identity template: for non-HPSG-namespaced elements (i.e. XHTML) -->
 	<xsl:template match="@*|node()[not(self::hpsg:*)]"><!-- what about PIs? -->
+		<!--<xsl:if test="(@id = '_firebugConsole')"><xsl:text>asdas</xsl:text></xsl:if>-->
 		<xsl:copy>
 			<xsl:for-each select="./@*|./node()">
 				<xsl:choose>
@@ -435,7 +436,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<xsl:apply-templates select="@tag" />
 			<!--<xsl:apply-templates select="@index" />-->
 			<xsl:if test="./* or not(@tag)">
-				<mfenced open='〈' close='〉' separators=",">
+				<mfenced open='⟨' close='⟩' separators=",">
 					<xsl:apply-templates select="*" />
 				</mfenced>
 			</xsl:if>
