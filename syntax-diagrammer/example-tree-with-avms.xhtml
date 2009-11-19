@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<?xml-stylesheet href="hpsg-mathml.xslt" type="text/xsl" ?>
+<?xml-stylesheet href="hpsg-mathml.xslt?2" type="text/xsl" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta charset='utf8' />
@@ -15,7 +15,7 @@
 			}
 		}
 		</script>
-		<script src="../svg-tree-drawer.js"></script>
+		<script src="../svg-tree-drawer.js?2"></script>
 		<style>
 		svg text,
 		.treeNode {
@@ -70,6 +70,10 @@
 		If you don't have Firefox 3+, see <a href="example-tree-with-avms.pdf">this page printed to PDF</a>.
 		Note that the boxed numbers aren't completely refined due to a <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=297467" title=" Bug 297467 -  menclose is shown wrong (not implemented)  ">bug</a> in Firefox which will be fixed in 3.6.
 		</p>
+		
+		<p style="color:red"><em>Note:</em> In Firefox 3.6b3 the <code>div</code> within each of
+		the <code>foreignObject</code> elements for some reason gets an <code>offsetWidth/Height</code>
+		of zero, so those nodes in the tree cannot be sized properly.</p>
 		
 		<p>
 			<button id="toggleColorsBtn" class="on">Turn Colors On</button>
@@ -254,15 +258,10 @@
 		<script>
 		//<![CDATA[
 		window.addEventListener('load', function(){
-			var $ = function(id){
-				if(!document.getElementById(id))
-					alert(id);
-				return document.getElementById(id);
-			};
+			var $ = function(id){ return document.getElementById(id) || id; };
 			
 			var tree = new TreeDrawer('treeTheySeemedCloseToMe',
 				{label:$('S'), extended:false, children:[
-					
 					{label:$('N_they'), children:[
 						{label: 'They'}
 					]},
@@ -286,13 +285,14 @@
 					]}
 				]}
 			);
-			tree.addFilter('label', function(label, treeNode){
-				if(typeof label == 'string'){
-					label = label.replace(/seemed/, 'appeared');
-				}
-				return label;
-			});
-			tree.draw();
+			//tree.addFilter('label', function(label, treeNode){
+			//	if(typeof label == 'string'){
+			//		label = label.replace(/seemed/, 'appeared');
+			//	}
+			//	return label;
+			//});
+			
+			
 			//tree.draw(); //refresh
 			
 			document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
@@ -309,6 +309,20 @@
 				//console.info(this)
 			}, false);
 			
+			
+			
+			tree.draw();
+			//window.setTimeout(function(){
+			//	for each(div in document.querySelectorAll('foreignObject > div')){
+			//		//alert(div)
+			//		//return;
+			//		//div.setAttribute('style', 'display:block')
+			//		//div.style.display = 'block';
+			//		//div.style.display = 'inline-block';
+			//	}
+			//	tree.draw(true);
+			//	//alert(document.querySelectorAll('foreignObject > div').getBoundingClientRect().width)
+			//}, 1000);
 		}, false);
 		
 		//]]>

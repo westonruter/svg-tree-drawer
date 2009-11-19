@@ -77,9 +77,11 @@ jQuery(function(){
 		.live('change', function(e){
 			var container = tree.svgElement.parentNode;
 			container.style.minHeight = tree.svgElement.height.baseVal.value + 'px';
-			var data = parseListItemForTreeDrawer($ui.find('>li:first')[0]);
+			var data = constructTreeNodeFromInterface($ui.find('>li:first')[0]);
 			tree.draw(data);
 			container.style.minHeight = '';
+			
+			//@todo When changing the contents of a node, redraw the actual 
 		})
 		.live('focus', function(e){
 			
@@ -135,38 +137,56 @@ function constructInterfaceFromTreeNode(treeNode){
  * @returns {Object} Input suitable for TreeDrawer data structure
  * @todo Implementation would be much nicer if querySelectorAll had scope
  */
-function parseListItemForTreeDrawer(el){
+function constructTreeNodeFromInterface(li){
 	var node = {
 		label:'',
 		children:[]
 	};
-	if(!$(el).is('li'))
+	if(!$(li).is('li'))
 		throw Error('Expected a list item (LI) element');
 	
-	if(!el.firstChild)
-		return node;
-		
 	//Get the label
-	var labelNode = el.firstChild;
-	while(labelNode){
-		if(labelNode.nodeType == 1/*Element*/){
-			if(/^(ol|ul)$/i.test(labelNode.nodeName))
-				break;
-			if(typeof labelNode.value == 'string')
-				node.label += labelNode.value;
-			else
-				node.label += labelNode.textContent;
-		}
-		else if(labelNode.nodeType == 3/*Text*/){
-			node.label += labelNode.data;
-		}
-		labelNode = labelNode.nextSibling;
-	}
-	node.label = node.label.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+	node.label = $(li).find('>textarea:first').value().replace(/^\s+|\s+$/, '').replace(/\s+/, ' ');
 	
-	//Get the first UL or OL
+	//Get the children
 	$(el).find('> ul > li, > ol > li').each(function(){
 		node.children.push(parseListItemForTreeDrawer(this));
 	});
+	
 	return node;
 }
+//function parseListItemForTreeDrawer(el){
+//	var node = {
+//		label:'',
+//		children:[]
+//	};
+//	if(!$(el).is('li'))
+//		throw Error('Expected a list item (LI) element');
+//	
+//	if(!el.firstChild)
+//		return node;
+//		
+//	//Get the label
+//	var labelNode = el.firstChild;
+//	while(labelNode){
+//		if(labelNode.nodeType == 1/*Element*/){
+//			if(/^(ol|ul)$/i.test(labelNode.nodeName))
+//				break;
+//			if(typeof labelNode.value == 'string')
+//				node.label += labelNode.value;
+//			else
+//				node.label += labelNode.textContent;
+//		}
+//		else if(labelNode.nodeType == 3/*Text*/){
+//			node.label += labelNode.data;
+//		}
+//		labelNode = labelNode.nextSibling;
+//	}
+//	node.label = node.label.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+//	
+//	//Get the first UL or OL
+//	$(el).find('> ul > li, > ol > li').each(function(){
+//		node.children.push(parseListItemForTreeDrawer(this));
+//	});
+//	return node;
+//}

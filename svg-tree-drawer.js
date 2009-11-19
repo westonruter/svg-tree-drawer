@@ -233,7 +233,7 @@ function getDimensions(el){
 		//	rect.width = el.offsetWidth;
 		//if(!rect.height)
 		//	rect.height = el.offsetHeight;
-		if(!rect.width || !rect.height)
+		if(isNaN(rect.width) || isNaN(rect.height))
 			throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
 		return rect;
 	}
@@ -312,8 +312,8 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	}
 	else {
 		var sourceLabel = _applyFilters.apply(tree, ['label', treeNode.label, treeNode]);
-		if(treeNode.label.nodeType == 1/*Element*/) {
-			if(treeNode.label.namespaceURI == svgns){
+		if(sourceLabel.nodeType == 1/*Element*/) {
+			if(sourceLabel.namespaceURI == svgns){
 				//@todo Should this be wrapped in a <g> element so we can translate its position?
 				label = sourceLabel;
 				g.appendChild(label);
@@ -325,7 +325,7 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 				// and offsetWidth will be used to provide the proper dimensions.
 				// This is to facilitate writing CSS style rule selectors.
 				label.setAttribute('width', 1);
-				label.setAttribute('height', 1); 
+				label.setAttribute('height', 1);
 				label.appendChild(sourceLabel);
 				g.appendChild(label);
 				
