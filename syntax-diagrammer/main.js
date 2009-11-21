@@ -26,7 +26,7 @@
 var defaultTreeData = {
 	label:'S[phrase HEAD=@1 VAL=[COMPS=<> SPR=<>]]',
 	children:[
-		{label:'@2N[word HEAD=[noun AGR=@3] VAL=[ COMPS=<> SPR=<> ] ]', children:[
+		{label:'@2Ni[word HEAD=[noun AGR=@3] VAL=[ COMPS=<> SPR=<> ] ]', children:[
 			{label:'They'}
 		]},
 		{label:'VP[phrase HEAD=@1[verb AGR=@3 VAL=@4[ COMPS=<> SPR=<@2> ]]]', children:[

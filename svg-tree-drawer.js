@@ -253,6 +253,7 @@ function getDimensions(el){
 	//}
 	throw Error("Unable to determine the element's dimensions");
 }
+TreeDrawer._getElementDimensions = getDimensions;
 
 
 /**
@@ -264,6 +265,18 @@ function getX(el){
 		return baseValX.getItem(0).value;
 	else
 		return baseValX.value;
+}
+
+
+/**
+ * This is necessary because el.getBBox().y is not always the same as el.y.baseVal.value
+ */
+function getY(el){
+	var baseValY = el.y.baseVal;
+	if(baseValY.getItem)
+		return baseValY.getItem(0).value;
+	else
+		return baseValY.value;
 }
 
 
@@ -533,7 +546,7 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
 			if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
 				leafNode.branch.y2.baseVal.value = newBranchY;
-				leafNode.label.setAttribute('y', leafNode.label.y.baseVal.getItem(0).value + offsetTopDiff);
+				leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
 				leafNode.offsetTop += offsetTopDiff;
 			}
 			//leafNode.label.y.baseVal.value += offsetTopDiff;

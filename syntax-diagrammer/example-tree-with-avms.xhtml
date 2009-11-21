@@ -313,16 +313,20 @@
 			
 			tree.draw();
 			//window.setTimeout(function(){
-			//	for each(div in document.querySelectorAll('foreignObject > div')){
-			//		//alert(div)
-			//		//return;
-			//		//div.setAttribute('style', 'display:block')
-			//		//div.style.display = 'block';
-			//		//div.style.display = 'inline-block';
+			//	for each(fo in document.querySelectorAll('foreignObject')){
+			//		if(fo.setAttribute){
+			//			fo.setAttribute('width', 1);
+			//			fo.setAttribute('height', 1);
+			//			labelRect = TreeDrawer._getElementDimensions(fo.firstChild);
+			//			fo.setAttribute('width', labelRect.width);
+			//			fo.setAttribute('height', labelRect.height);
+			//		}
 			//	}
-			//	tree.draw(true);
+			//	window.setTimeout(function(){
+			//		tree.draw(true);
+			//	}, 500);
 			//	//alert(document.querySelectorAll('foreignObject > div').getBoundingClientRect().width)
-			//}, 1000);
+			//}, 100);
 		}, false);
 		
 		//]]>
@@ -332,7 +336,7 @@
 		<hr />
 		<footer>
 			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
-			<time pubdate="">2009-11-04</time>
+			<time pubdate="">2009-11-19</time>
 		</footer>
 	</body>
 </html>
