@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+@todo: We shouldn't include CSS in here? Provide param to omit. Better to include external file?
 -->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

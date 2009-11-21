@@ -21,6 +21,7 @@
  * @todo expand/collapse -- on each node, toggling the rectangle?
  * @todo Get the text vertical spacing working
  * @todo Add a style property which gets assigned to the <g>
+ * @todo Add the ability to draw lines between any two nodes, curved or straight: each node would need an id
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
