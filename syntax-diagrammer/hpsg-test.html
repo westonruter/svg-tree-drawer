@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta charset='utf8' />
+		<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+		<title>HPSG Test</title>
+		<script>
+
+		if(!window.console){
+			var console = {
+				info:function(){},
+				error:function(){},
+				warn:function(){}
+			}
+		}
+		</script>
+		
+		<style>
+		svg text,
+		svg foreignObject,
+		svg foreignobject,
+		svg .treeNodeAVM{
+			padding:0.5em;
+			padding-left:1em;
+			padding-right:1em;
+			
+		}
+		svg {
+			/*outline:solid 1px rgba(0,0,0,0.1);*/
+		}
+		
+		svg line {
+			font-size:2em; /*height not honored here by WebKit*/
+		}
+		.treeNodeAVM {
+			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
+		}
+		section > ol > li {
+			margin-top:1em;
+			padding-top:1em;
+			border-top:solid 1px gray;
+		}
+		section > ol > li > ol > li {
+			margin-top:0.5em;
+			margin-bottom:0.5em;
+		}
+		ol,ul {
+			margin-top:1em;
+			margin-bottom:1em;
+		}
+		ol > li:first-child {
+			border-top:0;
+			padding-top:0;
+			margin-top:0;
+		}
+		math,svg {
+			page-break-inside:avoid;
+		}
+		li svg {
+			vertical-align:top;
+		}
+		.avm {
+			margin-bottom:10px;
+			display:inline-block;
+			margin-right:30px;
+		}
+		dt {
+			font-weight:bold;
+		}
+		ol {
+			list-style:upper-alpha;
+		}
+		ol ol {
+			list-style:lower-alpha;
+		}
+		</style>
+	</head>
+	<body class='no-colors'>
+		<h1>hpsg.js test</h1>
+		
+		<table cellspacing="0" cellpadding="5">
+			<tr>
+				<th>@2V_$i[synsem SYN:[SPR:none]]</th><td></td>
+			</tr>
+		</table>
+		
+		<script>
+		//<![CDATA[
+		
+		window.addEventListener('load', function(e){
+			var ths = document.getElementsByTagName('th');
+			Array.forEach(ths, function(th){
+				var td = th.nextSibling;
+				try {
+					var mathml = HPSG.toMathML(HPSG.parse(th.textContent), 'hpsg-mathml.xslt');
+					mathml = document.importNode(mathml.documentElement, true);
+					th.appendChild(mathml);
+					th.parentNode.style.backgroundColor = "#CCFFCC";
+				}
+				catch(e) {
+					th.parentNode.style.backgroundColor = "#FFCCCC";
+					td.appendChild(document.createTextNode(e.message));
+					if(window.console && console.error)
+						console.error(e);
+				}
+				
+			});
+			
+			
+			return;
+			var n = function(hpsg){
+				if(hpsg.indexOf('<') == -1 && hpsg.indexOf('[') == -1)
+					return hpsg;
+				
+				try {
+					var mathml = convertHPSGToMathML(convertTextToHPSG(hpsg), 'hpsg-mathml.xslt');
+					mathml = document.importNode(mathml.documentElement, true);
+					var div = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+					div.className = "treeNodeAVM";
+					div.appendChild(mathml);
+					return div;
+				}
+				catch(e){
+					alert(e)
+					if(window.console && console.error)
+						console.error(e);
+				}
+				return hpsg;
+			};
+			var tree = new TreeDrawer(document.getElementById('tree1'),
+				{label:n('S'), extended:true,children:[
+					{label:n('NP'), children:[
+						{label:'It'}
+					]},
+					{label:n('VP'), children:[
+						//"V[SYN:[SPR:<>,COMPS:<>],SEM:[INDEX:s,MODE:none,RESTR:<…>]]"
+						{label:n("2Vi[synsem SYN:[SPR:none]]"), children:[
+							{label:('annoys')}
+						]},
+						{label:n('NP'), children:[
+							{label:('Lee')}
+						]},
+						{label:n('CP'), children:[
+							{label:n('C'), children:[
+								{label:'that'}
+							]},
+							{label:n('S'), children:[
+								{label:n('NP'), children:[
+									{label:'Fido'}
+								]},
+								{label:n('VP'), children:[
+									{label:'barks'}
+								]}
+							]}
+						]}
+					]}
+				]}
+			);
+			tree.draw();
+		}, false);
+		//]]>
+		</script>
+		
+		<p id="tree1"></p>
+		
+		<hr />
+		<footer>
+			<address><a href="http://weston.ruter.net/" rel="author">Weston Ruter</a></address>
+			<time pubdate="">2009-11-19</time>
+		</footer>
+		<script src="hpsg.js" type="application/javascript;version=1.7"></script>
+		<script src="../svg-tree-drawer.js"></script>
+	</body>
+</html>

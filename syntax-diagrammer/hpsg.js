@@ -1,5 +1,5 @@
 /**
- * HPSG Formatting Utilities <http://github.com/westonruter/svg-tree-drawer/>
+ * HPSG Display Routines <http://github.com/westonruter/svg-tree-drawer/>
  * by Weston Ruter <http://weston.ruter.net/>, 2009
  * License: GPL 3.0 <http://www.gnu.org/licenses/gpl.html>
  * 
@@ -17,96 +17,132 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Take an HPSG XML document, as is output by convertTextToHPSG() and apply an
- * XSLT stylesheet to it.
- */
-function convertHPSGToMathML(hpsg, xslt){
-	if(!xslt)
-		xslt = 'hpsg-mathml.xslt';
+"use strict";
 
-	//Get the xslt
-	var xsltProcessor = new XSLTProcessor();
-	
-	if(!convertHPSGToMathML.xsltCache[xslt]){
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", xslt, false);
-		xhr.send(null);
-		if(!xhr.responseXML)
-			throw Error("Unable to load XSLT: " + xslt);
-		convertHPSGToMathML.xsltCache[xslt] = xhr.responseXML;
-	}
-	xsltProcessor.importStylesheet(convertHPSGToMathML.xsltCache[xslt]);
+//Important: Requires JavaScript 1.7:
+//<script src="hpsg.js" type="application/javascript;version=1.7"></script>
 
-	return xsltProcessor.transformToDocument(hpsg);
-}
-convertHPSGToMathML.xsltCache = {};
-
-
-/**
- * This currently only allows a single entity with an abbr, tag, or index
- */
-function convertTextToHPSG(text){
-	/* Tokens:
-	Abbr: [A-Z]+
-	Index: [a-z]\d*
-	Tag: \d
-	Avm: \[\s*(?<type>\w+)?(\s*\w+\s)\s*\]
-	List: <…>
-	*/
+var HPSG = {
+	//Returns an HPSG XML document
+	parse:null,
 	
-	var ns = 'http://weston.ruter.net/ns/hpsg';
-	var doc = document.implementation.createDocument('', '', null);
+	//Returns tokens used by parse
+	tokenize:null,
 	
+	//Converts HPSG XML document to MathML
+	toMathML:null,
 	
-	//@3 V_i2[SYN:[SPR:<>,COMPS:<>],SEM:[INDEX:s,MODE:none,RESTR:<…>]]
-	/*
-	@3 V_i2[
-		SYN:[SPR:<>,COMPS:<>],
-		SEM:[
-			INDEX:s,
-			MODE:none,
-			RESTR:<…>
-		]
-	]
-	*/
-	//A<…>
-	//What about optionality? What about disjunctions?
+	//Define constants which identify the groups matched in the RegExp below
+	WHITESPACE     : 1,
+	LIST_SEPARATOR : 2,
+	BAREWORD       : 3,
+	TAG            : 4,
+	INDEX          : 5,
+	AVM_START      : 6,
+	AVM_END        : 7,
+	AV_SEPARATOR   : 8,
+	LIST_START     : 9,
+	LIST_END       : 10,
+	ELLIPSIS       : 11,
+	//@todo What about optionality? What about disjunctions?
 	
-	var reTok = new RegExp( '^(?:' + [
+	//Regular expression which tokenizes HPSG string
+	tokenRegExp: new RegExp( '^(?:' + [
 		'(\\s+)', //ignored
 		
 		//List item separators
 		"([,;\n])",
 		
-		//AVM attribute name
-		'([A-Z]+)\\b\s*[:=]',
+		//Bareword (could be abbr, attr name, attr value, avm type, or word in lexical sequence)
+		'([A-Za-z_\\-0-9]+)\\b', //\s*[:=]
 		
-		//Tag
-		'@{?([A-Z]|[0-9]+)?}?\\b',
+		//Tag, preceded by sigil @
+		'@([A-Z]|[0-9]+)\\s*',
 		
-		//Index
-		'([a-z][0-9]*)',
+		//Index (preceded by sigil $)
+		//@todo if standalone? or _ if on another element)
+		'_?\\$([a-z][0-9]*)',
 		
-		//NOTE: We can use letters for tags as well!
+		//AVM boundaries
+		'(\\[)',
+		'(\\])',
+		'([:=])',
 		
-		//AVM attribute value
+		//List boundaries
+		'(<)',
+		'(>)',
 		
+		//Ellipsis
+		'(…)'
+	].join('|') + ')')
+};
+
+
+/**
+ * Construct a generator for iterating over the tokens
+ * @param text {string}  String of text to be tokenized
+ * @generator
+ */
+HPSG.tokenize = function(text){	
+	//var previous = null;
+	let pos = 0;
+	while(m = text.substr(pos).match(HPSG.tokenRegExp)){
+		let thisPos = pos;
+		pos += m[0].length;
+		if(m[HPSG.WHITESPACE])
+			continue;
+		//console.info(m)
+		//Determine the type, corresponds with the constants above
+		let type = HPSG.WHITESPACE+1;
+		while(type < m.length && !m[type])
+			type++;
 		
+		//Constuct token object
+		let token = {
+			type:type,
+			value:m[type],
+			pos:thisPos
+		};
 		
-		'(\\s+)', //1: whitespace
-		'([A-Z]+(?!\s*[:=]))', //2: abbr
-		'([a-z][0-9]*\\b)', //3: index
-		'(\\b[0-9]+)', //4: tag
-		'(\\[)', //5
-		'(\\])', //6
-		'(<)', //8
-		'(>)', //9
-		'(…)', //10
-		'(\\b[a-z][a-z]+\\b)' //11 attribute value
-	].join('|') + ')');
+		yield token;
+		//previous = token;
+	}
+	if(pos != text.length)
+		throw Error("Unrecognized token at char " + pos + ": " + text.substr(pos));
+}
+
+
+
+
+/**
+ * Take a string of HPSG and create an XML document out of it, for example:
+ * >> @3 V_i2[synsem SYN:[SPR:<>,COMPS:<>],SEM:[INDEX:s,MODE:none,RESTR:<…>]]
+ * @param text {string} HPSG text
+ */
+HPSG.parse = function(text){
+	var ns = 'http://weston.ruter.net/ns/hpsg';
+	var doc = document.implementation.createDocument('', '', null);
 	
+	//Iterate over the tokens
+	var tok = HPSG.tokenize(text);
+	console.info(text)
+	var tokens = [];
+	var max = 20;
+	for(var token in tok){
+		console.info(token)
+		tokens.push(token);
+		if(!--max)
+			break;
+	}
 	
+	return text;
+
+
+
+	
+	for(var token in tokens){
+		console.info(token);
+	}
 	return text;
 	
 
@@ -233,3 +269,47 @@ function convertTextToHPSG(text){
 	
 	return doc;
 }
+
+
+
+
+/**
+ * Convert an HPSG XML document (such as created by HPSG.parse()) and convert it
+ * into MathML (or whatever the provided stylesheet generates).
+ * @param hpsgDoc {Document} The HPSG XML document which will be transformed
+ * @param xsltURL {string}   URL to the XSLT stylesheet, defaulting to hpsg-mathml.xslt in the working directory
+ */
+HPSG.toMathML = function(hpsgDoc, xsltURL){
+	//If xsltURL not provided, construct the likely URL for the XSLT based
+	// on the directory where this script was loaded on.
+	if(!xsltURL){
+		let base = './';
+		try {
+			let thisScript = document.querySelector('script[src~="hpsg.js"]');
+			base = thisScript.src.replace(/hpsg\.js.*/);
+		}
+		catch(e){}
+		xsltURL = base + 'hpsg-mathml.xslt';
+	}
+
+	//Get the XSLT document either via XMLHttpRequest or local cache
+	var xsltProcessor = new XSLTProcessor();
+	if(!HPSG.toMathML.xsltCache[xsltURL]){
+		let xhr = new XMLHttpRequest();
+		xhr.open("GET", xsltURL, false);
+		xhr.send(null);
+		if(!xhr.responseXML)
+			throw Error("Unable to parse XSLT: " + xsltURL);
+		HPSG.toMathML.xsltCache[xsltURL] = xhr.responseXML;
+	}
+	xsltProcessor.importStylesheet(HPSG.toMathML.xsltCache[xsltURL]);
+	
+	//Return the transformed document
+	return xsltProcessor.transformToDocument(hpsgDoc);
+}
+
+/**
+ * Store the responseXML documents for each of the XSLT stylesheets utilized
+ */
+HPSG.toMathML.xsltCache = {};
+
