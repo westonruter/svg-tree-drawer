@@ -58,6 +58,60 @@ function convertTextToHPSG(text){
 	var ns = 'http://weston.ruter.net/ns/hpsg';
 	var doc = document.implementation.createDocument('', '', null);
 	
+	
+	//@3 V_i2[SYN:[SPR:<>,COMPS:<>],SEM:[INDEX:s,MODE:none,RESTR:<…>]]
+	/*
+	@3 V_i2[
+		SYN:[SPR:<>,COMPS:<>],
+		SEM:[
+			INDEX:s,
+			MODE:none,
+			RESTR:<…>
+		]
+	]
+	*/
+	//A<…>
+	//What about optionality? What about disjunctions?
+	
+	var reTok = new RegExp( '^(?:' + [
+		'(\\s+)', //ignored
+		
+		//List item separators
+		"([,;\n])",
+		
+		//AVM attribute name
+		'([A-Z]+)\\b\s*[:=]',
+		
+		//Tag
+		'@{?([A-Z]|[0-9]+)?}?\\b',
+		
+		//Index
+		'([a-z][0-9]*)',
+		
+		//NOTE: We can use letters for tags as well!
+		
+		//AVM attribute value
+		
+		
+		
+		'(\\s+)', //1: whitespace
+		'([A-Z]+(?!\s*[:=]))', //2: abbr
+		'([a-z][0-9]*\\b)', //3: index
+		'(\\b[0-9]+)', //4: tag
+		'(\\[)', //5
+		'(\\])', //6
+		'(<)', //8
+		'(>)', //9
+		'(…)', //10
+		'(\\b[a-z][a-z]+\\b)' //11 attribute value
+	].join('|') + ')');
+	
+	
+	return text;
+	
+
+
+	
 	var reTok = new RegExp( '^(?:' + [
 		'(\\s+|,)', //1: whitespace
 		'([A-Z]+(?!\s*[:=]))', //2: abbr
@@ -73,6 +127,7 @@ function convertTextToHPSG(text){
 	].join('|') + ')');
 	
 	console.info(text)
+	return text;
 	
 	var index, label, tag, name, value;
 	var pos = 0;
