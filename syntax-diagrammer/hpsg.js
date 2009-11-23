@@ -54,7 +54,7 @@ var HPSG = {
 		"([,;\n])",
 		
 		//Bareword (could be abbr, attr name, attr value, avm type, or word in lexical sequence)
-		'([A-Za-z_\\-0-9]+)\\b', //\s*[:=]
+		'([A-Za-z\\-0-9]+)', //\s*[:=]
 		
 		//Tag, preceded by sigil @
 		'@([A-Z]|[0-9]+)\\s*',
@@ -105,7 +105,7 @@ HPSG.tokenize = function(text){
 			type:type,
 			value:m[type],
 			pos:thisPos,
-			previous:previous,
+			previous:current,
 			next:null
 		};
 		
@@ -145,7 +145,8 @@ HPSG.parse = function(text){
 	var max = 30; //temp
 	
 	for(var token in tok){
-		console.info(token)
+		console.info([(token.previous ? token.previous.value : null), token.value, (token.next ? token.next.value : null)])
+		//console.warn(token.next)
 		tokens.push(token);
 		
 		//var nextToken = tok.next(); tok.send(-1);
