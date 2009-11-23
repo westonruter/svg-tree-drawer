@@ -73,6 +73,9 @@
 		ol ol {
 			list-style:lower-alpha;
 		}
+		th {
+			font-weight:normal;
+		}
 		</style>
 	</head>
 	<body class='no-colors'>
@@ -80,7 +83,7 @@
 		
 		<table cellspacing="0" cellpadding="5">
 			<tr>
-				<th>@2V_$i[synsem SYN:[SPR:none]]</th><td></td>
+				<th>@2V_$i[synsem SYN:[SPR:none],SEM:&lt;&gt;]</th><td></td>
 			</tr>
 		</table>
 		
@@ -94,7 +97,7 @@
 				try {
 					var mathml = HPSG.toMathML(HPSG.parse(th.textContent), 'hpsg-mathml.xslt');
 					mathml = document.importNode(mathml.documentElement, true);
-					th.appendChild(mathml);
+					td.appendChild(mathml);
 					th.parentNode.style.backgroundColor = "#CCFFCC";
 				}
 				catch(e) {

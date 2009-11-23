@@ -135,19 +135,148 @@ HPSG.tokenize = function(text){
  * @param text {string} HPSG text
  */
 HPSG.parse = function(text){
-	var ns = 'http://weston.ruter.net/ns/hpsg';
-	var doc = document.implementation.createDocument('', '', null);
+	let ns = 'http://weston.ruter.net/ns/hpsg';
+	let doc = document.implementation.createDocument('', '', null);
+	let parentNode = doc;
 	
 	//Iterate over the tokens
-	var tok = HPSG.tokenize(text);
+	
 	console.info(text)
-	var tokens = [];
+	//let tokens = [];
 	var max = 30; //temp
 	
+	//Bookkeeping
+	let tag; //bareword, index, 
+	let openAvms = 0;
+	let openLists = 0;
+	
+	let tok = HPSG.tokenize(text);
 	for(var token in tok){
+		
+		//Construct an AVM
+		//@todo How do we know when a tag is is an AVM and when is a list? Whether it's a letter or a digit!
+		
+		//These tokens need bookkeeping; once we get to [,],>, LIST_SEPARATOR
+		let isAbbrAVM = false;
+		switch(token.type){
+			
+			case HPSG.TAG:
+				//Tag is not attached to anything
+				if(!token.next || !(
+				   token.next.type != HPSG.BAREWORD ||
+				   token.next.type != HPSG.LIST_SEPARATOR
+				   ))
+				{
+					let el = doc.createElementNS(ns, /^[A-Z]/.match(token.value) ? 'list' : 'avm');
+					el.setAttribute('tag', token.value);
+					
+					//Attach next index to this
+					if(token.next && token.next.type == HPSG.INDEX){
+						el.setAttribute('index', token.next.value);
+						tok.next(); //advance
+					}
+				}
+				//Tag is attached to whatever follows, so wait
+				else tag = token;
+				continue;
+			
+			case HPSG.BAREWORD:
+				//Bareword is an abbreviation
+				if(!token.next || (token.next.type == HPSG.INDEX || token.next.type == HPSG.AVM_START)){ //[HPSG.INDEX, HPSG.AVM_START]
+					if(parentNode != doc && parentNode.localName != 'list' && parentNode.localName != 'attr')
+						throw Error("Unexpected context for AVM: " + text.substr(token.pos));
+					let avm = doc.createElementNS(ns, 'avm');
+					avm.setAttribute('abbr', token.value);
+					if(tag){
+						avm.setAttribute('tag', tag.value);
+						tag = null;
+					}
+					
+					//Attach next index to this
+					if(token.next && token.next.type == HPSG.INDEX){
+						avm.setAttribute('index', token.next.value);
+						tok.next(); //advance
+					}
+					
+					parentNode.appendChild(avm);
+					parentNode = avm;
+				}
+				//Bareword is AVM category
+				else if(token.previous && token.previous.type == HPSG.AVM_START){
+					parentNode.setAttribute('type', token.value);
+				}
+				//Attribute name and attribute start
+				else if(token.next && parentNode.localName == 'avm' && token.next.type == HPSG.AV_SEPARATOR){
+					let attr = doc.createElementNS(ns, 'attr');
+					attr.setAttribute('name', token.value);
+					parentNode = parentNode.appendChild(attr);
+				}
+				//Attribute value bareword
+				else if(parentNode.localName == 'attr'){
+					parentNode.appendChild(doc.createTextNode(token.value));
+				}
+				else {
+					throw Error("Unexpected bareword (parent is " + parentNode.localName + "): " + text.substr(token.pos));
+				}
+				//bareword = token;
+				continue;
+			
+			case HPSG.AVM_START:
+				if(parentNode.localName != 'avm'){
+					parentNode = parentNode.appendChild(doc.createElementNS(ns, 'avm'));
+				}
+				openAvms++;
+				continue;
+			
+			case HPSG.AVM_END:
+				openAvms--;
+				continue;
+			
+			//case HPSG.INDEX:
+			//	index = token;
+			//	continue;
+			
+			
+			//case HPSG.AVM_START:
+			//	openAvms++;
+			//	continue;
+			//
+			//case HPSG.AVM_END:
+			//	openAvms--;
+			//	continue;
+		}
+		
+		//if(/^[A-Z]+$/.test(bareword) || index || tag){
+		//	//Construct the avm 
+		//	switch(token.type){
+		//		case HPSG.AVM_START:
+		//		case HPSG.AVM_END:
+		//		case HPSG.LIST_END:
+		//		case HPSG.LIST_SEPARATOR:
+		//			//TODO
+		//			let avm = document.createElementNS(ns, 'avm');
+		//			if(bareword)
+		//				avm.setAttribute('abbr', bareword);
+		//			if(index)
+		//				avm.setAttribute('index', index);
+		//			if(tag)
+		//				avm.setAttribute('tag', tag);
+		//			parentNode = parentNode.appendChild(avm);
+		//			bareword = index = tag = null;
+		//			break;
+		//	}
+		//}
+		
+		
+		
+		
+		
 		console.info([(token.previous ? token.previous.value : null), token.value, (token.next ? token.next.value : null)])
 		//console.warn(token.next)
-		tokens.push(token);
+		
+		
+		
+		//tokens.push(token);
 		
 		//var nextToken = tok.next(); tok.send(-1);
 		//if(token.type == HPSG.AVM_START){
@@ -159,16 +288,8 @@ HPSG.parse = function(text){
 		if(!--max) break; //temp
 	}
 	
-	return text;
+	return doc;
 
-
-
-	
-	for(var token in tokens){
-		console.info(token);
-	}
-	return text;
-	
 
 
 	
