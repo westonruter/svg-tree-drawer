@@ -84,29 +84,44 @@ var HPSG = {
  * @generator
  */
 HPSG.tokenize = function(text){	
-	//var previous = null;
+	var previous = null;
+	var current = null;
+	
+	//Iterate over all tokens matched by regular expression; 
 	let pos = 0;
 	while(m = text.substr(pos).match(HPSG.tokenRegExp)){
 		let thisPos = pos;
 		pos += m[0].length;
 		if(m[HPSG.WHITESPACE])
 			continue;
-		//console.info(m)
+		
 		//Determine the type, corresponds with the constants above
 		let type = HPSG.WHITESPACE+1;
 		while(type < m.length && !m[type])
 			type++;
 		
 		//Constuct token object
-		let token = {
+		let next = {
 			type:type,
 			value:m[type],
-			pos:thisPos
+			pos:thisPos,
+			previous:previous,
+			next:null
 		};
 		
-		yield token;
-		//previous = token;
+		//Only yield once we have a lookahead token to include
+		if(current){
+			current.next = next;
+			yield current;
+		}
+		
+		previous = current;
+		current = next;
 	}
+	//The last token isn't yielded in the loop because of including the lookahead
+	if(current)
+		yield current;
+	
 	if(pos != text.length)
 		throw Error("Unrecognized token at char " + pos + ": " + text.substr(pos));
 }
@@ -127,12 +142,20 @@ HPSG.parse = function(text){
 	var tok = HPSG.tokenize(text);
 	console.info(text)
 	var tokens = [];
-	var max = 20;
+	var max = 30; //temp
+	
 	for(var token in tok){
 		console.info(token)
 		tokens.push(token);
-		if(!--max)
-			break;
+		
+		//var nextToken = tok.next(); tok.send(-1);
+		//if(token.type == HPSG.AVM_START){
+		
+		//}
+		
+		//tok.send(1); //
+		
+		if(!--max) break; //temp
 	}
 	
 	return text;
