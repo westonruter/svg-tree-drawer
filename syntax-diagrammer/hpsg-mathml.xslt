@@ -403,7 +403,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
 				</xsl:attribute>
 				<mrow>
-					<xsl:apply-templates select="@tag" />
+					<!-- @todo:
+					How do we capture the difference between @A and @A<>?
+					both are represented as <list tag="A" />
+					-->
+					<xsl:apply-templates select="@tag" /><!-- @todo -->
 					<xsl:apply-templates select="@index" />
 					
 					<xsl:choose>
