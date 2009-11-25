@@ -141,6 +141,19 @@ HPSG.parse = function(text){
 	
 	//Iterate over the tokens
 	
+	let m = text.match(/^(\d*)([A-Z]+)([a-z]*\d*)?$/)
+	if(m){
+		let avm = doc.createElementNS(ns, 'avm');
+		if(m[1])
+			avm.setAttribute('tag', m[1]);
+		if(m[2])
+			avm.setAttribute('abbr', m[2]);
+		if(m[3])
+			avm.setAttribute('index', m[3]);
+		doc.appendChild(avm);
+		return doc;
+	}
+	
 	console.info(text)
 	//let tokens = [];
 	var max = 30; //temp
