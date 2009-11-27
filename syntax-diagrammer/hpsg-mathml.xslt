@@ -238,6 +238,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</xsl:template>
 	
 	
+	<!-- defeasible attributes -->
+	<xsl:template match="@defeasible[parent::hpsg:*]">
+		<mo class="defeasible">/</mo>
+	</xsl:template>
+	
+	
 	<!-- Attribute-Value Matrix -->
 	<xsl:template match="hpsg:avm" >
 		<mrow>
@@ -409,6 +415,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					-->
 					<xsl:apply-templates select="@tag" /><!-- @todo -->
 					<xsl:apply-templates select="@index" />
+					<xsl:apply-templates select="@defeasible" />
 					
 					<xsl:choose>
 						<xsl:when test="not(./*)">
