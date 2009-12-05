@@ -109,14 +109,14 @@ var T = window.TreeDrawer = function(fallbackElement, treeData){
 //T.prototype.svgDocument = null; //readonly (only set when using svgweb)
 //T.prototype.svgObject = null; //readonly (only set when using svgweb)
 T.prototype.svgElement = null; //readonly
-//T.prototype.collapsed = false; //readonly
+T.prototype.collapsed = false; //readonly
 T.prototype.width = 0; //readonly
 T.prototype.height = 0; //readonly
 T.prototype.isDrawn = false;
 
 //T.prototype.cssStylesheet = 'line, path { dominant-baseline:middle; }';
 T.prototype.cssStylesheet = [
-	"line, path { stroke-width:1px; stroke:black; }",
+	"line, path, polyline { stroke-width:1px; stroke:black; }",
 	"text { dominant-baseline:text-after-edge !important; }", //TODO: Does not work in WebKit
 	//"svg {font-size:20px; }",
 	//"svg > g > g > text { font-size:120px; }"
@@ -190,7 +190,7 @@ T.prototype.draw = function draw(treeData){
 		this.empty();
 	
 	//var fontSize = parseFloat(window.getComputedStyle(this.svgElement, null).fontSize);
-	var info = _drawNode(this, isRefresh, this.svgElement, this.root, 0, 0, this.labelPadding, this.branchHeight);
+	var info = _drawNode(this, isRefresh, this.svgElement, 0, this.root, 0, 0, this.labelPadding, this.branchHeight);
 	
 	//Fire 'done' event
 	this.isDrawn = true;
@@ -279,6 +279,24 @@ function getY(el){
 		return baseValY.value;
 }
 
+/**
+ * For when a node is collapsed, we need to gather up all of the leaf nodes
+ * @todo What happens when isRefresh?
+ */
+function gatherLeafNodes(treeNode){
+	var children = [];
+	if(treeNode.children && treeNode.children.length){
+		forEach(treeNode.children, function(tn){
+			forEach(gatherLeafNodes(tn), function(leaf){
+				children.push(leaf);
+			});
+		});
+	}
+	else {
+		children.push(treeNode);
+	}
+	return children;
+}
 
 /**
  * Recursive function called by TreeDrawer.draw()
@@ -286,8 +304,11 @@ function getY(el){
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  * @todo <line> should be <path> instead
  */
-function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetTop, isAncestorExtended, isAncestorCollapsed){
+function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, offsetLeft, offsetTop, isAncestorExtended, isAncestorCollapsed){
 	var g, label, labelRect, branch, branchHeight, branchStyle;
+	
+	if(isAncestorCollapsed && treeNode.children && treeNode.children.length)
+		throw Error("Unexpected that tree node has children; all of the leaf nodes have been gathered.");
 	
 	//Get or create the node container
 	if(isRefresh){
@@ -297,6 +318,8 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 		g = document.createElementNS(svgns, 'g');
 		parentElement.appendChild(g);
 	}
+	var gClass = g.hasAttribute('class') ? g.getAttribute('class').replace(/\s*collapsed/) : '';
+	g.setAttribute('class', treeNode.collapsed ? gClass + " collapsed" : gClass);
 	
 	//Get or create the branch which will connect this label with the parent label
 	if(isRefresh){
@@ -362,9 +385,6 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	if(!labelRect)
 		labelRect = getDimensions(label);
 	
-	//var labelRect = getDimensions(label);
-	// Allow this to be filtered
-	
 	//Get styles and dimensions
 	var labelStyle = window.getComputedStyle(label, null);
 	var labelFontSize = parseFloat(labelStyle.fontSize);
@@ -383,12 +403,17 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	var childrenWidth = 0;
 	var childrenInfo = [];
 	treeNode.maxOffsetTop = offsetTop;
-	for(var i = 0, len = treeNode.children.length; i < len; i++){ //forEach
+	
+	//Get the nodes that appear as children under this node
+	var childTreeNodes = treeNode.collapsed ? gatherLeafNodes(treeNode) : treeNode.children;
+	
+	for(var i = 0, len = childTreeNodes.length; i < len; i++){ //forEach
 		var childInfo = _drawNode(
 			tree,
 			isRefresh,
 			g,
-			treeNode.children[i],
+			i, //siblingPosition
+			childTreeNodes[i],
 			offsetLeft + childrenWidth,
 			offsetTop + labelPadding.top
 			          + labelRect.height
@@ -533,47 +558,67 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	if(branch){
 		branch.points.clear();
 		var point;
-		if(treeNode.triangle){
-			point = tree.svgElement.createSVGPoint();
-			point.x = labelX;
-			point.y = offsetTop;
-			branch.points.appendItem(point);
-			
-			point = tree.svgElement.createSVGPoint();
-			point.x = labelX + labelRect.width;
-			point.y = offsetTop;
-			branch.points.appendItem(point);
+		if(isAncestorCollapsed){
+			//All children's branches under a collapsed node are cleared
+			// except for the first one which becomes the triangle
+			if(siblingPosition == 0){
+				point = tree.svgElement.createSVGPoint();
+				point.x = labelX;
+				point.y = offsetTop;
+				branch.points.appendItem(point);
+				
+				point = tree.svgElement.createSVGPoint();
+				point.x = labelX + labelRect.width;
+				point.y = offsetTop;
+				branch.points.appendItem(point);
+			}
 		}
+		//Uncollapsed node which has a simple line to the parent
 		else {
 			point = tree.svgElement.createSVGPoint();
 			point.x = branchX;
 			point.y = offsetTop;
 			branch.points.appendItem(point);
 		}
-		//branch.setAttribute('x2', branchX + 'px');
-		//branch.setAttribute('y2', offsetTop + 'px');
 	}
 	
-	//Connect branches from child labels to parent label
-	for(var i = 0, len = childrenInfo.length; i < len; i++){
-		var childBranch = childrenInfo[i].branch;
-		var point = tree.svgElement.createSVGPoint();
+	//Connect the triangle under collapsed node
+	if(treeNode.collapsed){
+		//Extend the first child's branch's second point's x to labelX+label.width
+		var lastChildInfo = childrenInfo[childrenInfo.length-1];
+		var firstChildBranch = childrenInfo[0].branch;
+		var point = firstChildBranch.points.getItem(1);
+		point.x = lastChildInfo.labelX + lastChildInfo.labelRect.width;
+		
+		//Connect to parent label
+		point = tree.svgElement.createSVGPoint();
 		point.x = branchX;
 		point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
-		childBranch.points.appendItem(point);
+		firstChildBranch.points.appendItem(point);
 		
-		//If odd number, add another point to close the path
-		if(childBranch.points.numberOfItems % 2 == 1){
-			point = tree.svgElement.createSVGPoint();
-			var firstPoint = childBranch.points.getItem(0);
-			point.x = firstPoint.x;
-			point.y = firstPoint.y;
-			childBranch.points.appendItem(point);
-		}
-		
-		//childrenInfo[i].branch.setAttribute('x1', branchX + 'px');
-		//childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
+		//Closepath
+		point = tree.svgElement.createSVGPoint();
+		var firstPoint = firstChildBranch.points.getItem(0);
+		point.x = firstPoint.x;
+		point.y = firstPoint.y;
+		firstChildBranch.points.appendItem(point);
 	}
+	//Connect branches from child labels to parent label
+	else {
+		for(var i = 0, len = childrenInfo.length; i < len; i++){
+			var childBranch = childrenInfo[i].branch;
+			var point = tree.svgElement.createSVGPoint();
+			point.x = branchX;
+			point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
+			childBranch.points.appendItem(point);
+			
+			//If odd number, then this should be collapsed!
+			if(childBranch.points.numberOfItems % 2 == 1){
+				throw Error("Unexpected");
+			}
+		}
+	}
+	
 		
 	// If all of the leaves are supposed to be at the same vertical axis, then
 	// push them down now
@@ -593,17 +638,18 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 			bottomPoints.pop();
 			
 			//Reposition the branch bottom points and the label
-			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
-			var newBranchY = bottomPoints[0].y + offsetTopDiff;
-			if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
-				//leafNode.branch.y2.baseVal.value = newBranchY;
-				forEach(bottomPoints, function(point){
-					point.y = newBranchY;
-				});
-				leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
-				leafNode.offsetTop += offsetTopDiff;
+			if(bottomPoints.length){ //@todo: What if empty?
+				var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
+				var newBranchY = bottomPoints[0].y + offsetTopDiff;
+				if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
+					//leafNode.branch.y2.baseVal.value = newBranchY;
+					forEach(bottomPoints, function(point){
+						point.y = newBranchY;
+					});
+					leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
+					leafNode.offsetTop += offsetTopDiff;
+				}
 			}
-			
 			//leafNode.label.y.baseVal.value += offsetTopDiff;
 		});
 	}
@@ -623,6 +669,8 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	
 	return {
 		label:label,
+		labelRect:labelRect,
+		labelX:labelX,
 		maxOffsetTop:treeNode.maxOffsetTop,
 		branch:branch,
 		leafNodes:leafNodes,
@@ -637,8 +685,8 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
  */
 var TN = T.Node = function(obj){
 	this.label = obj.label;
-	//this.collapsed = !!obj.collapsed;
-	this.triangle = !!obj.triangle;
+	this.collapsed = !!obj.collapsed;
+	//this.triangle = !!obj.triangle;
 	this.extended = !!obj.extended;
 	
 	if(obj.children && obj.children.length){
@@ -649,8 +697,8 @@ var TN = T.Node = function(obj){
 	}
 };
 TN.prototype.label = "";
-//TN.prototype.collapsed = false;
-TN.prototype.triangle = false;
+TN.prototype.collapsed = false;
+//TN.prototype.triangle = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
 TN.prototype.maxOffsetTop = 0; //readonly
@@ -660,23 +708,23 @@ TN.prototype.labelElement = null;
 /**
  * If the node is collapsed, then expand it and draw.
  */
-//TN.prototype.expand = function expand(){
-//	if(!this.collapsed)
-//		return;
-//	this.collapsed = false;
-//	this.draw();
-//};
+TN.prototype.expand = function expand(){
+	if(!this.collapsed)
+		return;
+	this.collapsed = false;
+	this.draw();
+};
 
 
 /**
  * If the node is expanded, then collapse it and draw.
  */
-//TN.prototype.collapse = function collapse(){
-//	if(this.collapsed)
-//		return;
-//	this.collapsed = true;
-//	this.draw();
-//};
+TN.prototype.collapse = function collapse(){
+	if(this.collapsed)
+		return;
+	this.collapsed = true;
+	this.draw();
+};
 
 
 /**
