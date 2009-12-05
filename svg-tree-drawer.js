@@ -16,9 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * @todo Implement collapsing (triangles) which are toggled by clicking the nodes
  * @todo Diagrammer: SVG + XML + XSLT + MathML + ContentEditable + hashchange + JSON.parse/stringify
- * @todo expand/collapse -- on each node, toggling the rectangle?
+ * @todo expand/collapse -- on each node, toggling the triangle?
  * @todo Get the text vertical spacing working
  * @todo Add a style property which gets assigned to the <g>
  * @todo Add the ability to draw lines between any two nodes, curved or straight: each node would need an id
@@ -304,7 +303,7 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 		branch = treeNode.branchElement;
 	}
 	else if(parentElement.localName != 'svg'){ //not the root
-		branch = document.createElementNS(svgns, 'line');
+		branch = document.createElementNS(svgns, 'polyline');
 		treeNode.branchElement = branch;
 		g.appendChild(branch);
 	}
@@ -451,6 +450,13 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 								el.x1.baseVal.value += thisShiftLeft;
 								el.x2.baseVal.value += thisShiftLeft;
 								break;
+							case 'path':
+							case 'polygon':
+							case 'polyline':
+								for(var j = 0, points = el.points, len = points.numberOfItems; j < len; j++){
+									points.getItem(j).x += thisShiftLeft;
+								}
+								break;
 							case 'rect':
 							default:
 								var elRect = getDimensions(el);
@@ -525,15 +531,48 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 	//Position branch directly above the label
 	var branchX = (labelX + labelRect.width/2);
 	if(branch){
-		
-		branch.setAttribute('x2', branchX + 'px');
-		branch.setAttribute('y2', offsetTop + 'px');
+		branch.points.clear();
+		var point;
+		if(treeNode.triangle){
+			point = tree.svgElement.createSVGPoint();
+			point.x = labelX;
+			point.y = offsetTop;
+			branch.points.appendItem(point);
+			
+			point = tree.svgElement.createSVGPoint();
+			point.x = labelX + labelRect.width;
+			point.y = offsetTop;
+			branch.points.appendItem(point);
+		}
+		else {
+			point = tree.svgElement.createSVGPoint();
+			point.x = branchX;
+			point.y = offsetTop;
+			branch.points.appendItem(point);
+		}
+		//branch.setAttribute('x2', branchX + 'px');
+		//branch.setAttribute('y2', offsetTop + 'px');
 	}
 	
 	//Connect branches from child labels to parent label
 	for(var i = 0, len = childrenInfo.length; i < len; i++){
-		childrenInfo[i].branch.setAttribute('x1', branchX + 'px');
-		childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
+		var childBranch = childrenInfo[i].branch;
+		var point = tree.svgElement.createSVGPoint();
+		point.x = branchX;
+		point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
+		childBranch.points.appendItem(point);
+		
+		//If odd number, add another point to close the path
+		if(childBranch.points.numberOfItems % 2 == 1){
+			point = tree.svgElement.createSVGPoint();
+			var firstPoint = childBranch.points.getItem(0);
+			point.x = firstPoint.x;
+			point.y = firstPoint.y;
+			childBranch.points.appendItem(point);
+		}
+		
+		//childrenInfo[i].branch.setAttribute('x1', branchX + 'px');
+		//childrenInfo[i].branch.setAttribute('y1', offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height + 'px');
 	}
 		
 	// If all of the leaves are supposed to be at the same vertical axis, then
@@ -543,13 +582,28 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
 		
 		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
 		forEach(leafNodes, function(leafNode){
+			//Get the points that are on the bottom half
+			var bottomPoints = [];
+			for(var j = 0, points = leafNode.branch.points, len = points.numberOfItems; j < len; j++){
+				bottomPoints.push(points.getItem(j));
+			}
+			bottomPoints.sort(function(a,b){
+				return b.y - a.y;
+			});
+			bottomPoints.pop();
+			
+			//Reposition the branch bottom points and the label
 			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
-			var newBranchY = leafNode.branch.y2.baseVal.value + offsetTopDiff;
+			var newBranchY = bottomPoints[0].y + offsetTopDiff;
 			if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
-				leafNode.branch.y2.baseVal.value = newBranchY;
+				//leafNode.branch.y2.baseVal.value = newBranchY;
+				forEach(bottomPoints, function(point){
+					point.y = newBranchY;
+				});
 				leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
 				leafNode.offsetTop += offsetTopDiff;
 			}
+			
 			//leafNode.label.y.baseVal.value += offsetTopDiff;
 		});
 	}
@@ -583,7 +637,8 @@ function _drawNode(tree, isRefresh, parentElement, treeNode, offsetLeft, offsetT
  */
 var TN = T.Node = function(obj){
 	this.label = obj.label;
-	this.collapsed = !!obj.collapsed;
+	//this.collapsed = !!obj.collapsed;
+	this.triangle = !!obj.triangle;
 	this.extended = !!obj.extended;
 	
 	if(obj.children && obj.children.length){
@@ -594,34 +649,34 @@ var TN = T.Node = function(obj){
 	}
 };
 TN.prototype.label = "";
-TN.prototype.collapsed = false;
+//TN.prototype.collapsed = false;
+TN.prototype.triangle = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
 TN.prototype.maxOffsetTop = 0; //readonly
 TN.prototype.branchElement = null;
 TN.prototype.labelElement = null;
 
-
 /**
  * If the node is collapsed, then expand it and draw.
  */
-TN.prototype.expand = function expand(){
-	if(!this.collapsed)
-		return;
-	this.collapsed = false;
-	this.draw();
-};
+//TN.prototype.expand = function expand(){
+//	if(!this.collapsed)
+//		return;
+//	this.collapsed = false;
+//	this.draw();
+//};
 
 
 /**
  * If the node is expanded, then collapse it and draw.
  */
-TN.prototype.collapse = function collapse(){
-	if(this.collapsed)
-		return;
-	this.collapsed = true;
-	this.draw();
-};
+//TN.prototype.collapse = function collapse(){
+//	if(this.collapsed)
+//		return;
+//	this.collapsed = true;
+//	this.draw();
+//};
 
 
 /**
