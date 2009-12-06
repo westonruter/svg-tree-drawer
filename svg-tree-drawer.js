@@ -189,6 +189,8 @@ T.prototype.draw = function draw(treeData){
 		this.empty();
 	
 	//var fontSize = parseFloat(window.getComputedStyle(this.svgElement, null).fontSize);
+	this.height = this.width = 0; //reset
+	
 	var info = _drawNode(this, isRefresh, this.svgElement, 0, this.root, 0, 0, this.labelPadding, this.branchHeight);
 	
 	//Fire 'done' event
