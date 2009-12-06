@@ -17,14 +17,27 @@
 		</script>
 		<script src="../svg-tree-drawer.js?2"></script>
 		<style>
-		svg text,
-		.treeNode {
+		svg foreignObject > *,
+		svg text {
 			padding:0.5em;
 			padding-left:1em;
 			padding-right:1em;
 		}
-		svg line {
-			font-size:2em;
+		svg foreignObject {
+			cursor:pointer;
+		}
+		svg foreignObject,
+		svg polyline,
+		svg text {
+			font-size:14px !important;
+		}
+		svg polyline {
+			fill:none;
+			font-size:3em;
+		}
+		svg text {
+			padding-left:0.5ex !important;
+			padding-right:0.5ex !important;
 		}
 		.treeNode {
 			display:inline-block; /*each div wraps a math element, and inline block so we can get offsetHeight and offsetWidth*/
@@ -39,6 +52,11 @@
 		}
 		#toggleColorsBtn.on {
 			color:green;
+		}
+
+		svg g.collapsed g text {
+			padding-left:0.5ex;
+			padding-right:0.5ex;
 		}
 		</style>
 		<script>
@@ -77,7 +95,8 @@
 		
 		<p>
 			<button id="toggleColorsBtn" class="on">Turn Colors On</button>
-			<small>Click on a node whose children don't have even heights and they will extend down to be the same level.</small>
+			<small><samp>Click</samp> on a node to collapse/expand it into a triangle.</small>
+			<small><samp>Click+Click</samp> on a node whose children don't have even heights and they will extend down to be the same level.</small>
 		</p>
 		
 		<p id="treeTheySeemedCloseToMe"><em>Tree for “The seemed close to me.” goes here… if it doesn't load, you're probably not using Firefox 3+!</em></p>
@@ -265,11 +284,11 @@
 					{label:$('N_they'), children:[
 						{label: 'They'}
 					]},
-					{label:$('VP_appearedCloseToMe'), children:[
+					{label:$('VP_appearedCloseToMe'), extended:true, children:[
 						{label:$('V_appeared'), children:[
 							{label:'seemed'}
 						]},
-						{label:$('AP_closeToMe'), children:[
+						{label:$('AP_closeToMe'), collapsed:true, children:[
 							{label:$('A_close'), children:[
 								{label:'close'}
 							]},
@@ -296,14 +315,26 @@
 			//tree.draw(); //refresh
 			
 			document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
+				try {
 				var g = e.target;
 				//console.warn(g)
 				while(g && g.nodeName.toLowerCase() != 'g'){
 					g = g.parentNode;
 				}
 				if(g && g.svgTreeDrawerNode){
-					g.svgTreeDrawerNode.extended = !g.svgTreeDrawerNode.extended;
+					
+					if(!e.shiftKey){
+						g.svgTreeDrawerNode.collapsed = !g.svgTreeDrawerNode.collapsed;
+					}
+					else {
+						g.svgTreeDrawerNode.extended = !g.svgTreeDrawerNode.extended;
+					}
 					tree.draw();
+				}
+				}
+				catch(e){
+					//alert(e + "at " + e.lineNumber)
+					alert(JSON.stringify(e));
 				}
 				
 				//console.info(this)

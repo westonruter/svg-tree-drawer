@@ -325,10 +325,12 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	
 	//Get or create the node container
 	if(isRefresh){
-		g = treeNode.labelElement.parentElement;
+		g = treeNode.labelElement.parentNode;
 	}
 	else {
 		g = document.createElementNS(svgns, 'g');
+		if(!treeNode.children || !treeNode.children.length)
+			g.setAttribute('class', 'leaf');
 		parentElement.appendChild(g);
 	}
 	var gClass = g.hasAttribute('class') ? g.getAttribute('class').replace(/\s*collapsed/) : '';
@@ -340,6 +342,7 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	}
 	else if(parentElement.localName != 'svg'){ //not the root
 		branch = document.createElementNS(svgns, 'polyline');
+		branch.setAttribute('class', branch.hasAttribute('class') ? branch.getAttribute('class') + " branch" : "branch");
 		treeNode.branchElement = branch;
 		g.appendChild(branch);
 	}
@@ -396,6 +399,7 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 			label.appendChild(document.createTextNode(sourceLabel.toString(), true));
 			g.appendChild(label);
 		}
+		label.setAttribute('class', label.hasAttribute('class') ? label.getAttribute('class') + " label" : "label");
 		treeNode.labelElement = label;
 		g.svgTreeDrawerNode = treeNode;
 		//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
