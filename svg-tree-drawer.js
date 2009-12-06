@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * @todo Diagrammer: SVG + XML + XSLT + MathML + ContentEditable + hashchange + JSON.parse/stringify
- * @todo expand/collapse -- on each node, toggling the triangle?
  * @todo Get the text vertical spacing working
  * @todo Add a style property which gets assigned to the <g>
  * @todo Add the ability to draw lines between any two nodes, curved or straight: each node would need an id
@@ -218,39 +217,49 @@ var forEach = Array.forEach || function forEach(object, block, context) {
  * Depending on the type of element, get its width and height
  */
 function getDimensions(el){
-	if(el.getBBox){
-		return el.getBBox();
+	try {
+		if(el.getBBox){
+			return el.getBBox();
+		}
+		else if(el.getBoundingClientRect){
+			var _rect = el.getBoundingClientRect();
+			var rect = {
+				width: _rect.width || el.offsetWidth || el.clientWidth,
+				height: _rect.height || el.offsetHeight || el.clientHeight,
+				x: _rect.x,
+				y: _rect.y
+			};
+			//if(!rect.width)
+			//	rect.width = el.offsetWidth;
+			//if(!rect.height)
+			//	rect.height = el.offsetHeight;
+			if(isNaN(rect.width) || isNaN(rect.height))
+				throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
+			return rect;
+		}
+		//else if(el.width && el.width.baseVal && el.height && el.height.baseVal){
+		//	return {
+		//		width:el.width.baseVal.value,
+		//		height:el.height.baseVal.value,
+		//		x:el.x.baseVal.value,
+		//		y:el.y.baseVal.value
+		//	}
+		//}
+		//else if(el.offsetParent){
+		//	return {
+		//		width:el.offsetWidth,
+		//		height:el.offsetHeight
+		//	}
+		//}
 	}
-	else if(el.getBoundingClientRect){
-		var _rect = el.getBoundingClientRect();
-		var rect = {
-			width: _rect.width || el.offsetWidth || el.clientWidth,
-			height: _rect.height || el.offsetHeight || el.clientHeight,
-			x: _rect.x,
-			y: _rect.y
+	catch(e){
+		return {
+			width:0,
+			height:0,
+			x:null,
+			y:null
 		};
-		//if(!rect.width)
-		//	rect.width = el.offsetWidth;
-		//if(!rect.height)
-		//	rect.height = el.offsetHeight;
-		if(isNaN(rect.width) || isNaN(rect.height))
-			throw Error("getBoundingClientRect() didn't return the width or height! Are you using an old version of Firefox?");
-		return rect;
 	}
-	//else if(el.width && el.width.baseVal && el.height && el.height.baseVal){
-	//	return {
-	//		width:el.width.baseVal.value,
-	//		height:el.height.baseVal.value,
-	//		x:el.x.baseVal.value,
-	//		y:el.y.baseVal.value
-	//	}
-	//}
-	//else if(el.offsetParent){
-	//	return {
-	//		width:el.offsetWidth,
-	//		height:el.offsetHeight
-	//	}
-	//}
 	throw Error("Unable to determine the element's dimensions");
 }
 TreeDrawer._getElementDimensions = getDimensions;
@@ -283,20 +292,20 @@ function getY(el){
  * For when a node is collapsed, we need to gather up all of the leaf nodes
  * @todo What happens when isRefresh?
  */
-function gatherLeafNodes(treeNode){
-	var children = [];
-	if(treeNode.children && treeNode.children.length){
-		forEach(treeNode.children, function(tn){
-			forEach(gatherLeafNodes(tn), function(leaf){
-				children.push(leaf);
-			});
-		});
-	}
-	else {
-		children.push(treeNode);
-	}
-	return children;
-}
+//function gatherLeafNodes(treeNode){
+//	var children = [];
+//	if(treeNode.children && treeNode.children.length){
+//		forEach(treeNode.children, function(tn){
+//			forEach(gatherLeafNodes(tn), function(leaf){
+//				children.push(leaf);
+//			});
+//		});
+//	}
+//	else {
+//		children.push(treeNode);
+//	}
+//	return children;
+//}
 
 /**
  * Recursive function called by TreeDrawer.draw()
@@ -304,11 +313,15 @@ function gatherLeafNodes(treeNode){
  * @todo In Firefox <3 getBoundingClientRect doesn't include width and height
  * @todo <line> should be <path> instead
  */
-function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, offsetLeft, offsetTop, isAncestorExtended, isAncestorCollapsed){
-	var g, label, labelRect, branch, branchHeight, branchStyle;
+function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, offsetLeft, offsetTop, isAncestorExtended, collapsedAncestor){
+	var g, label, labelRect, labelFontSize, branch, branchHeight, labelPadding;
 	
-	if(isAncestorCollapsed && treeNode.children && treeNode.children.length)
-		throw Error("Unexpected that tree node has children; all of the leaf nodes have been gathered.");
+	//if(collapsedAncestor && treeNode.children && treeNode.children.length)
+	//	throw Error("Unexpected that tree node has children; all of the leaf nodes have been gathered.");
+	
+	var isNodeDisplayed = !collapsedAncestor || collapsedAncestor && (!treeNode.children || !treeNode.children.length);
+	
+	treeNode.leafDecendantsInfo = []; //Reset
 	
 	//Get or create the node container
 	if(isRefresh){
@@ -330,15 +343,18 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 		treeNode.branchElement = branch;
 		g.appendChild(branch);
 	}
-	if(branch){
-		branchStyle = window.getComputedStyle(branch, null);
-		branchHeight = parseFloat(branchStyle.fontSize);
+	if(branch)
+		branch.style.display = isNodeDisplayed ? '' : 'none';
+	if(isNodeDisplayed && branch){
+		var branchStyle = window.getComputedStyle(branch, null);
+		branchHeight = parseFloat(branchStyle.fontSize) || 0;
 		offsetTop += branchHeight;
 	}
 	
 	//Get or make the label
 	if(isRefresh){
 		label = treeNode.labelElement;
+		label.style.display = isNodeDisplayed ? '' : 'none';
 		//The dimensions of the foreignObject may have been changed, so re-get
 		if(label.nodeName.toLowerCase() == 'foreignobject'){
 			labelRect = getDimensions(label.firstChild);
@@ -368,9 +384,11 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 				// Now that element has been inserted into the DOM, calculate the
 				// size of the foreignObject's contents, and use these as the width
 				// and height.
-				labelRect = getDimensions(treeNode.label);
-				label.setAttribute('width', labelRect.width);
-				label.setAttribute('height', labelRect.height);
+				if(isNodeDisplayed){
+					labelRect = getDimensions(treeNode.label);
+					label.setAttribute('width', labelRect.width);
+					label.setAttribute('height', labelRect.height);
+				}
 			}
 		}
 		else {
@@ -382,17 +400,18 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 		g.svgTreeDrawerNode = treeNode;
 		//TODO: Allow this node to be filtered before insertion (i.e. replace with foreignobject)
 	}
+	label.style.display = isNodeDisplayed ? '' : 'none';
 	if(!labelRect)
 		labelRect = getDimensions(label);
 	
 	//Get styles and dimensions
 	var labelStyle = window.getComputedStyle(label, null);
-	var labelFontSize = parseFloat(labelStyle.fontSize);
-	var labelPadding = {
-		top:parseFloat(labelStyle.paddingTop),
-		right:parseFloat(labelStyle.paddingRight),
-		bottom:parseFloat(labelStyle.paddingBottom),
-		left:parseFloat(labelStyle.paddingLeft)
+	labelFontSize = parseFloat(labelStyle.fontSize) || 0;
+	labelPadding = {
+		top:parseFloat(labelStyle.paddingTop) || 0,
+		right:parseFloat(labelStyle.paddingRight) || 0,
+		bottom:parseFloat(labelStyle.paddingBottom) || 0,
+		left:parseFloat(labelStyle.paddingLeft) || 0
 	};
 	
 	//Process each of the children
@@ -405,7 +424,7 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	treeNode.maxOffsetTop = offsetTop;
 	
 	//Get the nodes that appear as children under this node
-	var childTreeNodes = treeNode.collapsed ? gatherLeafNodes(treeNode) : treeNode.children;
+	var childTreeNodes = treeNode.children;
 	
 	for(var i = 0, len = childTreeNodes.length; i < len; i++){ //forEach
 		var childInfo = _drawNode(
@@ -415,12 +434,9 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 			i, //siblingPosition
 			childTreeNodes[i],
 			offsetLeft + childrenWidth,
-			offsetTop + labelPadding.top
-			          + labelRect.height
-			          + labelPadding.bottom,
-			          //+ branchHeight //value of child branch's height is added
+			/*collapsedAncestor ? offsetTop :*/ offsetTop + labelPadding.top + labelRect.height + labelPadding.bottom, //+ branchHeight //value of child branch's height is added
 			treeNode.extended || isAncestorExtended,
-			treeNode.collapsed || isAncestorCollapsed
+			collapsedAncestor || (treeNode.collapsed ? treeNode : null)  //must be collapsed parent node!
 		);
 		childrenWidth += childInfo.width;
 		
@@ -439,16 +455,17 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	var labelX;
 	//If there are children, then x is in the middle of their first and last children
 	//TODO: if labelRect.width > childrenWidth, we could pass in the labelRect.width
-	if(childrenInfo.length){
+	var decendantsInfo = treeNode.collapsed && treeNode.leafDecendantsInfo.length ? treeNode.leafDecendantsInfo : childrenInfo;
+	if(decendantsInfo.length){
 		var leftX, rightX;
-		var firstChild = childrenInfo[0].label;
-		var lastChild = childrenInfo[childrenInfo.length-1].label;
-		if(firstChild == lastChild){
-			leftX = rightX = getX(firstChild) + getDimensions(firstChild).width/2;
+		var firstInfo = decendantsInfo[0];
+		var lastInfo = decendantsInfo[decendantsInfo.length-1];
+		if(firstInfo.label == lastInfo.label){
+			leftX = rightX = getX(firstInfo.label) + firstInfo.labelRect.width/2;
 		}
 		else {
-			leftX = getX(firstChild) + getDimensions(firstChild).width/2;
-			rightX = getX(lastChild) + getDimensions(lastChild).width/2;
+			leftX = getX(firstInfo.label) /*+ firstInfo.labelRect.width*/;
+			rightX = getX(lastInfo.label) + lastInfo.labelRect.width;
 		}
 		labelX = Math.max(
 			0,
@@ -461,8 +478,8 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 		// elements to be shifted over to the right
 		var labelWidthBeyondChildrenWidth = labelRect.width + labelPadding.left + labelPadding.right - childrenWidth;
 		if(labelWidthBeyondChildrenWidth > 0){
-			var shiftLeft = labelWidthBeyondChildrenWidth/(childrenInfo.length+1);
-			forEach(childrenInfo, function(child, i){
+			var shiftLeft = labelWidthBeyondChildrenWidth/(decendantsInfo.length+1);
+			forEach(decendantsInfo, function(child, i){
 				forEach(child.subtreeElements, function(el){
 					if(el.namespaceURI == svgns){
 						var elDimensions = getDimensions(el);
@@ -558,23 +575,7 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	if(branch){
 		branch.points.clear();
 		var point;
-		if(isAncestorCollapsed){
-			//All children's branches under a collapsed node are cleared
-			// except for the first one which becomes the triangle
-			if(siblingPosition == 0){
-				point = tree.svgElement.createSVGPoint();
-				point.x = labelX;
-				point.y = offsetTop;
-				branch.points.appendItem(point);
-				
-				point = tree.svgElement.createSVGPoint();
-				point.x = labelX + labelRect.width;
-				point.y = offsetTop;
-				branch.points.appendItem(point);
-			}
-		}
-		//Uncollapsed node which has a simple line to the parent
-		else {
+		if(!collapsedAncestor) {
 			point = tree.svgElement.createSVGPoint();
 			point.x = branchX;
 			point.y = offsetTop;
@@ -582,39 +583,63 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 		}
 	}
 	
-	//Connect the triangle under collapsed node
-	if(treeNode.collapsed){
-		//Extend the first child's branch's second point's x to labelX+label.width
-		var lastChildInfo = childrenInfo[childrenInfo.length-1];
-		var firstChildBranch = childrenInfo[0].branch;
-		var point = firstChildBranch.points.getItem(1);
-		point.x = lastChildInfo.labelX + lastChildInfo.labelRect.width;
-		
-		//Connect to parent label
-		point = tree.svgElement.createSVGPoint();
-		point.x = branchX;
-		point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
-		firstChildBranch.points.appendItem(point);
-		
-		//Closepath
-		point = tree.svgElement.createSVGPoint();
-		var firstPoint = firstChildBranch.points.getItem(0);
-		point.x = firstPoint.x;
-		point.y = firstPoint.y;
-		firstChildBranch.points.appendItem(point);
-	}
-	//Connect branches from child labels to parent label
-	else {
-		for(var i = 0, len = childrenInfo.length; i < len; i++){
-			var childBranch = childrenInfo[i].branch;
-			var point = tree.svgElement.createSVGPoint();
+	if(isNodeDisplayed){
+		//Connect the triangle under collapsed node
+		if(treeNode.collapsed){
+			var point;
+			
+			//Set the left bottom point for each branch; this is to help with
+			// keeping track of the 
+			//forEach(treeNode.leafDecendantsInfo, function(info){
+			//	point = tree.svgElement.createSVGPoint();
+			//	point.x = getX(firstLeafInfo.label);
+			//	info.branch.points.appendItem(point);
+			//});
+			
+			var firstLeafInfo = treeNode.leafDecendantsInfo[0];
+			var lastLeafInfo = treeNode.leafDecendantsInfo[treeNode.leafDecendantsInfo.length-1];
+			
+			var leftBottomX = getX(firstLeafInfo.label);
+			var rightBottomX = getX(lastLeafInfo.label)+lastLeafInfo.labelRect.width;
+			
+			
+			//Left bottom
+			point = tree.svgElement.createSVGPoint();
+			point.x = leftBottomX;
+			point.y = firstLeafInfo.offsetTop;
+			firstLeafInfo.branch.points.appendItem(point);
+			
+			//Right bottom
+			point = tree.svgElement.createSVGPoint();
+			point.x = rightBottomX;
+			point.y = lastLeafInfo.offsetTop;
+			firstLeafInfo.branch.points.appendItem(point);
+			
+			//Top
+			point = tree.svgElement.createSVGPoint();
 			point.x = branchX;
 			point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
-			childBranch.points.appendItem(point);
+			firstLeafInfo.branch.points.appendItem(point);
 			
-			//If odd number, then this should be collapsed!
-			if(childBranch.points.numberOfItems % 2 == 1){
-				throw Error("Unexpected");
+			//Closepath
+			point = tree.svgElement.createSVGPoint();
+			point.x = leftBottomX;
+			point.y = firstLeafInfo.offsetTop;
+			firstLeafInfo.branch.points.appendItem(point);
+		}
+		//Connect branches from child labels to parent label
+		else if(!collapsedAncestor){
+			for(var i = 0, len = childrenInfo.length; i < len; i++){
+				var childBranch = childrenInfo[i].branch;
+				var point = tree.svgElement.createSVGPoint();
+				point.x = branchX;
+				point.y = offsetTop + labelPadding.top + labelPadding.bottom + labelRect.height;
+				childBranch.points.appendItem(point);
+				
+				//If odd number, then this should be collapsed!
+				if(childBranch.points.numberOfItems % 2 == 1){
+					throw Error("Unexpected");
+				}
 			}
 		}
 	}
@@ -624,7 +649,6 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 	// push them down now
 	if(childrenInfo.length && !isAncestorExtended && treeNode.extended){
 		//@todo: Increase the y/y2 of all leafNodes... can we just increment?
-		
 		//@todo: Make the svg image higher if it gets higher if one of the leafNodes is taller!!!
 		forEach(leafNodes, function(leafNode){
 			//Get the points that are on the bottom half
@@ -638,19 +662,16 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 			bottomPoints.pop();
 			
 			//Reposition the branch bottom points and the label
-			if(bottomPoints.length){ //@todo: What if empty?
-				var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
-				var newBranchY = bottomPoints[0].y + offsetTopDiff;
-				if(Math.round(newBranchY) <= Math.round(treeNode.maxOffsetTop)){
-					//leafNode.branch.y2.baseVal.value = newBranchY;
-					forEach(bottomPoints, function(point){
-						point.y = newBranchY;
-					});
-					leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
-					leafNode.offsetTop += offsetTopDiff;
-				}
+			var offsetTopDiff = treeNode.maxOffsetTop - leafNode.offsetTop;
+			var newOffsetTop = leafNode.offsetTop + offsetTopDiff;
+			if(Math.round(newOffsetTop) <= Math.round(treeNode.maxOffsetTop)){
+				//leafNode.branch.y2.baseVal.value = newBranchY;
+				forEach(bottomPoints, function(point){
+					point.y = newOffsetTop;
+				});
+				leafNode.label.setAttribute('y', getY(leafNode.label) + offsetTopDiff);
+				leafNode.offsetTop += offsetTopDiff;
 			}
-			//leafNode.label.y.baseVal.value += offsetTopDiff;
 		});
 	}
 	
@@ -667,16 +688,23 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 		labelX + labelRect.width + labelPadding.left + labelPadding.right
 	);
 	
-	return {
+	var info = {
 		label:label,
 		labelRect:labelRect,
-		labelX:labelX,
+		labelX:labelX, //@todo: this should be part of labelRect
+		labelY:labelY, //@todo: this should be part of labelRect
+		offsetTop:offsetTop,
 		maxOffsetTop:treeNode.maxOffsetTop,
 		branch:branch,
 		leafNodes:leafNodes,
 		subtreeElements:subtreeElements,
 		width:Math.max(labelRect.width + labelPadding.left + labelPadding.right, childrenWidth)
 	};
+	
+	if(isNodeDisplayed && collapsedAncestor)
+		collapsedAncestor.leafDecendantsInfo.push(info);
+	
+	return info;
 }
 
 
@@ -686,7 +714,6 @@ function _drawNode(tree, isRefresh, parentElement, siblingPosition, treeNode, of
 var TN = T.Node = function(obj){
 	this.label = obj.label;
 	this.collapsed = !!obj.collapsed;
-	//this.triangle = !!obj.triangle;
 	this.extended = !!obj.extended;
 	
 	if(obj.children && obj.children.length){
@@ -698,12 +725,12 @@ var TN = T.Node = function(obj){
 };
 TN.prototype.label = "";
 TN.prototype.collapsed = false;
-//TN.prototype.triangle = false;
 TN.prototype.extended = false;
 TN.prototype.children = [];
 TN.prototype.maxOffsetTop = 0; //readonly
 TN.prototype.branchElement = null;
 TN.prototype.labelElement = null;
+TN.prototype.leafDecendantsInfo = [];
 
 /**
  * If the node is collapsed, then expand it and draw.
