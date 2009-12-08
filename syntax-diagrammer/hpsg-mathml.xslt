@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	xmlns:math="http://www.w3.org/1998/Math/MathML"
 	xmlns="http://www.w3.org/1998/Math/MathML"
 	xmlns:html="http://www.w3.org/1999/xhtml"
-	xmlns:hpsg="http://weston.ruter.net/ns/hpsg">	
+	xmlns:hpsg="http://weston.ruter.net/ns/hpsg">
 	
 	<xsl:template name="css">
 		<html:style type="text/css">

@@ -83,7 +83,111 @@
 		
 		<table cellspacing="0" cellpadding="5">
 			<tr>
-				<th>@2V_$i[synsem SYN:[SPR:none],SEM:&lt;&gt;]</th><td></td>
+				<th>
+				V[
+					SPR=&lt;&gt,
+					COMPS=&lt;@1, @2, @3&gt;
+				]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				@2V_$i[synsem SYN:[SPR:none], SEM:&lt;&gt;]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				&lt; aL, [comp-lxm COMP=&lt;X&gt;, GAP=&lt;Y&gt; ] &gt;
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				A[SPR=&lt;@2i&gt;, GAP=&lt;&gt;, STOP-GAP=&lt;@3$i&gt;]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				[ARG-ST=&lt;NP, @1, [SPR=&lt;@1&gt;, COMPS=&lt;&gt;, INDEX=$s]&gt;, SEM=[RESTR=/&lt;[ARG=$s]&gt;]]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				&lt;
+					be,
+					[orv-lxm
+						ARG-ST=&lt; [FORM=there], X, [PRED=+, INDEX=$s] &gt;,
+						SEM=[INDEX=$s, RESTR=&lt;&gt;]
+					]
+				&gt;
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				@3CP[
+					INDEX=@6$s2,
+					MODE=prop,
+					RESTR=@Y+@C+@D
+				]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				NP[
+					INDEX=$j,
+					MODE=ref,
+					RESTR=@C&lt;
+						[
+							RELN=name
+							NAME=Fido
+							NAMED=$j
+						]
+					&gt;
+				]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				[phrase SPR=&lt;&gt;] -> @1 {H}[SPR=&lt;@1&gt;, COMPS=&lt;@1&gt;]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				[phrase COMPS=&lt;&gt;] -> @1 ... @n {H}[word COMPS=&lt; @1, ..., @n &gt;]
+				</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>
+				[i-rule
+					INPUT=&lt;
+						@1,
+						[lexeme
+							SYN=@2[HEAD=[noun]],
+							ARG-ST=@A,
+							SEM=@4
+						]
+					&gt;,
+					OUTPUT=&lt;
+						F_ACC(@1),
+						[word
+							SYN=@2[HEAD=[noun CASE=acc]],
+							ARG-ST=@A,
+							SEM=@4
+						]
+					&gt;
+				]
+				<!-- YES! Underscore always indicates sub: ADV_pol, vs. ADV_$p -- indicies must be prefixed by $-sigil -->
+				</th>
+				<td></td>
 			</tr>
 		</table>
 		
