@@ -20,6 +20,7 @@
  * @todo Get the text vertical spacing working
  * @todo Add a style property which gets assigned to the <g>
  * @todo Add the ability to draw lines between any two nodes, curved or straight: each node would need an id
+ * @todo When collapsing a node that has leaf nodes at different depts, treat it like it has been extended.
  */
 (function(){
 if(typeof TreeDrawer != 'undefined')
@@ -740,24 +741,25 @@ TN.prototype.leafDecendantsInfo = [];
 
 /**
  * If the node is collapsed, then expand it and draw.
+ * @todo We need to keep track of the containing tree because there is no this.draw()
  */
-TN.prototype.expand = function expand(){
-	if(!this.collapsed)
-		return;
-	this.collapsed = false;
-	this.draw();
-};
+//TN.prototype.expand = function expand(){
+//	if(!this.collapsed)
+//		return;
+//	this.collapsed = false;
+//	this.draw();
+//};
 
 
 /**
  * If the node is expanded, then collapse it and draw.
+ * @todo We need to keep track of the containing tree because there is no this.draw()
  */
-TN.prototype.collapse = function collapse(){
-	if(this.collapsed)
-		return;
-	this.collapsed = true;
-	this.draw();
-};
+//TN.prototype.collapse = function collapse(){
+//	if(this.collapsed)
+//		return;
+//	tree.draw();
+//};
 
 
 /**
