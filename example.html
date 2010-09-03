@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>SVG Tree Drawer Example</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+        <script src="svg-tree-drawer.js"></script>
+        <style>
+        svg text {
+            padding:0.5em;
+            padding-left:0.20em;
+            padding-right:0.20em;
+        }
+        svg g.collapsed g text {
+            padding-left:0.5ex;
+            padding-right:0.5ex;
+        }
+        svg line,
+        svg polyline {
+            font-size:1em; /*height not honored here by WebKit*/
+        }
+        svg polyline {
+            fill:none;
+        }
+        
+        .shortTree line,
+        .shortTree polyline {
+            font-size:0.25em;
+        }
+        .tallTree line,
+        .tallTree polyline {
+            font-size:2em;
+        }
+        </style>
+
+    </head>
+    <body>
+        <h1><a href="http://github.com/westonruter/svg-tree-drawer">SVG Tree Drawer</a> Example</h1>
+        
+        <p id="tree">The boy plays with the ball.</p>
+        <script>
+        var tree = new TreeDrawer(
+            document.getElementById('tree'),
+            {label:"S", extended: true, children: [
+                {label:"NP", children:[
+                    {label:"D", children: [
+                        {label:"The"}
+                    ]},
+                    {label:"N", children: [
+                        {label:"boy"}
+                    ]}
+                ]},
+                {label:"VP", children:[
+                    {label:"V", children: [
+                        {label:"plays"}
+                    ]},
+                    {label:"PP", children:[
+                        {label:"P", children: [
+                            {label:"with"}
+                        ]},
+                        {label:"NP", children:[
+                            {label:"D", children: [
+                                {label:"the"}
+                            ]},
+                            {label:"N", children: [
+                                {label:"ball"}
+                            ]}
+                        ]},
+                    ]},
+                ]}
+            ]}
+        );
+        tree.draw();
+        </script>
+        
+        <p>
+            <button onclick="tree.root.extended = !tree.root.extended; tree.draw();">Toggle Extend</button>
+            <button onclick="tree.root.collapsed = !tree.root.collapsed; tree.draw();">Toggle Collapsed</button>
+        </p>
+        
+        <footer>
+            <address><a href="http://weston.ruter.net/" rel=author>Weston Ruter</a></address>
+            <time pubdate>2010-09-03</time>
+        </footer>
+    </body>
+</html>
