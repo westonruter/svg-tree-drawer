@@ -84,36 +84,107 @@
 		<table cellspacing="0" cellpadding="5">
 			<tr>
 				<th>
+					$i
+				</th>
+			</tr>
+			<tr>
+				<th>
+					NP
+				</th>
+			</tr>
+			<tr>
+				<th>
+					NP_$i
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@1
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@n
+				</th>
+			</tr>
+			<tr>
+				<th>
+					...
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@A
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@A&lt;&gt;
+					<!--
+					<list tag="A"></list>
+					<list tag="A" />
+					<tag>A</tag>
+					-->
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@A&lt;NP&gt;
+					<!--
+					<list tag="A"> </list>
+					<tag>A</tag>
+					-->
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@1NP_$i
+				</th>
+			</tr>
+			<tr>
+				<th>
+					@A&lt;&gt;
+				</th>
+			</tr>
+			<tr>
+				<th>
 				V[
 					SPR=&lt;&gt,
 					COMPS=&lt;@1, @2, @3&gt;
 				]
 				</th>
-				<td></td>
+			</tr>
+			<tr>
+				<th>
+				ADV_POL
+				</th>
+			</tr>
+			<tr>
+				<!-- this can't be represented in XML currently -->
+				<!-- nor can: @A vs. @A<> -->
+				<th>
+				@2[to]
+				</th>
 			</tr>
 			<tr>
 				<th>
 				@2V_$i[synsem SYN:[SPR:none], SEM:&lt;&gt;]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
 				&lt; aL, [comp-lxm COMP=&lt;X&gt;, GAP=&lt;Y&gt; ] &gt;
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
-				A[SPR=&lt;@2i&gt;, GAP=&lt;&gt;, STOP-GAP=&lt;@3$i&gt;]
+				A[SPR=&lt;@2i&gt;, GAP=&lt;&gt;, STOP-GAP=&lt;@3_$i&gt;]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
 				[ARG-ST=&lt;NP, @1, [SPR=&lt;@1&gt;, COMPS=&lt;&gt;, INDEX=$s]&gt;, SEM=[RESTR=/&lt;[ARG=$s]&gt;]]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
@@ -125,17 +196,15 @@
 					]
 				&gt;
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
 				@3CP[
-					INDEX=@6$s2,
+					INDEX=@6_$s2,
 					MODE=prop,
 					RESTR=@Y+@C+@D
 				]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
@@ -151,19 +220,16 @@
 					&gt;
 				]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
 				[phrase SPR=&lt;&gt;] -> @1 {H}[SPR=&lt;@1&gt;, COMPS=&lt;@1&gt;]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
 				[phrase COMPS=&lt;&gt;] -> @1 ... @n {H}[word COMPS=&lt; @1, ..., @n &gt;]
 				</th>
-				<td></td>
 			</tr>
 			<tr>
 				<th>
@@ -185,11 +251,10 @@
 						]
 					&gt;
 				]
-				<!-- YES! Underscore always indicates sub: ADV_pol, vs. ADV_$p -- indicies must be prefixed by $-sigil -->
 				</th>
-				<td></td>
 			</tr>
 		</table>
+		<!-- YES! Underscore always indicates sub: ADV_pol, vs. ADV_$p - - indicies must be prefixed by $-sigil -->
 		
 		<script>
 		//<![CDATA[

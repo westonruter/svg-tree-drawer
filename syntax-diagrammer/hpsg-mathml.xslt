@@ -313,6 +313,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				</xsl:when>
 				
 				
+				<xsl:when test="hpsg:tag">
+					<xsl:apply-templates select="hpsg:tag" />
+				</xsl:when>
+				
+				
 				<!--
 				Otherwise we need to attach @index and @tag to the abbr and type
 					- (tag) abbr (index) [ type ]
@@ -503,7 +508,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- optional -->
 	<xsl:template match="hpsg:optional" >
-		<xsl:apply-templates select="@tag" />
+		<xsl:apply-templates select="@tag or hpsg:tag" />
 		<mfenced open='&#xFD3E;' close='&#xFD3F;' separators="|">
 			<!--<mrow>-->
 				<xsl:apply-templates select="*" />
