@@ -60,7 +60,7 @@
 		}
 		</style>
 		<script>
-		window.addEventListener('load', function(){
+		document.addEventListener('DOMContentLoaded', function(){
 			document.getElementById('toggleColorsBtn').addEventListener('click', function(e){
 				var body = document.getElementsByTagName('body')[0];
 				if(body.className.indexOf('no-colors') == -1){ //colors turned off

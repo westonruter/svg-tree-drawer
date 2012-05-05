@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="mathml2svgtree.xsl" type="text/xsl" ?>
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+	<semantics>
+		<mrow>
+			<mi>a</mi><mo>*</mo><mi>x</mi><mo>+</mo><mi>b</mi>
+		</mrow>
+		<apply>
+			<plus/>
+			<apply>
+				<times/>
+				<ci>a</ci>
+				<ci>x</ci>
+			</apply>
+			<ci>b</ci>
+		</apply>
+	</semantics>
+</math>

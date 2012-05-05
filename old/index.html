@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>(Old) Syntax Tree Drawer by Weston Ruter</title>
+		<meta name="description" content="XSLT stylesheet and ECMAScript recursive algorithm that create dynamic SVG images of tree data structures, intended for syntacticians." />
+		<style type="text/css">
+		a img {
+			border-width:1px;
+		}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Syntax Tree Drawer (Old)</h1>
+		</header>
+		<p><em><strong>Note:</strong> This code has been superceded by <a
+		href="https://github.com/westonruter/svg-tree-drawer">SVG Tree Drawer</a>. As with the code, the writeup here is
+		five years old, and technology has changes significantly since
+		then. This page is here for historical purposes.</em></p>
+
+		<p>This software consists of an XSLT stylesheet and a recursive algorithm in ECMAScript that create dynamic SVG images of tree data structures. 
+		It is intended for syntacticians since drawing trees is a very common activity in Linguistics and they quickly become
+		tiresome and tedious. The following image is a representation of 
+		the sentence &#x201C;What is the boy's mother baking?&#x201D;:</p>
+		
+		<a href="sentence.svg"><img src="sentence.png" alt="Syntax tree of &#x201C;What is the boy's mother baking?&#x201D;" /></a>
+		<!--<embed src="tree.svg" type="image/svg+xml" name="SVGEmbed" height="400" width="600" pluginspace="http://www.adobe.com/svg/viewer/install/" />-->
+
+		<p>The stylesheet can also be adapted to convert MathML into an expression tree. The following is of the expression <code>a * x + b</code>:</p>
+
+		<a href="mathml.xml.svg"><img src="mathml.png" alt="Tree of &#x201C;a * x + b&#x201D;" /></a>
+		<!--<embed src="mathml.xml.svg" type="image/svg+xml" name="SVGEmbed" height="115" width="150" pluginspace="http://www.adobe.com/svg/viewer/install/" />-->
+
+		<p>The <a href="mathml.xml">original XML document</a> was translated into SVG by use of an <a href="mathml2svgtree.xsl">XSLT stylesheet</a>.
+		I wrote a <a href="code.js">recursive algorithm</a> in Javascript to do all the work of positioning the nodes
+		and drawing the connecting branches. There is a specific document structure for the translated SVG image which the algorithm 
+		traverses via the <acronym title="Document Object Model">DOM</acronym>. The document structure is as follows:</p>
+
+
+<pre>&lt;?xml-stylesheet href="<a href="style.css">style.css</a>" type="text/css"?&gt;
+&lt;svg onload="init()" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"&gt;<!--    &lt;style type="text/css"&gt; @import url("<a href="style.css">style.css</a>"); &lt;/style&gt;-->
+    &lt;script type="text/ecmascript" xlink:href="<a href="code.js">code.js</a>"/&gt;<!--&lt;/script&gt;-->
+
+    &lt;g&gt;&lt;!-- root node --&gt;
+        &lt;text&gt;nodeLabel&lt;/text&gt;
+        &lt;line/&gt;
+        &lt;g&gt;&lt;!-- parent node --&gt;
+            &lt;text&gt;childNodeLabel&lt;/text&gt;
+            &lt;line/&gt;
+            &lt;g&gt;
+                &lt;!-- more text and line elements with an 
+                optional g element for more children --&gt;
+            &lt;/g&gt;
+        &lt;/g&gt;
+        &lt;g&gt;&lt;!-- leaf node --&gt;
+            &lt;text&gt;leafNodeLabel&lt;/text&gt;
+            &lt;line/&gt;
+        &lt;/g&gt;
+        &lt;!-- more siblings (more g elements) --&gt;
+    &lt;/g&gt;
+&lt;/svg&gt;</pre>
+
+		<p>Each node consists of a <code>g</code> element, with child <code>text</code> and <code>line</code> elements 
+		and then a variable number of additional <code>g</code> elements in the same format: a recursive definition.
+		Note that the leaf nodes must not have <code>g</code> elements because they are only for containing children, and leaf nodes have no children.</p>
+		<p><img src="adobe_context-menu.png" style="float:right; margin-left:5px; margin-bottom:5px" alt="Adobe SVG Viewer context menu" />
+		There are two known ways to rasterize SVG images. The first is with the <a href="http://www.adobe.com/svg/overview/whatsnew.html">Adobe SVG Viewer</a>; when viewing
+		the SVG image, open the context menu and select "Copy SVG". Thereafter, open a 
+		photo editing application and paste the image into a new document. The second way is to use Apache's <a href="http://xml.apache.org/batik/svgrasterizer.html">Batik Rasterizer</a>;
+		the following command can be used to rasterize an image using Batik:</p>
+		
+		<pre>java -jar batik-rasterizer.jar -onload <span style="color:red">tree.svg</span></pre>
+		
+		<p>The code is released under the <a href="http://www.gnu.org/copyleft/gpl.html"><acronym title="General Public License">GPL</acronym></a>. 
+		Adapt one of XSLT stylesheets in order to 
+		convert your source XML document into the SVG element structure specified above.</p>
+		
+		<h2 style="margin-bottom:0;">Resources</h2>
+		<ul>
+			<li><a href="http://www.w3.org/Graphics/SVG/">Scalar Vector Graphics</a>, the official website by the W3C</li>
+			<li><a href="http://www.w3.org/Style/XSL/">Extensible Stylesheet Language Family</a>, specifications for XSLT and related standards</li>
+			<li><a href="http://www.adobe.com/svg/">Adobe SVG Zone</a>, home of Adobe's SVG Viewer</li>
+			<li><a href="http://xml.apache.org/batik/">Apache Batik</a>, Java-based SVG toolkit; includes an SVG <a href="http://xml.apache.org/batik/svgrasterizer.html">rasterizer</a></li>
+			<li><a href="http://www.xml.com/pub/a/2004/09/08/tree.html">Automated Tree Drawing: XSLT and SVG</a>, a static alternative to my solution</li>
+			<li><a href="http://en.wikipedia.org/wiki/Syntax">Syntax</a>, article on Wikipedia</li>
+		</ul>
+		
+		<hr>
+		<footer>
+			<address><a href="http://weston.ruter.net/">Weston Ruter</a></address> GPL 
+			<time>2004</time>
+		</footer>
+	</body>
+</html>
