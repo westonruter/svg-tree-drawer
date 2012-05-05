@@ -17,7 +17,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@todo: We shouldn't include CSS in here? Provide param to omit. Better to include external file?
 -->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -238,12 +237,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</xsl:template>
 	
 	
-	<!-- defeasible attributes -->
-	<xsl:template match="@defeasible[parent::hpsg:*]">
-		<mo class="defeasible">/</mo>
-	</xsl:template>
-	
-	
 	<!-- Attribute-Value Matrix -->
 	<xsl:template match="hpsg:avm" >
 		<mrow>
@@ -310,11 +303,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 							<xsl:apply-templates select="@type" />
 						</xsl:otherwise>
 					</xsl:choose>
-				</xsl:when>
-				
-				
-				<xsl:when test="hpsg:tag">
-					<xsl:apply-templates select="hpsg:tag" />
 				</xsl:when>
 				
 				
@@ -414,13 +402,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<xsl:if test="@tag">tagged tag-<xsl:value-of select="@tag" /></xsl:if>
 				</xsl:attribute>
 				<mrow>
-					<!-- @todo:
-					How do we capture the difference between @A and @A<>?
-					both are represented as <list tag="A" />
-					-->
-					<xsl:apply-templates select="@tag" /><!-- @todo -->
+					<xsl:apply-templates select="@tag" />
 					<xsl:apply-templates select="@index" />
-					<xsl:apply-templates select="@defeasible" />
 					
 					<xsl:choose>
 						<xsl:when test="not(./*)">
@@ -508,7 +491,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- optional -->
 	<xsl:template match="hpsg:optional" >
-		<xsl:apply-templates select="@tag or hpsg:tag" />
+		<xsl:apply-templates select="@tag" />
 		<mfenced open='&#xFD3E;' close='&#xFD3F;' separators="|">
 			<!--<mrow>-->
 				<xsl:apply-templates select="*" />
