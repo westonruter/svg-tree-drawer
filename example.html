@@ -49,6 +49,11 @@
         
         <p><em>For a more sophisticated example, see an <a href="syntax-diagrammer/example-tree-with-avms.xhtml">example tree with <abbr title="Attribute Value Matricies">AVMs</abbr></a> (note served as <code>application/xhtml+xml</code> with inline MathML).</em></p>
         
+        <p>
+            <button onclick="tree.root.extended = !tree.root.extended; tree.draw();">Toggle Extend</button>
+            <button onclick="tree.root.collapsed = !tree.root.collapsed; tree.draw();">Toggle Collapsed</button>
+        </p>
+        
         <p id="tree">The boy plays with the ball.</p>
         <script>
         var tree = new TreeDrawer(
@@ -85,11 +90,7 @@
         tree.draw();
         </script>
         
-        <p>
-            <button onclick="tree.root.extended = !tree.root.extended; tree.draw();">Toggle Extend</button>
-            <button onclick="tree.root.collapsed = !tree.root.collapsed; tree.draw();">Toggle Collapsed</button>
-        </p>
-        
+        <hr>
         <footer>
             <address><a href="http://weston.ruter.net/" rel=author>Weston Ruter</a></address>
             <time pubdate>2010-09-03</time>
