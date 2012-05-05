@@ -6,16 +6,7 @@
 		<meta http-equiv="X-UA-Compatible" content="chrome=1" />
 		<title>Example Phrase Structure Tree with AVMs</title>
 		
-		<script>
-		if(!window.console){
-			var console = {
-				info:function(){},
-				error:function(){},
-				warn:function(){}
-			}
-		}
-		</script>
-		<script src="../svg-tree-drawer.js?2"></script>
+		<script src="../svg-tree-drawer.js"></script>
 		<style>
 		svg foreignObject > *,
 		svg text {
@@ -91,7 +82,7 @@
 		<p>
 			<button id="toggleColorsBtn" class="on">Turn Colors On</button>
 			<small><samp>Click</samp> on a node to collapse/expand it into a triangle.</small>
-			<small><samp>Click+Click</samp> on a node whose children don't have even heights and they will extend down to be the same level.</small>
+			<small><samp>Shift+Click</samp> on a node whose children don't have even heights and they will extend down to be the same level.</small>
 		</p>
 		
 		<p id="treeTheySeemedCloseToMe"><em>Tree for “The seemed close to me.” goes here… if it doesn't load, you're probably not using Firefox 3+!</em></p>
@@ -299,24 +290,13 @@
 					]}
 				]}
 			);
-			//tree.addFilter('label', function(label, treeNode){
-			//	if(typeof label == 'string'){
-			//		label = label.replace(/seemed/, 'appeared');
-			//	}
-			//	return label;
-			//});
-			
-			
-			//tree.draw(); //refresh
 			
 			document.getElementsByTagName('svg')[0].addEventListener('click', function(e){
-				try {
 				var g = e.target;
-				//console.warn(g)
 				while(g && g.nodeName.toLowerCase() != 'g'){
 					g = g.parentNode;
 				}
-				if(g && g.svgTreeDrawerNode){
+				if(g && g.svgTreeDrawerNode && g.className.baseVal.indexOf('leaf') === -1){
 					
 					if(!e.shiftKey){
 						g.svgTreeDrawerNode.collapsed = !g.svgTreeDrawerNode.collapsed;
@@ -326,33 +306,9 @@
 					}
 					tree.draw();
 				}
-				}
-				catch(e){
-					//alert(e + "at " + e.lineNumber)
-					alert(JSON.stringify(e));
-				}
-				
-				//console.info(this)
 			}, false);
 			
-			
-			
 			tree.draw();
-			//window.setTimeout(function(){
-			//	for each(fo in document.querySelectorAll('foreignObject')){
-			//		if(fo.setAttribute){
-			//			fo.setAttribute('width', 1);
-			//			fo.setAttribute('height', 1);
-			//			labelRect = TreeDrawer._getElementDimensions(fo.firstChild);
-			//			fo.setAttribute('width', labelRect.width);
-			//			fo.setAttribute('height', labelRect.height);
-			//		}
-			//	}
-			//	window.setTimeout(function(){
-			//		tree.draw(true);
-			//	}, 500);
-			//	//alert(document.querySelectorAll('foreignObject > div').getBoundingClientRect().width)
-			//}, 100);
 		}, false);
 		
 		//]]>
