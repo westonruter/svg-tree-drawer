@@ -10,8 +10,8 @@
 
 <p>The following screenshots link to interactive SVG images of the examples:</p>
 
-<h3><a href="http://westonruter.github.com/svg-tree-drawer/">Simple tree: “The boy plays with the ball.”</a></h3>
-<p><a href="http://westonruter.github.com/svg-tree-drawer/"><img src="http://westonruter.github.com/svg-tree-drawer/example.png" alt="Tree of “The boy plays with the ball.”"></a></p>
+<h3><a href="http://westonruter.github.com/svg-tree-drawer/example.html">Simple tree: “The boy plays with the ball.”</a></h3>
+<p><a href="http://westonruter.github.com/svg-tree-drawer/example.html"><img src="http://westonruter.github.com/svg-tree-drawer/example.png" alt="Tree of “The boy plays with the ball.”"></a></p>
 
 <h3><a href="http://westonruter.github.com/svg-tree-drawer/syntax-diagrammer/example-tree-with-avms.xhtml">Tree with AVMs: “They seemed close to me.”</a></h3>
 <p><a href="http://westonruter.github.com/svg-tree-drawer/syntax-diagrammer/example-tree-with-avms.xhtml"><img src="http://westonruter.github.com/svg-tree-drawer/syntax-diagrammer/example-tree-with-avms.png" alt="Parse tree with AVMs for “They seemed close to me.”"></a></p>
