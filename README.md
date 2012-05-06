@@ -18,4 +18,4 @@
 
 <h2>Credits</h2>
 
-<p>Developed by <a href="https://plus.google.com/113853198722136596993" rel="author">Weston Ruter</a> (<a href="https://twitter.com/westonruter">@westonruter</a>). Code licensed <a href="http://www.gnu.org/licenses/gpl.html" rel="license">GPL</a></p>
+<p>Developed by <a href="http://westonruter.github.com/" rel="author">Weston Ruter</a> (<a href="https://twitter.com/westonruter">@westonruter</a>). Code licensed <a href="http://www.gnu.org/licenses/gpl.html" rel="license">GPL</a></p>
